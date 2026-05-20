@@ -1,0 +1,27 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools %}
+
+<div style="margin-bottom:20px;">
+
+    <a
+        href="upload-students/"
+        style="
+            background:#417690;
+            color:white;
+            padding:10px 18px;
+            border-radius:6px;
+            text-decoration:none;
+            font-weight:bold;
+        "
+    >
+
+        Upload Students Excel
+
+    </a>
+
+</div>
+
+{{ block.super }}
+
+{% endblock %}

@@ -1,0 +1,331 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% load static %}
+
+{% block title %}
+Students Management
+{% endblock %}
+
+{% block page_title %}
+Students Management
+{% endblock %}
+
+{% block content %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'accounts/css/students_list.css' %}"
+>
+
+<div class="students-page">
+
+    <!-- HERO -->
+
+    <div class="hero-section">
+
+        <div>
+
+            <div class="hero-badge">
+
+                STUDENTS PORTAL
+
+            </div>
+
+            <h1 class="hero-title">
+
+                Students Management
+
+            </h1>
+
+            <p class="hero-subtitle">
+
+                Manage students department wise.
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- TOP CONTROLS -->
+
+    <div class="top-controls">
+
+        <!-- SEARCH -->
+
+        <form
+            method="GET"
+            class="search-form"
+        >
+
+            <div class="search-box">
+
+                <i class="bi bi-search"></i>
+
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search students..."
+                    value="{{ request.GET.search }}"
+                >
+
+            </div>
+
+        </form>
+
+        <!-- ADD BUTTON -->
+
+        <a
+            href="/accounts/add-student/"
+            class="add-btn"
+        >
+
+            <i class="bi bi-plus-circle-fill"></i>
+
+            Add Student
+
+        </a>
+
+    </div>
+
+    <!-- DEPARTMENTS -->
+
+    {% for department, sections in grouped_data.items %}
+
+    <div class="department-card">
+
+        <!-- DEPARTMENT HEADER -->
+
+        <div
+            class="department-header"
+            onclick="toggleDepartment('dept{{ forloop.counter }}')"
+        >
+
+            <div>
+
+                <div class="department-title">
+
+                    {{ department }}
+
+                </div>
+
+                <div class="department-subtitle">
+
+                    Click to view sections
+
+                </div>
+
+            </div>
+
+            <div class="department-arrow">
+
+                <i class="bi bi-chevron-down"></i>
+
+            </div>
+
+        </div>
+
+        <!-- SECTION WRAPPER -->
+
+        <div
+            class="sections-wrapper"
+            id="dept{{ forloop.counter }}"
+        >
+
+            {% for section, students in sections.items %}
+
+            <!-- SECTION CARD -->
+
+            <div class="section-card">
+
+                <!-- SECTION HEADER -->
+
+                <div
+                    class="section-header"
+                    onclick="toggleSection('section{{ forloop.parentloop.counter }}{{ forloop.counter }}')"
+                >
+
+                    <div>
+
+                        <div class="section-title">
+
+                            {{ section }}
+
+                        </div>
+
+                        <div class="section-count">
+
+                            {{ students|length }} Students
+
+                        </div>
+
+                    </div>
+
+                    <div class="section-arrow">
+
+                        <i class="bi bi-chevron-down"></i>
+
+                    </div>
+
+                </div>
+
+                <!-- STUDENTS GRID -->
+
+                <div
+    class="students-grid"
+    id="section{{ forloop.parentloop.counter }}{{ forloop.counter }}"
+>
+
+    {% if students %}
+
+    <div class="table-responsive">
+
+        <table class="students-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Student</th>
+
+                    <th>Roll Number</th>
+
+                    <th>Semester</th>
+
+                    <th>Phone</th>
+
+                    <th>Department</th>
+
+                    <th>Section</th>
+
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for student in students %}
+
+                <tr>
+
+                    <td>
+
+                        <div class="student-info">
+
+                            <div class="student-avatar">
+
+                                {{ student.user.first_name|slice:":1" }}
+
+                            </div>
+
+                            <div>
+
+                                <div class="student-name">
+
+                                    {{ student.user.first_name }}
+
+                                    {{ student.user.last_name }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                    <td>
+
+                        {{ student.roll_number }}
+
+                    </td>
+
+                    <td>
+
+                        {{ student.semester }}
+
+                    </td>
+
+                    <td>
+
+                        {{ student.phone_number }}
+
+                    </td>
+
+                    <td>
+
+                        {{ student.department.name }}
+
+                    </td>
+
+                    <td>
+
+                        {{ student.section.name }}
+
+                    </td>
+
+                    <td class="actions-cell">
+
+                        <a
+                            href="{% url 'edit_student' student.id %}"
+                            class="edit-btn"
+                        >
+                            Edit
+                        </a>
+
+                        <a
+                            href="{% url 'delete_student' student.id %}"
+                            class="delete-btn"
+                        >
+                            Delete
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-box">
+
+        No Students Found
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="empty-main">
+
+        No Departments Found
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<script src="{% static 'accounts/js/students_list.js' %}"></script>
+
+{% endblock %}

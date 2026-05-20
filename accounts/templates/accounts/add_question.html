@@ -1,0 +1,446 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% block title %}
+
+Add Question
+
+{% endblock %}
+
+{% block page_title %}
+
+Add Question
+
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .question-card{
+
+        max-width:850px;
+
+        margin:auto;
+
+        background:white;
+
+        border-radius:32px;
+
+        padding:40px;
+
+        box-shadow:
+            0 10px 30px rgba(15,23,42,0.05);
+    }
+
+    .question-title{
+
+        font-size:36px;
+
+        font-weight:800;
+
+        color:#0f172a;
+
+        margin-bottom:10px;
+    }
+
+    .question-sub{
+
+        color:#64748b;
+
+        margin-bottom:35px;
+    }
+
+    .form-label{
+
+        font-weight:700;
+
+        margin-bottom:10px;
+
+        color:#0f172a;
+    }
+
+    .form-control,
+    .form-select{
+
+        height:56px;
+
+        border-radius:18px;
+
+        border:1px solid #dbeafe;
+
+        padding-left:18px;
+
+        box-shadow:none;
+    }
+
+    .form-control:focus,
+    .form-select:focus{
+
+        border-color:#2563eb;
+
+        box-shadow:none;
+    }
+
+    textarea.form-control{
+
+        min-height:130px;
+
+        padding-top:16px;
+    }
+
+    .switch-box{
+
+        background:#f8fafc;
+
+        border-radius:20px;
+
+        padding:20px;
+    }
+
+    .submit-btn{
+
+        height:58px;
+
+        border:none;
+
+        border-radius:18px;
+
+        padding:0 28px;
+
+        font-size:18px;
+
+        font-weight:700;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color:white;
+
+        transition:0.3s;
+    }
+
+    .submit-btn:hover{
+
+        transform:translateY(-2px);
+    }
+
+    @media(max-width:768px){
+
+        .question-card{
+
+            padding:28px;
+        }
+
+        .question-title{
+
+            font-size:28px;
+        }
+    }
+
+</style>
+
+<div class="question-card">
+
+    <div class="question-title">
+
+        Add Question
+
+    </div>
+
+    <div class="question-sub">
+
+        Create a new dynamic form question.
+
+    </div>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <!-- QUESTION -->
+
+        <div class="mb-4">
+
+            <label class="form-label">
+
+                Question
+
+            </label>
+
+            <input
+                type="text"
+                name="question"
+                class="form-control"
+                placeholder="Enter question"
+                required
+            >
+
+        </div>
+
+        <!-- FIELD TYPE -->
+
+        <div class="mb-4">
+
+            <label class="form-label">
+
+                Field Type
+
+            </label>
+
+            <select
+                name="field_type"
+                class="form-select"
+                id="fieldType"
+                required
+            >
+
+                <option value="text">
+
+                    Text
+
+                </option>
+
+                <option value="textarea">
+
+                    Textarea
+
+                </option>
+
+                <option value="email">
+
+                    Email
+
+                </option>
+
+                <option value="number">
+
+                    Number
+
+                </option>
+
+                <option value="date">
+
+                    Date
+
+                </option>
+
+                <option value="radio">
+
+                    Radio Button
+
+                </option>
+
+                <option value="checkbox">
+
+                    Checkbox
+
+                </option>
+
+                <option value="select">
+
+                    Dropdown Select
+
+                </option>
+                <option value="rating">
+
+    Rating (1-5 Stars)
+
+</option>
+
+            </select>
+
+        </div>
+
+        <!-- OPTIONS -->
+
+        <!-- OPTIONS -->
+
+<div
+    class="mb-4 d-none"
+    id="optionsBox"
+>
+
+    <label class="form-label">
+
+        Options
+
+    </label>
+
+    <!-- OPTIONS CONTAINER -->
+
+    <div id="optionsContainer">
+
+        <div class="option-row mb-3">
+
+            <input
+                type="text"
+                name="options"
+                class="form-control"
+                placeholder="Enter option"
+            >
+
+        </div>
+
+    </div>
+
+    <!-- ADD BUTTON -->
+
+    <button
+        type="button"
+        class="btn btn-primary mt-2"
+        id="addOptionBtn"
+    >
+
+        + Add Option
+
+    </button>
+
+</div>
+
+        <!-- REQUIRED -->
+
+        <div class="switch-box mb-4">
+
+            <div class="form-check form-switch">
+
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="required"
+                    id="required"
+                >
+
+                <label
+                    class="form-check-label fw-semibold"
+                    for="required"
+                >
+
+                    Required Field
+
+                </label>
+
+            </div>
+
+        </div>
+
+        <!-- SUBMIT -->
+
+        <button
+            type="submit"
+            class="submit-btn"
+        >
+
+            Add Question
+
+        </button>
+
+    </form>
+
+</div>
+
+<!-- SCRIPT -->
+
+<script>
+
+    const fieldType = document.getElementById(
+        'fieldType'
+    );
+
+    const optionsBox = document.getElementById(
+        'optionsBox'
+    );
+
+    const addOptionBtn = document.getElementById(
+        'addOptionBtn'
+    );
+
+    const optionsContainer = document.getElementById(
+        'optionsContainer'
+    );
+
+    // =====================================
+    // SHOW OPTIONS
+    // =====================================
+
+    function toggleOptions(){
+
+        const value = fieldType.value;
+
+        if(
+
+            value === 'radio'
+
+            ||
+
+            value === 'checkbox'
+
+            ||
+
+            value === 'select'
+        
+             ||
+
+    value === 'rating'
+)
+        {
+
+            optionsBox.classList.remove(
+                'd-none'
+            );
+        }
+
+        else{
+
+            optionsBox.classList.add(
+                'd-none'
+            );
+        }
+    }
+
+    fieldType.addEventListener(
+        'change',
+        toggleOptions
+    );
+
+    toggleOptions();
+
+    // =====================================
+    // ADD OPTION INPUT
+    // =====================================
+
+    addOptionBtn.addEventListener(
+        'click',
+
+        function(){
+
+            const div = document.createElement(
+                'div'
+            );
+
+            div.className =
+                'option-row mb-3';
+
+            div.innerHTML = `
+
+                <input
+                    type="text"
+                    name="options"
+                    class="form-control"
+                    placeholder="Enter option"
+                >
+
+            `;
+
+            optionsContainer.appendChild(
+                div
+            );
+        }
+    );
+
+</script>
+
+{% endblock %}

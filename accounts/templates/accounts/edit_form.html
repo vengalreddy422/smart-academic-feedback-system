@@ -1,0 +1,472 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% block title %}
+
+Edit Form
+
+{% endblock %}
+
+{% block page_title %}
+
+Edit Form
+
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+    .edit-card{
+
+        background:white;
+
+        border-radius:32px;
+
+        padding:40px;
+
+        max-width:900px;
+
+        margin:auto;
+
+        box-shadow:
+            0 10px 30px rgba(15,23,42,0.05);
+    }
+
+    .edit-title{
+
+        font-size:36px;
+
+        font-weight:800;
+
+        color:#0f172a;
+
+        margin-bottom:10px;
+    }
+
+    .edit-sub{
+
+        color:#64748b;
+
+        margin-bottom:35px;
+    }
+
+    .form-label{
+
+        font-weight:700;
+
+        margin-bottom:10px;
+
+        color:#0f172a;
+    }
+
+    .form-control,
+    .form-select{
+
+        height:56px;
+
+        border-radius:18px;
+
+        border:1px solid #dbeafe;
+
+        padding-left:18px;
+
+        box-shadow:none;
+    }
+
+    textarea.form-control{
+
+        min-height:140px;
+
+        padding-top:16px;
+    }
+
+    .form-control:focus{
+
+        border-color:#2563eb;
+
+        box-shadow:none;
+    }
+
+    .switch-box{
+
+        background:#f8fafc;
+
+        border-radius:20px;
+
+        padding:20px;
+    }
+
+    .save-btn{
+
+        height:58px;
+
+        border:none;
+
+        border-radius:18px;
+
+        font-size:18px;
+
+        font-weight:700;
+
+        padding:0 30px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color:white;
+
+        transition:0.3s;
+    }
+
+    .save-btn:hover{
+
+        transform:translateY(-2px);
+    }
+
+    .question-card{
+
+        border:1px solid #e2e8f0;
+
+        border-radius:24px;
+
+        padding:24px;
+
+        margin-bottom:24px;
+
+        background:#f8fafc;
+    }
+
+    @media(max-width:768px){
+
+        .edit-card{
+
+            padding:28px;
+        }
+
+        .edit-title{
+
+            font-size:28px;
+        }
+    }
+
+</style>
+
+<div class="edit-card">
+
+    <div class="edit-title">
+
+        Edit Form
+
+    </div>
+
+    <div class="edit-sub">
+
+        Update form details and questions.
+
+    </div>
+
+    <!-- ADD QUESTION BUTTON -->
+
+    <div class="mb-4">
+
+        <a
+            href="{% url 'add_question' form.id %}"
+            class="btn btn-primary rounded-4 px-4 py-3"
+        >
+
+            <i class="bi bi-plus-circle-fill"></i>
+
+            Add Question
+
+        </a>
+
+    </div>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <!-- TITLE -->
+
+        <div class="mb-4">
+
+            <label class="form-label">
+
+                Form Title
+
+            </label>
+
+            <input
+                type="text"
+                name="title"
+                class="form-control"
+                value="{{ form.title }}"
+                required
+            >
+
+        </div>
+
+        <!-- DESCRIPTION -->
+
+        <div class="mb-4">
+
+            <label class="form-label">
+
+                Description
+
+            </label>
+
+            <textarea
+                name="description"
+                class="form-control"
+            >{{ form.description }}</textarea>
+
+        </div>
+
+        <!-- DATES -->
+
+        <div class="row g-4">
+
+            <div class="col-lg-6">
+
+                <label class="form-label">
+
+                    Start Date
+
+                </label>
+
+                <input
+                    type="date"
+                    name="start_date"
+                    class="form-control"
+                    value="{{ form.start_date|date:'Y-m-d' }}"
+                    required
+                >
+
+            </div>
+
+            <div class="col-lg-6">
+
+                <label class="form-label">
+
+                    Expiry Date
+
+                </label>
+
+                <input
+                    type="date"
+                    name="deadline_date"
+                    class="form-control"
+                    value="{{ form.deadline_date|date:'Y-m-d' }}"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+        <!-- ACTIVE -->
+
+        <div class="switch-box mt-4">
+
+            <div class="form-check form-switch">
+
+                <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="is_active"
+                    id="is_active"
+
+                    {% if form.is_active %}
+
+                        checked
+
+                    {% endif %}
+                >
+
+                <label
+                    class="form-check-label fw-semibold"
+                    for="is_active"
+                >
+
+                    Active Form
+
+                </label>
+
+            </div>
+
+        </div>
+
+        <!-- QUESTIONS -->
+
+        <div class="mt-5">
+
+            <h3 class="fw-bold mb-4">
+
+                Form Questions
+
+            </h3>
+
+            {% for question in questions %}
+
+                <div class="question-card">
+
+                    <!-- QUESTION -->
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Question
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="question_{{ question.id }}"
+                            class="form-control"
+                            value="{{ question.question }}"
+                        >
+
+                    </div>
+
+                    <!-- FIELD TYPE -->
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Field Type
+
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="{{ question.field_type }}"
+                            readonly
+                        >
+
+                    </div>
+
+                    <!-- REQUIRED -->
+
+                    <div class="form-check form-switch">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="required_{{ question.id }}"
+                            id="required{{ question.id }}"
+
+                            {% if question.required %}
+
+                                checked
+
+                            {% endif %}
+                        >
+
+                        <label
+                            class="form-check-label"
+                            for="required{{ question.id }}"
+                        >
+
+                            Required Field
+
+                        </label>
+
+                    </div>
+
+                    <!-- OPTIONS -->
+
+            {% if question.field_type == 'radio' or question.field_type == 'checkbox' or question.field_type == 'select' %}
+
+                <div class="mt-4">
+
+                    <label class="form-label fw-bold">
+
+                        Options
+
+                    </label>
+
+                    {% for option in question.question_options.all %}
+
+                        <div class="d-flex gap-2 mb-3">
+
+                            <input
+                                type="text"
+                                name="option_{{ option.id }}"
+                                class="form-control"
+                                value="{{ option.option_text }}"
+                            >
+
+                        </div>
+
+                    {% empty %}
+
+                        <div class="text-muted">
+
+                            No Options Found
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% endif %}
+
+
+                    <!-- DELETE BUTTON -->
+
+                    <a
+                        href="{% url 'delete_question' question.id %}"
+                        class="btn btn-danger mt-4"
+                    >
+
+                        <i class="bi bi-trash-fill"></i>
+
+                        Delete Question
+
+                    </a>
+
+                </div>
+
+            {% empty %}
+
+                <div class="alert alert-light">
+
+                    No Questions Found
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        <!-- SAVE BUTTON -->
+
+        <div class="mt-5">
+
+            <button
+                type="submit"
+                class="save-btn"
+            >
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                Save Changes
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

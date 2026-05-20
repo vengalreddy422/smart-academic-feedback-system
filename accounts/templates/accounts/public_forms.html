@@ -1,0 +1,261 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% load static %}
+
+{% block title %}
+Public Forms
+{% endblock %}
+
+{% block page_title %}
+Public Forms Management
+{% endblock %}
+
+{% block content %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'accounts/css/public_forms.css' %}"
+>
+
+<div class="forms-page">
+
+    <!-- TOP -->
+
+    <div class="top-section">
+
+        <h1>
+            Public Forms Dashboard
+        </h1>
+
+        <p>
+            Manage active, upcoming and expired forms.
+        </p>
+
+    </div>
+
+    <!-- FILTER -->
+<div class="status-filter">
+
+    <button
+        class="status-btn active-filter"
+        onclick="window.location.href='{% url "public_forms" %}'"
+    >
+
+        All Forms
+
+    </button>
+
+    <button
+        class="status-btn"
+        onclick="window.location.href='{% url "public_active_forms" %}'"
+    >
+
+        Active Forms
+
+    </button>
+
+    <button
+        class="status-btn"
+        onclick="window.location.href='{% url "public_future_forms" %}'"
+    >
+
+        Upcoming Forms
+
+    </button>
+
+    <button
+        class="status-btn"
+        onclick="window.location.href='{% url "public_expired_forms" %}'"
+    >
+
+        Expired Forms
+
+    </button>
+
+</div>
+
+    <!-- GRID -->
+
+    <div class="forms-grid">
+
+        {% for item in analytics %}
+
+        <div
+            class="form-card"
+            data-status="{{ item.status }}"
+        >
+
+            <!-- TOP -->
+
+            <div class="card-top">
+
+                <div class="status-badge {{ item.status }}">
+
+                    {{ item.status|title }}
+
+                </div>
+
+                <div class="response-box">
+
+                    <h3>
+                        {{ item.total_responses }}
+                    </h3>
+
+                    <span>
+                        Responses
+                    </span>
+
+                </div>
+
+            </div>
+
+            <!-- TITLE -->
+
+            <h2 class="form-title">
+
+                {{ item.form.title }}
+
+            </h2>
+
+            <!-- DESCRIPTION -->
+
+            <p class="form-description">
+
+                {{ item.form.description }}
+
+            </p>
+
+            <!-- DATES -->
+
+            <div class="date-wrapper">
+
+                <div class="date-card">
+
+                    <small>
+                        Start Date
+                    </small>
+
+                    <strong>
+                        {{ item.form.start_date }}
+                    </strong>
+
+                </div>
+
+                <div class="date-card">
+
+                    <small>
+                        Deadline
+                    </small>
+
+                    <strong>
+                        {{ item.form.deadline_date }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <!-- ACTIONS -->
+
+            <div class="actions-grid">
+
+                <a
+                    href="/forms/public-form/{{ item.form.uuid }}/"
+                    target="_blank"
+                    class="action-btn open-btn"
+                >
+
+                    Open Form
+
+                </a>
+
+                <a
+                    href="/accounts/public-form-qr/{{ item.form.id }}/"
+                    target="_blank"
+                    class="action-btn qr-btn"
+                >
+
+                    QR Code
+
+                </a>
+
+                <a
+                    href="/accounts/public-form-detail/{{ item.form.id }}/"
+                    class="action-btn analytics-btn"
+                >
+
+                    Visualization
+
+                </a>
+
+                <!-- DOWNLOAD -->
+
+                <div class="download-dropdown">
+
+                    <button
+                        class="action-btn download-btn"
+                        onclick="toggleDownload('{{ item.form.id }}')"
+                    >
+
+                        Download
+
+                    </button>
+
+                    <div
+                        class="download-menu"
+                        id="download{{ item.form.id }}"
+                    >
+
+                        <a
+    href="{% url 'public_detailed_pdf' item.form.id %}"
+    class="download-item"
+>
+
+    PDF Report
+
+</a>
+
+                        <a
+                            href="/reports/public/excel/{{ item.form.id }}/"
+                            class="download-item"
+                        >
+
+                            Excel Report
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+                <a
+                    href="{% url 'edit_form' item.form.id %}"
+                    class="action-btn edit-btn"
+                >
+
+                    Edit
+
+                </a>
+
+                <a
+                    href="{% url 'delete_form' item.form.id %}"
+                    class="action-btn delete-btn"
+                >
+
+                    Delete
+
+                </a>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<script src="{% static 'accounts/js/public_forms.js' %}"></script>
+
+{% endblock %}

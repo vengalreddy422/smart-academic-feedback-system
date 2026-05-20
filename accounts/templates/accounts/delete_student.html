@@ -1,0 +1,63 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% block title %}
+Delete Student
+{% endblock %}
+
+{% block page_title %}
+Delete Student
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="card shadow-lg border-0 rounded-4 p-5 text-center">
+
+        <h2 class="fw-bold text-danger mb-4">
+
+            Delete Student
+
+        </h2>
+
+        <p class="fs-5">
+
+            Are you sure you want to delete
+
+            <strong>
+
+                {{ student.user.first_name }}
+
+            </strong> ?
+
+        </p>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <button
+                type="submit"
+                class="btn btn-danger px-5 py-2"
+            >
+
+                Yes Delete
+
+            </button>
+
+            <a
+                href="{% url 'students_list' %}"
+                class="btn btn-secondary px-5 py-2"
+            >
+
+                Cancel
+
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

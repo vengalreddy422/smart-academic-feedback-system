@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+
+        {{ form.title }}
+
+    </title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <style>
+
+        *{
+
+            margin:0;
+
+            padding:0;
+
+            box-sizing:border-box;
+        }
+
+        body{
+
+            background:
+            linear-gradient(
+                135deg,
+                #eef2ff,
+                #f8fafc
+            );
+
+            min-height:100vh;
+
+            font-family:
+            'Segoe UI',
+            sans-serif;
+
+            display:flex;
+
+            justify-content:center;
+
+            align-items:center;
+
+            padding:40px 20px;
+        }
+
+        .main-card{
+
+            width:100%;
+
+            max-width:1150px;
+
+            background:white;
+
+            border-radius:30px;
+
+            overflow:hidden;
+
+            box-shadow:
+            0px 20px 60px rgba(15,23,42,0.12);
+        }
+
+        .left-section{
+
+            background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+            color:white;
+
+            padding:70px 50px;
+
+            height:100%;
+
+            display:flex;
+
+            flex-direction:column;
+
+            justify-content:center;
+        }
+
+        .logo-box{
+
+            width:85px;
+
+            height:85px;
+
+            border-radius:24px;
+
+            background:rgba(255,255,255,0.15);
+
+            display:flex;
+
+            justify-content:center;
+
+            align-items:center;
+
+            margin-bottom:35px;
+        }
+
+        .logo-box i{
+
+            font-size:38px;
+        }
+
+        .left-title{
+
+            font-size:40px;
+
+            font-weight:700;
+
+            line-height:55px;
+
+            margin-bottom:20px;
+        }
+
+        .left-description{
+
+            font-size:17px;
+
+            color:#dbeafe;
+
+            line-height:30px;
+        }
+
+        .feature-list{
+
+            margin-top:50px;
+        }
+
+        .feature-item{
+
+            display:flex;
+
+            align-items:center;
+
+            gap:14px;
+
+            margin-bottom:18px;
+        }
+
+        .feature-icon{
+
+            width:42px;
+
+            height:42px;
+
+            border-radius:12px;
+
+            background:rgba(255,255,255,0.15);
+
+            display:flex;
+
+            justify-content:center;
+
+            align-items:center;
+        }
+
+        .right-section{
+
+            padding:60px 50px;
+        }
+
+        .top-heading{
+
+            font-size:34px;
+
+            font-weight:700;
+
+            color:#0f172a;
+
+            margin-bottom:10px;
+        }
+
+        .top-subtitle{
+
+            color:#64748b;
+
+            margin-bottom:40px;
+        }
+
+        .question-card{
+
+            border:1px solid #e2e8f0;
+
+            border-radius:22px;
+
+            padding:28px;
+
+            margin-bottom:28px;
+
+            transition:0.3s;
+        }
+
+        .question-card:hover{
+
+            border-color:#2563eb;
+
+            box-shadow:
+            0px 10px 25px rgba(37,99,235,0.08);
+        }
+
+        .form-label{
+
+            font-weight:700;
+
+            margin-bottom:12px;
+
+            color:#0f172a;
+        }
+
+        .form-control,
+        .form-select{
+
+            height:54px;
+
+            border-radius:16px;
+
+            border:1px solid #cbd5e1;
+
+            padding-left:18px;
+
+            font-size:15px;
+
+            box-shadow:none;
+        }
+
+        textarea.form-control{
+
+            height:auto;
+        }
+
+        .form-control:focus,
+        .form-select:focus{
+
+            border-color:#2563eb;
+
+            box-shadow:
+            0px 0px 0px 4px rgba(37,99,235,0.1);
+        }
+
+        .option-card{
+
+            border:1px solid #dbe2ea;
+
+            border-radius:16px;
+
+            padding:14px 18px;
+
+            margin-bottom:14px;
+
+            background:#f8fafc;
+
+            transition:0.3s;
+        }
+
+        .option-card:hover{
+
+            background:#eff6ff;
+
+            border-color:#2563eb;
+        }
+
+        .form-check-label{
+
+            margin-left:8px;
+
+            font-weight:500;
+        }
+
+        .error-message{
+
+            color:#dc2626;
+
+            font-size:14px;
+
+            margin-top:8px;
+
+            display:none;
+        }
+
+        .submit-btn{
+
+            width:100%;
+
+            height:58px;
+
+            border:none;
+
+            border-radius:18px;
+
+            background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #3b82f6
+            );
+
+            color:white;
+
+            font-size:18px;
+
+            font-weight:700;
+
+            transition:0.3s;
+        }
+
+        .submit-btn:hover{
+
+            transform:translateY(-2px);
+
+            box-shadow:
+            0px 15px 30px rgba(37,99,235,0.3);
+        }
+
+        @media(max-width:991px){
+
+            .left-section{
+
+                padding:45px 30px;
+            }
+
+            .right-section{
+
+                padding:40px 25px;
+            }
+
+            .left-title{
+
+                font-size:32px;
+
+                line-height:45px;
+            }
+
+            .top-heading{
+
+                font-size:28px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="main-card">
+
+    <div class="row g-0">
+
+        <div class="col-lg-5">
+
+            <div class="left-section">
+
+                <div class="logo-box">
+
+                    <i class="fa-solid fa-file-lines"></i>
+
+                </div>
+
+                
+
+                <div class="left-title">
+
+                    {{ form.title }}
+
+                </div>
+
+                <div class="left-description">
+
+                    {{ form.description }}
+
+                </div>
+
+                <div class="feature-list">
+
+                    <div class="feature-item">
+
+                        <div class="feature-icon">
+
+                            <i class="fa-solid fa-mobile-screen"></i>
+
+                        </div>
+
+                        Mobile Friendly Form
+
+                    </div>
+
+                    <div class="feature-item">
+
+                        <div class="feature-icon">
+
+                            <i class="fa-solid fa-shield"></i>
+
+                        </div>
+
+                        Secure Submission
+
+                    </div>
+
+                    <div class="feature-item">
+
+                        <div class="feature-icon">
+
+                            <i class="fa-solid fa-chart-line"></i>
+
+                        </div>
+
+                        Real-Time Analytics
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-7">
+
+            <div class="right-section">
+
+                <div class="top-heading">
+
+                    Fill The Form
+
+                </div>
+
+                <div class="top-subtitle">
+
+                    Complete all required information carefully.
+
+                </div>
+
+                <form
+                    method="POST"
+                    id="dynamicForm"
+                >
+
+                    {% csrf_token %}
+
+                    {% for question in questions %}
+
+                        <div class="question-card">
+
+                            <label class="form-label">
+
+                                {{ question.question }}
+
+                            </label>
+{% if question.field_type == 'text' %}
+
+    <input
+        type="text"
+        class="form-control text-input"
+        name="{{ question.id }}"
+        data-question="{{ question.question|lower }}"
+        required="{{ question.required }}"
+    >
+
+    <div class="error-message text-error">
+
+        Invalid Input
+
+    </div>
+
+                            {% elif question.field_type == 'email' %}
+
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    name="{{ question.id }}"
+                                    required="{{ question.required }}"
+                                >
+
+                                <div class="error-message">
+
+                                    Please enter valid email address
+
+                                </div>
+
+                            {% elif question.field_type == 'number' %}
+
+                                <input
+                                    type="tel"
+                                    class="form-control phone-input"
+                                    name="{{ question.id }}"
+                                    maxlength="10"
+                                    pattern="[0-9]{10}"
+                                    required="{{ question.required }}"
+                                >
+
+                                <div class="error-message phone-error">
+
+                                    Enter valid phone number
+
+                                </div>
+
+                {% elif question.field_type == 'date' %}
+
+        <input
+            type="date"
+            class="form-control dob-input"
+            name="{{ question.id }}"
+            required="{{ question.required }}"
+        >
+
+        <div class="error-message dob-error">
+
+            Please enter valid date of birth
+
+        </div>
+
+                            {% elif question.field_type == 'textarea' %}
+
+                                <textarea
+                                    class="form-control"
+                                    rows="4"
+                                    name="{{ question.id }}"
+                                    required="{{ question.required }}"
+                                ></textarea>
+
+                                {% elif question.field_type == 'select' %}
+                                <select
+                                    class="form-select"
+                                    name="{{ question.id }}"
+                                    required="{{ question.required }}"
+                                >
+
+                                    <option value="">
+
+                                        Select Option
+
+                                    </option>
+
+                                    {% for opt in question.options_list %}
+
+                                        <option value="{{ opt.option_text }}">
+
+                                            {{ opt.option_text }}
+
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            {% elif question.field_type == 'checkbox' %}
+
+                                {% for opt in question.options_list %}
+
+                                    <div class="option-card">
+
+                                        <div class="form-check">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                name="{{ question.id }}"
+                                                value="{{ opt.option_text }}"
+                                                id="c{{ question.id }}{{ forloop.counter }}"
+                                            >
+
+                                            <label
+                                                class="form-check-label"
+                                                for="c{{ question.id }}{{ forloop.counter }}"
+                                            >
+
+                                                {{ opt.option_text }}
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                {% endfor %}
+
+                            {% elif question.field_type == 'radio' %}
+
+                                {% for opt in question.options_list %}
+
+                                    <div class="option-card">
+
+                                        <div class="form-check">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="radio"
+                                                name="{{ question.id }}"
+                                                value="{{ opt.option_text }}"
+                                                id="r{{ question.id }}{{ forloop.counter }}"
+                                            >
+
+                                            <label
+                                                class="form-check-label"
+                                                for="r{{ question.id }}{{ forloop.counter }}"
+                                            >
+
+                                                {{ opt.option_text }}
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                {% endfor %}
+
+                            {% elif question.field_type == 'rating' %}
+
+                                <select
+                                    class="form-select"
+                                    name="{{ question.id }}"
+                                >
+
+                                    <option value="">
+
+                                        Select Rating
+
+                                    </option>
+
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+
+                                </select>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endfor %}
+
+                    <button
+                        type="submit"
+                        class="submit-btn"
+                    >
+
+                        <i class="fa-solid fa-paper-plane me-2"></i>
+
+                        Submit Form
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+    const form =
+        document.getElementById(
+            'dynamicForm'
+        );
+
+    form.addEventListener(
+
+        'submit',
+
+        function(event){
+
+            let valid = true;
+
+            // ==========================================
+            // PHONE VALIDATION
+            // ==========================================
+
+            const phoneInputs =
+                document.querySelectorAll(
+                    '.phone-input'
+                );
+
+            phoneInputs.forEach(
+
+                function(input){
+
+                    const value =
+                        input.value.trim();
+
+                    const error =
+                        input.parentElement.querySelector(
+                            '.phone-error'
+                        );
+
+                    const allSame =
+                        /^(\d)\1+$/.test(value);
+
+                    if(
+
+                        value.length !== 10
+
+                        ||
+
+                        !/^\d+$/.test(value)
+
+                        ||
+
+                        allSame
+                    ){
+
+                        valid = false;
+
+                        error.style.display =
+                            'block';
+                    }
+
+                    else{
+
+                        error.style.display =
+                            'none';
+                    }
+                }
+            );
+
+            // ==========================================
+            // TEXT FIELD VALIDATION
+            // ==========================================
+
+            const textInputs =
+                document.querySelectorAll(
+                    '.text-input'
+                );
+
+            textInputs.forEach(
+
+                function(input){
+
+                    const value =
+                        input.value.trim();
+
+                    const question =
+                        input.dataset.question
+                        .toLowerCase();
+
+                    const error =
+                        input.parentElement.querySelector(
+                            '.text-error'
+                        );
+
+                    let validText = true;
+
+                    // ==================================
+                    // COLLEGE NAME
+                    // ==================================
+
+                    if(
+
+                        question.includes(
+                            'college'
+                        )
+                    ){
+
+                        validText =
+                            /^[A-Za-z ]+$/.test(
+                                value
+                            );
+
+                        error.innerText =
+                            'College name must contain only letters';
+                    }
+
+                    // ==================================
+                    // BRANCH / DEPARTMENT
+                    // ==================================
+
+                    else if(
+
+                        question.includes(
+                            'branch'
+                        )
+
+                        ||
+
+                        question.includes(
+                            'department'
+                        )
+                    ){
+
+                        validText =
+                            /^[A-Za-z ]+$/.test(
+                                value
+                            );
+
+                        error.innerText =
+                            'Branch must contain only letters';
+                    }
+
+                    // ==================================
+                    // NAME
+                    // ==================================
+
+                    else if(
+
+                        question.includes(
+                            'name'
+                        )
+                    ){
+
+                        validText =
+                            /^[A-Za-z ]+$/.test(
+                                value
+                            );
+
+                        error.innerText =
+                            'Name must contain only letters';
+                    }
+
+                    // ==================================
+                    // SHOW ERROR
+                    // ==================================
+
+                    if(!validText){
+
+                        valid = false;
+
+                        error.style.display =
+                            'block';
+                    }
+
+                    else{
+
+                        error.style.display =
+                            'none';
+                    }
+                }
+            );
+
+            // ==========================================
+            // DOB VALIDATION
+            // ==========================================
+
+            const dobInputs =
+                document.querySelectorAll(
+                    '.dob-input'
+                );
+
+            dobInputs.forEach(
+
+                function(input){
+
+                    const value =
+                        input.value;
+
+                    const error =
+                        input.parentElement.querySelector(
+                            '.dob-error'
+                        );
+
+                    if(value){
+
+                        const selectedDate =
+                            new Date(value);
+
+                        const today =
+                            new Date();
+
+                        if(
+
+                            selectedDate >= today
+                        ){
+
+                            valid = false;
+
+                            error.style.display =
+                                'block';
+                        }
+
+                        else{
+
+                            error.style.display =
+                                'none';
+                        }
+                    }
+                }
+            );
+
+            // ==========================================
+            // STOP FORM SUBMIT
+            // ==========================================
+
+            if(!valid){
+
+                event.preventDefault();
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+
+</html>

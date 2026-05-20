@@ -1,0 +1,213 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% block title %}
+
+Public Form Users
+
+{% endblock %}
+
+{% block page_title %}
+
+Public Form Users
+
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+    body{
+
+        background:#f8fafc;
+    }
+
+    .top-card{
+
+        background:white;
+
+        border-radius:30px;
+
+        padding:35px;
+
+        margin-bottom:35px;
+
+        box-shadow:
+            0 10px 25px rgba(15,23,42,0.05);
+    }
+
+    .title{
+
+        font-size:38px;
+
+        font-weight:800;
+
+        color:#0f172a;
+    }
+
+    .table-card{
+
+        background:white;
+
+        border-radius:28px;
+
+        overflow:hidden;
+
+        box-shadow:
+            0 10px 25px rgba(15,23,42,0.05);
+    }
+
+    .table th{
+
+        background:#0f172a;
+
+        color:white;
+
+        border:none;
+
+        padding:18px;
+    }
+
+    .table td{
+
+        padding:18px;
+    }
+
+    .count-card{
+
+        background:white;
+
+        border-radius:28px;
+
+        padding:40px;
+
+        text-align:center;
+
+        box-shadow:
+            0 10px 25px rgba(15,23,42,0.05);
+    }
+
+    .count-number{
+
+        font-size:70px;
+
+        font-weight:800;
+
+        color:#2563eb;
+    }
+
+    .count-title{
+
+        margin-top:10px;
+
+        color:#64748b;
+
+        font-size:18px;
+    }
+
+</style>
+
+<div class="top-card">
+
+    <div class="title">
+
+        {{ form.title }}
+
+    </div>
+
+</div>
+
+{% if is_anonymous %}
+
+<div class="count-card">
+
+    <div class="count-number">
+
+        {{ total_responses }}
+
+    </div>
+
+    <div class="count-title">
+
+        Total Anonymous Responses
+
+    </div>
+
+</div>
+
+{% else %}
+
+<div class="table-card">
+
+    <div class="table-responsive">
+
+        <table class="table mb-0">
+
+            <thead>
+
+                <tr>
+
+                    {% for question in questions %}
+
+                    <th>
+
+                        {{ question.question }}
+
+                    </th>
+
+                    {% endfor %}
+
+                    <th>
+
+                        Submitted At
+
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for response in responses %}
+
+                <tr>
+
+                    {% for question in questions %}
+
+                    <td>
+
+                        {% for answer in response.publicformanswer_set.all %}
+
+                            {% if answer.question.id == question.id %}
+
+                                {{ answer.answer }}
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                    </td>
+
+                    {% endfor %}
+
+                    <td>
+
+                        {{ response.submitted_at }}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

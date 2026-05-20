@@ -1,0 +1,652 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+
+        Student Dashboard
+
+    </title>
+
+    <!-- Bootstrap -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="{% static 'accounts/css/student_dashboard.css' %}"
+    >
+
+</head>
+
+<body>
+
+<div class="dashboard-layout">
+
+    <!-- =========================================
+         SIDEBAR
+    ========================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-logo">
+
+            FEED<span>VIEW</span>
+
+        </div>
+
+        <ul class="sidebar-menu">
+
+            <li>
+
+                <a href="{% url 'student_dashboard' %}">
+
+                    <i class="bi bi-grid"></i>
+
+                    Dashboard
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="{% url 'pending_forms' %}">
+
+                    <i class="bi bi-file-earmark-text"></i>
+
+                    Pending Forms
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="{% url 'completed_forms' %}">
+
+                    <i class="bi bi-check-circle"></i>
+
+                    Completed Forms
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="{% url 'upcoming_forms' %}">
+
+                    <i class="bi bi-calendar-event"></i>
+
+                    Upcoming Forms
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="{% url 'expired_forms' %}">
+
+                    <i class="bi bi-x-circle"></i>
+
+                    Expired Forms
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="{% url 'password_change' %}">
+
+                    <i class="bi bi-shield-lock"></i>
+
+                    Change Password
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="{% url 'logout' %}">
+
+                    <i class="bi bi-box-arrow-right"></i>
+
+                    Logout
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- =========================================
+         MAIN CONTENT
+    ========================================== -->
+
+    <main class="main-content">
+
+        <!-- MOBILE TOPBAR -->
+
+        <div class="mobile-topbar">
+
+            <button
+                class="menu-toggle"
+                onclick="toggleSidebar()"
+            >
+
+                <i class="bi bi-list"></i>
+
+            </button>
+
+            <div class="logo">
+
+                FEED<span>VIEW</span>
+
+            </div>
+
+        </div>
+
+        <!-- =========================================
+             HERO SECTION
+        ========================================== -->
+
+        <div class="hero-card">
+
+            <h1>
+
+                Welcome Back,
+                {{ request.user.first_name }}
+
+            </h1>
+
+            <p>
+
+                Student Feedback Management Dashboard
+
+            </p>
+
+            <div class="row mt-4">
+
+                <div class="col-lg-3 col-md-6 mb-3">
+
+                    <div class="mini-card">
+
+                        <div class="mini-number">
+
+                            {{ student_profile.roll_number }}
+
+                        </div>
+
+                        <div class="mini-text">
+
+                            Roll Number
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+
+                    <div class="mini-card">
+
+                        <div class="mini-number">
+
+                            {{ student_profile.section }}
+
+                        </div>
+
+                        <div class="mini-text">
+
+                            Section
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+
+                    <div class="mini-card">
+
+                        <div class="mini-number">
+
+                            {{ student_profile.department }}
+
+                        </div>
+
+                        <div class="mini-text">
+
+                            Department
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-3">
+
+                    <div class="mini-card">
+
+                        <div class="mini-number">
+
+                            {{ student_profile.semester }}
+
+                        </div>
+
+                        <div class="mini-text">
+
+                            Semester
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- =========================================
+             ANALYTICS
+        ========================================== -->
+
+        <div class="row g-4 mt-4">
+
+            <!-- TOTAL -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="summary-card blue-card">
+
+                    <div class="summary-title">
+
+                        Total Forms
+
+                    </div>
+
+                    <div class="summary-number">
+
+                        {{ total_forms_count }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- PENDING -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="summary-card orange-card">
+
+                    <div class="summary-title">
+
+                        Pending Forms
+
+                    </div>
+
+                    <div class="summary-number">
+
+                        {{ pending_forms_count }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- COMPLETED -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="summary-card green-card">
+
+                    <div class="summary-title">
+
+                        Completed Forms
+
+                    </div>
+
+                    <div class="summary-number">
+
+                        {{ completed_forms_count }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- EXPIRED -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="summary-card red-card">
+
+                    <div class="summary-title">
+
+                        Expired Forms
+
+                    </div>
+
+                    <div class="summary-number">
+
+                        {{ expired_forms_count }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- =========================================
+             QUICK ACTIONS
+        ========================================== -->
+
+        <h2 class="section-title">
+
+            Quick Actions
+
+        </h2>
+
+        <div class="row g-4 mt-2">
+
+            <!-- PENDING -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <a
+                    href="{% url 'pending_forms' %}"
+                    class="quick-card"
+                >
+
+                    <div
+                        class="quick-icon blue-card"
+                    >
+
+                        <i class="bi bi-file-earmark-text"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h5>
+
+                            Pending Forms
+
+                        </h5>
+
+                        <p>
+
+                            View and submit pending forms
+
+                        </p>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+            <!-- UPCOMING -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <a
+                    href="{% url 'upcoming_forms' %}"
+                    class="quick-card"
+                >
+
+                    <div
+                        class="quick-icon purple-card"
+                    >
+
+                        <i class="bi bi-calendar-event"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h5>
+
+                            Upcoming Forms
+
+                        </h5>
+
+                        <p>
+
+                            Check future available forms
+
+                        </p>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+            <!-- COMPLETED -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <a
+                    href="{% url 'completed_forms' %}"
+                    class="quick-card"
+                >
+
+                    <div
+                        class="quick-icon green-card"
+                    >
+
+                        <i class="bi bi-check-circle"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h5>
+
+                            Completed Forms
+
+                        </h5>
+
+                        <p>
+
+                            View submitted forms history
+
+                        </p>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+            <!-- EXPIRED -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <a
+                    href="{% url 'expired_forms' %}"
+                    class="quick-card"
+                >
+
+                    <div
+                        class="quick-icon expired-icon"
+                    >
+
+                        <i class="bi bi-x-circle"></i>
+
+                    </div>
+
+                    <div>
+
+                        <h5>
+
+                            Expired Forms
+
+                        </h5>
+
+                        <p>
+
+                            View missed feedback forms
+
+                        </p>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- =========================================
+             DASHBOARD INSIGHTS
+        ========================================== -->
+
+        <h2 class="section-title mt-5">
+
+            Dashboard Insights
+
+        </h2>
+
+        <div class="row g-4">
+
+            <!-- LATEST FORM -->
+
+            <div class="col-lg-4">
+
+                <div class="feature-card insight-card">
+
+                    <div class="insight-icon purple-card">
+
+                        <i class="bi bi-file-earmark-text"></i>
+
+                    </div>
+
+                    <h4>
+
+                        Latest Form
+
+                    </h4>
+
+                    <p>
+
+                        Recently added academic feedback
+                        forms will appear here for quick access.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- PROGRESS -->
+
+            <div class="col-lg-4">
+
+                <div class="feature-card insight-card">
+
+                    <div class="insight-icon green-card">
+
+                        <i class="bi bi-bar-chart"></i>
+
+                    </div>
+
+                    <h4>
+
+                        Submission Progress
+
+                    </h4>
+
+                    <p>
+
+                        Track submitted forms and monitor
+                        pending academic feedback activities.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- NOTIFICATIONS -->
+
+            <div class="col-lg-4">
+
+                <div class="feature-card insight-card">
+
+                    <div class="insight-icon orange-card">
+
+                        <i class="bi bi-bell"></i>
+
+                    </div>
+
+                    <h4>
+
+                        Academic Updates
+
+                    </h4>
+
+                    <p>
+
+                        Stay updated with upcoming forms,
+                        deadlines, and academic notifications.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- JS -->
+
+<script
+    src="{% static 'accounts/js/student_dashboard.js' %}"
+></script>
+
+</body>
+</html>

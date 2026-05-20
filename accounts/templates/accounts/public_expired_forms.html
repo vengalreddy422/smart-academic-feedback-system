@@ -1,0 +1,211 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% load static %}
+
+{% block title %}
+Expired Public Forms
+{% endblock %}
+
+{% block page_title %}
+Expired Public Forms
+{% endblock %}
+
+{% block content %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'accounts/css/public_forms.css' %}"
+>
+
+<div class="forms-page">
+
+    <!-- TOP -->
+
+    <div class="top-section">
+
+        <h1>
+            Expired Public Forms
+        </h1>
+
+        <p>
+            Submission deadline completed forms.
+        </p>
+
+    </div>
+
+    <!-- SEARCH -->
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="formSearch"
+            placeholder="Search expired forms..."
+            onkeyup="searchForms()"
+        >
+
+    </div>
+
+    <!-- FORMS GRID -->
+
+    <div class="forms-grid">
+
+        {% for item in analytics %}
+
+        <div class="form-card">
+
+            <!-- HEADER -->
+
+            <div class="card-top">
+
+                <div class="status-badge expired">
+
+                    Expired
+
+                </div>
+
+                <div class="response-box">
+
+                    <h3>
+                        {{ item.total_responses }}
+                    </h3>
+
+                    <span>
+                        Responses
+                    </span>
+
+                </div>
+
+            </div>
+
+            <!-- TITLE -->
+
+            <h2 class="form-title">
+
+                {{ item.form.title }}
+
+            </h2>
+
+            <!-- DESCRIPTION -->
+
+            <p class="form-description">
+
+                {{ item.form.description }}
+
+            </p>
+
+            <!-- DATES -->
+
+            <div class="date-wrapper">
+
+                <div class="date-card">
+
+                    <small>
+                        Start Date
+                    </small>
+
+                    <strong>
+                        {{ item.form.start_date }}
+                    </strong>
+
+                </div>
+
+                <div class="date-card">
+
+                    <small>
+                        Deadline
+                    </small>
+
+                    <strong>
+                        {{ item.form.deadline_date }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <!-- EXPLORE BUTTON -->
+
+            <button
+                class="explore-btn"
+                onclick="toggleActions('actions{{ item.form.id }}')"
+            >
+
+                Explore Options
+
+            </button>
+
+            <!-- ACTIONS -->
+
+            <div
+                class="actions-grid"
+                id="actions{{ item.form.id }}"
+                style="display:none;"
+            >
+
+                <button
+                    class="action-btn disabled-btn"
+                    disabled
+                >
+
+                    Submission Closed
+
+                </button>
+
+                <a
+                    href="/accounts/public-form-detail/{{ item.form.id }}/"
+                    class="action-btn analytics-btn"
+                >
+
+                    Visualization
+
+                </a>
+
+                <a
+                    href="/reports/anonymous/detailed/{{ item.form.id }}/"
+                    class="action-btn download-btn"
+                >
+
+                    PDF Report
+
+                </a>
+
+                <a
+                    href="/reports/public/excel/{{ item.form.id }}/"
+                    class="action-btn excel-btn"
+                >
+
+                    Excel Report
+
+                </a>
+
+                <a
+                    href="{% url 'delete_form' item.form.id %}"
+                    class="action-btn delete-btn"
+                >
+
+                    Delete
+
+                </a>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="empty-card">
+
+            😊 No Expired Public Forms Available
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<script src="{% static 'accounts/js/public_forms.js' %}"></script>
+
+{% endblock %}

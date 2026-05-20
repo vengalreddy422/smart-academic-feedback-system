@@ -1,0 +1,317 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% load static %}
+
+{% block title %}
+Public Form Analytics
+{% endblock %}
+
+{% block page_title %}
+Public Form Analytics
+{% endblock %}
+
+<!-- ===================================== -->
+<!-- EXTRA CSS -->
+<!-- ===================================== -->
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'accounts/css/public_form_detail.css' %}?v=99"
+>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% endblock %}
+
+<!-- ===================================== -->
+<!-- CONTENT -->
+<!-- ===================================== -->
+
+{% block content %}
+
+<div class="analytics-container">
+
+    <!-- ===================================== -->
+    <!-- HEADER -->
+    <!-- ===================================== -->
+
+    <div class="top-banner">
+
+        <h1>
+
+            {{ form.title }}
+
+        </h1>
+
+        <p>
+
+            Public Form Analytics Dashboard
+
+        </p>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- SUMMARY -->
+    <!-- ===================================== -->
+
+    <div class="summary-grid">
+
+        <!-- CARD 1 -->
+
+        <div class="summary-card blue">
+
+            <h2>
+
+                {{ total_responses }}
+
+            </h2>
+
+            <p>
+
+                Total Responses
+
+            </p>
+
+        </div>
+
+        <!-- CARD 2 -->
+
+        <div class="summary-card green">
+
+            <h2>
+
+                {{ question_analytics|length }}
+
+            </h2>
+
+            <p>
+
+                Analytics Questions
+
+            </p>
+
+        </div>
+
+        <!-- CARD 3 -->
+
+        <div class="summary-card red">
+
+            <h2>
+
+                Active
+
+            </h2>
+
+            <p>
+
+                Form Status
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- CHART QUESTIONS -->
+    <!-- ===================================== -->
+
+    <div class="accordion-group accordion-group--charts">
+
+        {% for item in question_analytics %}
+
+        <div class="question-card">
+
+            <!-- HEADER -->
+
+            <button
+                type="button"
+                class="question-header"
+                data-accordion-toggle="chart"
+                data-accordion-target="chart-acc-{{ forloop.counter }}"
+                aria-expanded="false"
+            >
+
+                <div>
+
+                    <h2 class="question-title">
+
+                        {{ forloop.counter }}.
+                        {{ item.question }}
+
+                    </h2>
+
+                    <span class="chart-badge">
+
+                        Analytics Report
+
+                    </span>
+
+                </div>
+
+                <div
+                    class="toggle-btn"
+                    aria-hidden="true"
+                >
+
+                    ▼
+
+                </div>
+
+            </button>
+
+            <!-- BODY -->
+
+            <div
+                class="question-body accordion-body--chart"
+                id="chart-acc-{{ forloop.counter }}"
+                role="region"
+                aria-hidden="true"
+            >
+
+                <div class="chart-wrapper">
+
+                    <div class="chart-box">
+
+                        <canvas
+                            id="chart-{{ forloop.counter }}"
+                            aria-label="Chart"
+                        ></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    <!-- ===================================== -->
+    <!-- TEXT QUESTIONS -->
+    <!-- ===================================== -->
+
+    <div class="accordion-group accordion-group--text">
+
+        {% for item in text_questions %}
+
+        <div class="question-card accordion-card--text">
+
+            <!-- HEADER -->
+
+            <button
+                type="button"
+                class="question-header"
+                data-accordion-toggle="text"
+                data-accordion-target="text-acc-{{ forloop.counter }}"
+                aria-expanded="false"
+            >
+
+                <div>
+
+                    <h2 class="question-title">
+
+                        {{ forloop.counter }}.
+                        {{ item.question }}
+
+                    </h2>
+
+                    <span class="chart-badge text-badge">
+
+                        Text Responses
+
+                    </span>
+
+                </div>
+
+                <div class="toggle-btn">
+
+                    ▼
+
+                </div>
+
+            </button>
+
+            <!-- BODY -->
+
+            <div
+                class="question-body accordion-body--text"
+                id="text-acc-{{ forloop.counter }}"
+                role="region"
+                aria-hidden="true"
+            >
+
+                <div class="response-count">
+
+                    Total Responses :
+                    {{ item.answers|length }}
+
+                </div>
+
+                <div class="answers-wrapper">
+
+                    {% for answer in item.answers %}
+
+                    <div class="answer-card">
+
+                        <div class="answer-icon">
+
+                            💬
+
+                        </div>
+
+                        <div class="answer-text">
+
+                            {{ answer }}
+
+                        </div>
+
+                    </div>
+
+                    {% empty %}
+
+                    <div class="empty-response">
+
+                        No Responses Found
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<!-- ===================================== -->
+<!-- DJANGO JSON -->
+<!-- ===================================== -->
+
+{{ question_analytics|json_script:"question-data" }}
+
+{% endblock %}
+
+<!-- ===================================== -->
+<!-- EXTRA JS -->
+<!-- ===================================== -->
+
+{% block extra_js %}
+
+<script
+    src="{% static 'accounts/js/public_form_detail.js' %}?v=99"
+></script>
+
+{% endblock %}

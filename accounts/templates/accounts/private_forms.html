@@ -1,0 +1,431 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% load static %}
+
+{% block title %}
+Private Forms
+{% endblock %}
+
+{% block page_title %}
+Private Forms
+{% endblock %}
+
+{% block content %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'accounts/css/private_forms.css' %}"
+>
+
+<div class="private-page">
+
+    <!-- HERO -->
+
+    <div class="hero-card">
+
+        <div>
+
+            <h1 class="hero-title">
+
+                Private Forms Management
+
+            </h1>
+
+            <p class="hero-subtitle">
+
+                Manage all academic forms professionally.
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- FILTERS -->
+
+    <div class="filter-wrapper">
+
+        <button
+            class="filter-btn active-filter"
+            onclick="filterForms('all', this)"
+        >
+
+            All Forms
+
+        </button>
+
+        <button
+            class="filter-btn"
+            onclick="filterForms('active', this)"
+        >
+
+            Active Forms
+
+        </button>
+
+        <button
+            class="filter-btn"
+            onclick="filterForms('completed', this)"
+        >
+
+            Completed Forms
+
+        </button>
+
+        <button
+            class="filter-btn"
+            onclick="filterForms('upcoming', this)"
+        >
+
+            Upcoming Forms
+
+        </button>
+
+    </div>
+
+    <!-- SEARCH -->
+
+    <div class="search-section">
+
+        <div class="search-box">
+
+            <i class="bi bi-search"></i>
+
+            <input
+                type="text"
+                id="formSearch"
+                placeholder="Search forms..."
+                onkeyup="searchForms()"
+            >
+
+        </div>
+
+    </div>
+
+    <!-- FORMS -->
+
+    <div class="forms-wrapper">
+
+    {% for item in analytics %}
+
+    <div
+    class="form-card"
+
+    data-status="
+    {% if item.form.deadline_date < today %}
+        completed
+    {% elif item.form.start_date > today %}
+        upcoming
+    {% else %}
+        active
+    {% endif %}
+    "
+>
+
+        <!-- TOP -->
+
+        <div class="card-top">
+
+            <!-- LEFT -->
+
+            <div class="card-left">
+
+                <h2 class="form-title">
+
+                    {{ item.form.title }}
+
+                </h2>
+
+                <p class="form-description">
+
+                    {{ item.form.description }}
+
+                </p>
+
+            </div>
+
+            <!-- RIGHT -->
+
+            <div class="status-badge">
+
+               {% if item.form.deadline_date < today %}
+
+                    Completed
+
+                {% elif item.form.start_date > today %}
+
+                    Upcoming
+
+                {% else %}
+
+                    Active
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <!-- INFO -->
+
+        <div class="info-grid">
+
+            <div class="info-box">
+
+                <span>
+
+                    Start Date
+
+                </span>
+
+                <h3>
+
+                    {{ item.form.start_date }}
+
+                </h3>
+
+            </div>
+
+            <div class="info-box">
+
+                <span>
+
+                    End Date
+
+                </span>
+
+                <h3>
+
+                    {{ item.form.deadline_date }}
+
+                </h3>
+
+            </div>
+
+            <div class="info-box">
+
+                <span>
+
+                    Students
+
+                </span>
+
+                <h3>
+
+                    {{ item.total_students }}
+
+                </h3>
+
+            </div>
+
+        </div>
+
+        <!-- BUTTONS -->
+
+        <div class="all-buttons">
+
+            <!-- ANALYTICS -->
+
+            <a
+                href="/accounts/teacher-form-detail/{{ item.form.id }}/"
+                class="action-btn analytics-btn"
+            >
+
+                Analytics
+
+            </a>
+
+            <!-- PREVIEW -->
+
+            <a
+                href="/accounts/preview-form/{{ item.form.id }}/"
+                class="action-btn preview-btn"
+            >
+
+                Preview
+
+            </a>
+
+            <!-- EDIT -->
+
+            <a
+                href="/accounts/edit-form/{{ item.form.id }}/"
+                class="action-btn edit-btn"
+            >
+
+                Edit
+
+            </a>
+
+            <!-- DELETE -->
+
+            <a
+                href="/accounts/delete-form/{{ item.form.id }}/"
+                class="action-btn delete-btn"
+            >
+
+                Delete
+
+            </a>
+
+            <!-- STUDENTS -->
+
+            <button
+                class="action-btn students-btn"
+
+                onclick="
+                    toggleStudents(
+                        'students{{ forloop.counter }}'
+                    )
+                "
+            >
+
+                Students
+
+            </button>
+
+            <!-- DOWNLOAD -->
+
+            <div class="download-wrapper">
+
+                <button
+                    class="action-btn download-btn"
+
+                    onclick="
+                        toggleDownload(
+                            'download{{ forloop.counter }}'
+                        )
+                    "
+                >
+
+                    Download
+
+                </button>
+
+                <!-- MENU -->
+
+<div
+    class="download-menu"
+    id="download{{ forloop.counter }}"
+>
+
+    <!-- ================================= -->
+    <!-- ANONYMOUS FORM -->
+    <!-- ================================= -->
+
+   {% if item.is_anonymous %}
+
+    <a
+        href="{% url 'private_anonymous_pdf' item.form.id %}"
+        class="download-item pdf-item"
+    >
+
+        Anonymous PDF
+
+    </a>
+
+    <a
+        href="{% url 'private_anonymous_excel' item.form.id %}"
+        class="download-item excel-item"
+    >
+
+        Anonymous Excel
+
+    </a>
+
+    <!-- ================================= -->
+    <!-- IDENTIFIED FORM -->
+    <!-- ================================= -->
+
+    {% else %}
+
+        <!-- PDF -->
+
+        <a
+            href="{% url 'identified_detailed_pdf' item.form.id %}"
+            class="download-item pdf-item"
+        >
+
+            Identified PDF
+
+        </a>
+
+        <!-- EXCEL -->
+
+        <a
+            href="{% url 'identified_summary_excel' item.form.id %}"
+            class="download-item excel-item"
+        >
+
+            Identified Excel
+
+        </a>
+
+    {% endif %}
+
+</div>
+
+
+            </div>
+
+        </div>
+
+        <!-- STUDENTS PANEL -->
+
+        <div
+            class="students-panel"
+            id="students{{ forloop.counter }}"
+        >
+
+            {% if item.is_anonymous %}
+
+                <div class="anonymous-box">
+
+                    Anonymous Form
+
+                </div>
+
+            {% else %}
+
+                {% for student in item.students %}
+
+                    <div class="student-item">
+
+                        {{ student.user.first_name }}
+
+                        {{ student.user.last_name }}
+
+                    </div>
+
+                {% empty %}
+
+                    <div class="student-item">
+
+                        No Students Submitted
+
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="empty-card">
+
+        No Private Forms Found
+
+    </div>
+
+    {% endfor %}
+
+</div>
+</div>
+
+<script src="{% static 'accounts/js/private_forms.js' %}"></script>
+
+{% endblock %}

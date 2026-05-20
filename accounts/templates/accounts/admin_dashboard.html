@@ -1,0 +1,453 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% load static %}
+
+{% block title %}
+Admin Dashboard
+{% endblock %}
+
+{% block page_title %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'accounts/css/admin_dashboard.css' %}"
+>
+
+<div class="dashboard-page">
+
+    <!-- HERO -->
+
+    <div class="hero-section">
+
+        <div>
+
+            <div class="hero-badge">
+
+                ADMIN PANEL
+
+            </div>
+
+            <h1 class="hero-title">
+
+                Welcome Back Admin 👋
+
+            </h1>
+
+            <p class="hero-subtitle">
+
+                Academic Analytics & Feedback
+                Management Platform
+
+            </p>
+
+        </div>
+
+        <div class="hero-date-card">
+
+            <div class="date-label">
+
+                Today's Date
+
+            </div>
+
+            <div class="date-value">
+
+                {{ today }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- KPI CARDS -->
+
+    <div class="kpi-grid">
+
+        <!-- STUDENTS -->
+
+        <div class="kpi-card blue-card">
+
+            <div class="kpi-icon">
+
+                <i class="bi bi-people-fill"></i>
+
+            </div>
+
+            <div>
+
+                <div class="kpi-title">
+
+                    Total Students
+
+                </div>
+
+                <div class="kpi-number">
+
+                    {{ total_students }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TEACHERS -->
+
+        <div class="kpi-card green-card">
+
+            <div class="kpi-icon">
+
+                <i class="bi bi-person-workspace"></i>
+
+            </div>
+
+            <div>
+
+                <div class="kpi-title">
+
+                    Total Teachers
+
+                </div>
+
+                <div class="kpi-number">
+
+                    {{ total_teachers }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FORMS -->
+
+        <div class="kpi-card orange-card">
+
+            <div class="kpi-icon">
+
+                <i class="bi bi-ui-checks-grid"></i>
+
+            </div>
+
+            <div>
+
+                <div class="kpi-title">
+
+                    Total Forms
+
+                </div>
+
+                <div class="kpi-number">
+
+                    {{ total_forms }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RESPONSES -->
+
+        <div class="kpi-card dark-card">
+
+            <div class="kpi-icon">
+
+                <i class="bi bi-bar-chart-fill"></i>
+
+            </div>
+
+            <div>
+
+                <div class="kpi-title">
+
+                    Total Responses
+
+                </div>
+
+                <div class="kpi-number">
+
+                    {{ total_responses }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- QUICK ACTIONS -->
+
+    <div class="section-header">
+
+        Quick Actions
+
+    </div>
+
+    <div class="actions-grid">
+
+        <!-- PRIVATE FORMS -->
+
+        <a
+            href="{% url 'private_forms' %}"
+            class="action-card"
+        >
+
+            <div class="action-icon blue-bg">
+
+                <i class="bi bi-lock-fill"></i>
+
+            </div>
+
+            <div class="action-title">
+
+                Private Forms
+
+            </div>
+
+            <div class="action-subtitle">
+
+                Manage private forms
+
+            </div>
+
+        </a>
+
+        <!-- PUBLIC FORMS -->
+
+        <a
+            href="{% url 'public_forms' %}"
+            class="action-card"
+        >
+
+            <div class="action-icon green-bg">
+
+                <i class="bi bi-globe"></i>
+
+            </div>
+
+            <div class="action-title">
+
+                Public Forms
+
+            </div>
+
+            <div class="action-subtitle">
+
+                Manage public forms
+
+            </div>
+
+        </a>
+
+        <!-- STUDENTS -->
+
+        <a
+            href="{% url 'students_list' %}"
+            class="action-card"
+        >
+
+            <div class="action-icon orange-bg">
+
+                <i class="bi bi-people-fill"></i>
+
+            </div>
+
+            <div class="action-title">
+
+                Students
+
+            </div>
+
+            <div class="action-subtitle">
+
+                Student management
+
+            </div>
+
+        </a>
+
+        <!-- TEACHERS -->
+
+        <a
+            href="{% url 'teachers_list' %}"
+            class="action-card"
+        >
+
+            <div class="action-icon purple-bg">
+
+                <i class="bi bi-person-workspace"></i>
+
+            </div>
+
+            <div class="action-title">
+
+                Teachers
+
+            </div>
+
+            <div class="action-subtitle">
+
+                Teacher management
+
+            </div>
+
+        </a>
+
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+
+    <div class="recent-grid">
+
+        <!-- RECENT FORMS -->
+
+        <div class="recent-card">
+
+            <div class="recent-header">
+
+                Recent Forms
+
+            </div>
+
+            {% for form in recent_forms %}
+
+            <div class="recent-item">
+
+                <div>
+
+                    <div class="recent-title">
+
+                        {{ form.title }}
+
+                    </div>
+
+                    <div class="recent-sub">
+
+                        {{ form.created_at|date:"d M Y" }}
+
+                    </div>
+
+                </div>
+
+                <div class="recent-badge">
+
+                    {{ form.access_type }}
+
+                </div>
+
+            </div>
+
+            {% empty %}
+
+            <div class="empty-box">
+
+                No Recent Forms
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <!-- RECENT STUDENTS -->
+
+        <div class="recent-card">
+
+            <div class="recent-header">
+
+                Recent Students
+
+            </div>
+
+            {% for student in recent_students %}
+
+            <div class="recent-item">
+
+                <div>
+
+                    <div class="recent-title">
+
+                        {{ student.user.first_name }}
+
+                    </div>
+
+                    <div class="recent-sub">
+
+                        {{ student.department }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% empty %}
+
+            <div class="empty-box">
+
+                No Students Found
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <!-- RECENT TEACHERS -->
+
+        <div class="recent-card">
+
+            <div class="recent-header">
+
+                Recent Teachers
+
+            </div>
+
+            {% for teacher in recent_teachers %}
+
+            <div class="recent-item">
+
+                <div>
+
+                    <div class="recent-title">
+
+                        {{ teacher.user.first_name }}
+
+                    </div>
+
+                    <div class="recent-sub">
+
+                        Teacher Account
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% empty %}
+
+            <div class="empty-box">
+
+                No Teachers Found
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{% static 'accounts/js/admin_dashboard.js' %}"></script>
+
+{% endblock %}

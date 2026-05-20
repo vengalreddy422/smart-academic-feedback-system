@@ -1,0 +1,115 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% load static %}
+
+{% block title %}
+Upcoming Public Forms
+{% endblock %}
+
+{% block page_title %}
+Upcoming Public Forms
+{% endblock %}
+
+{% block content %}
+
+<link
+    rel="stylesheet"
+    href="{% static 'accounts/css/public_forms.css' %}"
+>
+
+<div class="forms-page">
+
+    <div class="top-section">
+
+        <h1>
+            Upcoming Public Forms
+        </h1>
+
+        <p>
+            Future forms scheduled to open soon.
+        </p>
+
+    </div>
+
+    <div class="forms-grid">
+
+        {% for item in analytics %}
+
+        <div class="form-card">
+
+            <div class="card-top">
+
+                <div class="status-badge future">
+
+                    Upcoming
+
+                </div>
+
+            </div>
+
+            <h2 class="form-title">
+
+                {{ item.form.title }}
+
+            </h2>
+
+            <p class="form-description">
+
+                {{ item.form.description }}
+
+            </p>
+
+            <div class="date-wrapper">
+
+                <div class="date-card">
+
+                    <small>
+                        Start Date
+                    </small>
+
+                    <strong>
+                        {{ item.form.start_date }}
+                    </strong>
+
+                </div>
+
+                <div class="date-card">
+
+                    <small>
+                        Deadline
+                    </small>
+
+                    <strong>
+                        {{ item.form.deadline_date }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+            <button
+                class="action-btn disabled-btn"
+                disabled
+            >
+
+                Starts Soon
+
+            </button>
+
+        </div>
+
+        {% empty %}
+
+        <div class="empty-card">
+
+            😊 No Upcoming Public Forms Available
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

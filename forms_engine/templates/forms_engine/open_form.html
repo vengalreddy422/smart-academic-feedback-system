@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+
+        {{ form.title }}
+
+    </title>
+
+    <!-- Bootstrap -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- Google Font -->
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    body{
+
+        background:#eef2f7;
+
+        font-family:'Outfit',sans-serif;
+
+        color:#1e293b;
+    }
+
+    /* ==================================================
+       MAIN CONTAINER
+    ================================================== */
+
+    .main-card{
+
+        border:none;
+
+        border-radius:24px;
+
+        overflow:hidden;
+
+        background:white;
+
+        box-shadow:
+            0 10px 40px rgba(15,23,42,0.06);
+    }
+
+    /* ==================================================
+       HEADER
+    ================================================== */
+
+    .form-header{
+
+        background:
+            linear-gradient(
+                135deg,
+                #0f172a,
+                #1e293b
+            );
+
+        padding:45px;
+
+        color:white;
+    }
+
+    .form-title{
+
+        font-size:36px;
+
+        font-weight:800;
+
+        margin-bottom:10px;
+    }
+
+    .form-description{
+
+        color:rgba(255,255,255,0.75);
+
+        font-size:15px;
+
+        max-width:700px;
+    }
+
+    /* ==================================================
+       FORM BODY
+    ================================================== */
+
+    .form-body{
+
+        padding:40px;
+    }
+
+    /* ==================================================
+       QUESTION BLOCK
+    ================================================== */
+
+    .question-box{
+
+        margin-bottom:28px;
+    }
+
+    .question-label{
+
+        font-size:16px;
+
+        font-weight:700;
+
+        margin-bottom:12px;
+
+        color:#0f172a;
+
+        display:flex;
+
+        align-items:center;
+
+        gap:8px;
+    }
+
+    .required-star{
+
+        color:#ef4444;
+
+        font-size:18px;
+    }
+
+    /* ==================================================
+       INPUTS
+    ================================================== */
+
+    .form-control,
+    .form-select{
+
+        height:54px;
+
+        border-radius:14px;
+
+        border:1px solid #dbe2ea;
+
+        background:#f8fafc;
+
+        font-size:15px;
+
+        padding-left:16px;
+
+        transition:0.3s;
+
+        box-shadow:none;
+    }
+
+    textarea.form-control{
+
+        height:auto;
+
+        padding-top:14px;
+    }
+
+    .form-control:focus,
+    .form-select:focus{
+
+        background:white;
+
+        border-color:#2563eb;
+
+        box-shadow:
+            0 0 0 4px rgba(37,99,235,0.08);
+    }
+
+    /* ==================================================
+       OPTIONS
+    ================================================== */
+
+    .option-box{
+
+        background:#f8fafc;
+
+        border:1px solid #e2e8f0;
+
+        border-radius:14px;
+
+        padding:14px 16px;
+
+        margin-bottom:12px;
+
+        transition:0.2s;
+    }
+
+    .option-box:hover{
+
+        border-color:#2563eb;
+
+        background:white;
+    }
+
+    .form-check-input{
+
+        width:18px;
+
+        height:18px;
+
+        cursor:pointer;
+    }
+
+    .form-check-label{
+
+        margin-left:8px;
+
+        font-size:15px;
+
+        cursor:pointer;
+    }
+
+    /* ==================================================
+       ERROR
+    ================================================== */
+
+    .error-box{
+
+        margin-top:10px;
+
+        background:#fef2f2;
+
+        border:1px solid #fecaca;
+
+        color:#b91c1c;
+
+        padding:10px 14px;
+
+        border-radius:12px;
+
+        font-size:14px;
+
+        font-weight:500;
+    }
+
+    /* ==================================================
+       BUTTON
+    ================================================== */
+
+    .submit-btn{
+
+        width:100%;
+
+        height:58px;
+
+        border:none;
+
+        border-radius:16px;
+
+        background:
+            linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+        color:white;
+
+        font-size:17px;
+
+        font-weight:700;
+
+        transition:0.3s;
+    }
+
+    .submit-btn:hover{
+
+        transform:translateY(-2px);
+
+        box-shadow:
+            0 12px 25px rgba(37,99,235,0.18);
+    }
+
+    /* ==================================================
+       MOBILE
+    ================================================== */
+
+    @media(max-width:768px){
+
+        .form-header{
+
+            padding:30px 24px;
+        }
+
+        .form-title{
+
+            font-size:28px;
+        }
+
+        .form-body{
+
+            padding:24px;
+        }
+
+        .question-label{
+
+            font-size:15px;
+        }
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-9">
+
+            <div class="card main-card">
+
+                <!-- HEADER -->
+
+                <div class="form-header">
+
+                    <h1 class="form-title">
+
+                        {{ form.title }}
+
+                    </h1>
+
+                    <p class="form-description">
+
+                        {{ form.description }}
+
+                    </p>
+
+                </div>
+
+                <!-- BODY -->
+
+                <div class="form-body">
+
+                    <form
+                        method="POST"
+                        action="/forms/submit-form/{{ form.id }}/"
+                    >
+
+                        {% csrf_token %}
+
+                        {% for question in questions %}
+
+                            <div class="question-box">
+
+                                <!-- LABEL -->
+
+                                <label class="question-label">
+
+                                    <i class="bi bi-patch-question-fill"></i>
+
+                                    {{ question.question }}
+
+                                    {% if question.required %}
+
+                                        <span class="required-star">
+
+                                            *
+
+                                        </span>
+
+                                    {% endif %}
+
+                                </label>
+
+                                <!-- TEXT -->
+
+                                {% if question.field_type == 'text' %}
+
+                                    <input
+                                        type="text"
+                                        name="{{ question.id }}"
+                                        class="form-control"
+                                    >
+
+                                <!-- TEXTAREA -->
+
+                                {% elif question.field_type == 'textarea' %}
+
+                                    <textarea
+                                        name="{{ question.id }}"
+                                        class="form-control"
+                                        rows="5"
+                                    ></textarea>
+
+                                <!-- NUMBER -->
+
+                                {% elif question.field_type == 'number' %}
+
+                                    <input
+                                        type="number"
+                                        name="{{ question.id }}"
+                                        class="form-control"
+                                    >
+
+                                <!-- EMAIL -->
+
+                                {% elif question.field_type == 'email' %}
+
+                                    <input
+                                        type="email"
+                                        name="{{ question.id }}"
+                                        class="form-control"
+                                    >
+
+                                <!-- DATE -->
+
+                                {% elif question.field_type == 'date' %}
+
+                                    <input
+                                        type="date"
+                                        name="{{ question.id }}"
+                                        class="form-control"
+                                    >
+
+                                <!-- RADIO -->
+
+                                {% elif question.field_type == 'radio' %}
+
+                                    {% for option in question.options_list %}
+
+                                        <div class="option-box">
+
+                                            <div class="form-check">
+
+                                                <input
+                                                    type="radio"
+                                                    name="{{ question.id }}"
+                                                    value="{{ option.option_text }}"
+                                                    class="form-check-input"
+                                                >
+
+                                                <label class="form-check-label">
+
+                                                    {{ option.option_text }}
+
+                                                </label>
+
+                                            </div>
+
+                                        </div>
+
+                                    {% endfor %}
+
+                                <!-- CHECKBOX -->
+
+                                {% elif question.field_type == 'checkbox' %}
+
+                                    {% for option in question.options_list %}
+
+                                        <div class="option-box">
+
+                                            <div class="form-check">
+
+                                                <input
+                                                    type="checkbox"
+                                                    name="{{ question.id }}"
+                                                    value="{{ option.option_text }}"
+                                                    class="form-check-input"
+                                                >
+
+                                                <label class="form-check-label">
+
+                                                    {{ option.option_text }}
+
+                                                </label>
+
+                                            </div>
+
+                                        </div>
+
+                                    {% endfor %}
+
+                                <!-- SELECT -->
+
+                                {% elif question.field_type == 'select' %}
+
+                                    <select
+                                        name="{{ question.id }}"
+                                        class="form-select"
+                                    >
+
+                                        <option value="">
+
+                                            Select Option
+
+                                        </option>
+
+                                        {% for option in question.options_list %}
+
+                                            <option value="{{ option.option_text }}">
+
+                                                {{ option.option_text }}
+
+                                            </option>
+
+                                        {% endfor %}
+
+                                    </select>
+
+                                <!-- RATING -->
+
+                                {% elif question.field_type == 'rating' %}
+
+                                    <select
+                                        name="{{ question.id }}"
+                                        class="form-select"
+                                    >
+
+                                        <option value="">
+
+                                            Select Rating
+
+                                        </option>
+
+                                        <option value="1">1</option>
+
+                                        <option value="2">2</option>
+
+                                        <option value="3">3</option>
+
+                                        <option value="4">4</option>
+
+                                        <option value="5">5</option>
+
+                                    </select>
+
+                                {% endif %}
+
+                                <!-- ERROR -->
+
+                                {% if errors.question.id %}
+
+                                    <div class="error-box">
+
+                                        {{ errors.question.id }}
+
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        {% endfor %}
+
+                        <!-- BUTTON -->
+
+                        <button
+                            type="submit"
+                            class="submit-btn"
+                        >
+
+                            <i class="bi bi-send-fill"></i>
+
+                            Submit Form
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

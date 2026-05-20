@@ -1,0 +1,482 @@
+/* ==========================================
+PAGE
+========================================== */
+
+.students-page{
+
+    padding:25px;
+}
+
+/* ==========================================
+HERO
+========================================== */
+
+.hero-section{
+
+    background:
+        linear-gradient(
+            135deg,
+            #0f172a,
+            #1e293b
+        );
+
+    border-radius:28px;
+
+    padding:40px;
+
+    color:white;
+
+    margin-bottom:35px;
+}
+
+.hero-badge{
+
+    display:inline-block;
+
+    background:
+        rgba(255,255,255,0.12);
+
+    padding:10px 18px;
+
+    border-radius:30px;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    margin-bottom:18px;
+}
+
+.hero-title{
+
+    font-size:42px;
+
+    font-weight:800;
+
+    margin-bottom:10px;
+}
+
+.hero-subtitle{
+
+    color:rgba(255,255,255,0.75);
+
+    font-size:16px;
+}
+
+/* ==========================================
+TOP CONTROLS
+========================================== */
+
+.top-controls{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:20px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:35px;
+}
+
+.search-form{
+
+    flex:1;
+}
+
+.search-box{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:16px 22px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    box-shadow:
+        0 10px 30px rgba(15,23,42,0.06);
+}
+
+.search-box i{
+
+    color:#64748b;
+
+    font-size:18px;
+}
+
+.search-box input{
+
+    border:none;
+
+    outline:none;
+
+    width:100%;
+
+    font-size:15px;
+}
+
+/* ==========================================
+ADD BUTTON
+========================================== */
+
+.add-btn{
+
+    background:#2563eb;
+
+    color:white;
+
+    padding:15px 24px;
+
+    border-radius:18px;
+
+    text-decoration:none;
+
+    font-weight:700;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    transition:0.3s;
+}
+
+.add-btn:hover{
+
+    transform:translateY(-3px);
+
+    color:white;
+}
+
+/* ==========================================
+DEPARTMENT CARD
+========================================== */
+
+.department-card{
+
+    background:white;
+
+    border-radius:28px;
+
+    padding:26px;
+
+    margin-bottom:28px;
+
+    box-shadow:
+        0 10px 35px rgba(15,23,42,0.05);
+}
+
+/* ==========================================
+DEPARTMENT HEADER
+========================================== */
+
+.department-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    cursor:pointer;
+}
+
+.department-title{
+
+    font-size:30px;
+
+    font-weight:800;
+
+    color:#0f172a;
+}
+
+.department-subtitle{
+
+    margin-top:6px;
+
+    color:#64748b;
+}
+
+.department-arrow{
+
+    width:55px;
+
+    height:55px;
+
+    border-radius:16px;
+
+    background:#f8fafc;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:22px;
+}
+
+/* ==========================================
+SECTIONS
+========================================== */
+
+.sections-wrapper{
+
+    display:none;
+
+    margin-top:28px;
+}
+
+.section-card{
+
+    background:#f8fafc;
+
+    border-radius:24px;
+
+    padding:24px;
+
+    margin-bottom:25px;
+}
+
+.section-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    cursor:pointer;
+}
+
+.section-title{
+
+    font-size:24px;
+
+    font-weight:800;
+
+    color:#0f172a;
+}
+
+.section-count{
+
+    margin-top:6px;
+
+    color:#64748b;
+}
+
+.section-arrow{
+
+    width:50px;
+
+    height:50px;
+
+    border-radius:14px;
+
+    background:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:18px;
+}
+
+/* ==========================================
+STUDENTS TABLE
+========================================== */
+
+.students-grid{
+
+    display:none;
+
+    margin-top:25px;
+}
+
+.students-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    background:white;
+
+    border-radius:24px;
+
+    overflow:hidden;
+}
+
+.students-table thead{
+
+    background:#0f172a;
+}
+
+.students-table th{
+
+    color:white;
+
+    padding:20px;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    text-align:left;
+}
+
+.students-table td{
+
+    padding:20px;
+
+    border-bottom:1px solid #e2e8f0;
+
+    vertical-align:middle;
+}
+
+/* ==========================================
+STUDENT INFO
+========================================== */
+
+.student-info{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:16px;
+}
+
+.student-avatar{
+
+    width:52px;
+
+    height:52px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:22px;
+
+    font-weight:700;
+}
+
+.student-name{
+
+    font-size:17px;
+
+    font-weight:700;
+
+    color:#0f172a;
+}
+
+/* ==========================================
+BUTTONS
+========================================== */
+
+.actions-cell{
+
+    display:flex;
+
+    gap:10px;
+}
+
+.edit-btn{
+
+    background:#facc15;
+
+    color:black;
+
+    text-decoration:none;
+
+    padding:10px 18px;
+
+    border-radius:12px;
+
+    font-weight:700;
+}
+
+.delete-btn{
+
+    background:#ef4444;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:10px 18px;
+
+    border-radius:12px;
+
+    font-weight:700;
+}
+
+.edit-btn:hover,
+.delete-btn:hover{
+
+    opacity:0.9;
+
+    color:white;
+}
+
+/* ==========================================
+EMPTY
+========================================== */
+
+.empty-box,
+.empty-main{
+
+    text-align:center;
+
+    padding:40px;
+
+    color:#64748b;
+}
+
+/* ==========================================
+MOBILE
+========================================== */
+
+@media(max-width:768px){
+
+    .hero-title{
+
+        font-size:30px;
+    }
+
+    .top-controls{
+
+        flex-direction:column;
+    }
+
+    .add-btn{
+
+        width:100%;
+
+        justify-content:center;
+    }
+
+    .students-table{
+
+        min-width:900px;
+    }
+}

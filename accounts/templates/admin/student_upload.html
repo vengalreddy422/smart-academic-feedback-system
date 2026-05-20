@@ -1,0 +1,47 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<div style="padding:20px;">
+
+    <h1>
+        Upload Students Excel File
+    </h1>
+
+    <br>
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+    >
+
+        {% csrf_token %}
+
+        <input
+            type="file"
+            name="excel_file"
+            required
+        >
+
+        <br><br>
+
+        <button
+            type="submit"
+            style="
+                background-color:#417690;
+                color:white;
+                padding:10px 20px;
+                border:none;
+                cursor:pointer;
+            "
+        >
+
+            Upload Students
+
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

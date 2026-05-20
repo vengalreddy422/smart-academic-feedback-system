@@ -1,0 +1,232 @@
+{% extends 'accounts/base_admin.html' %}
+
+{% load static %}
+
+{% block title %}
+Edit Student
+{% endblock %}
+
+{% block page_title %}
+Edit Student
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="card shadow-lg border-0 rounded-4 p-4">
+
+        <h2 class="mb-4 fw-bold">
+
+            Edit Student
+
+        </h2>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="row g-4">
+
+                <!-- FIRST NAME -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+
+                        First Name
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="first_name"
+                        class="form-control"
+                        value="{{ student.user.first_name }}"
+                    >
+
+                </div>
+
+                <!-- LAST NAME -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+
+                        Last Name
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="last_name"
+                        class="form-control"
+                        value="{{ student.user.last_name }}"
+                    >
+
+                </div>
+
+                <!-- EMAIL -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+
+                        Email
+
+                    </label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        class="form-control"
+                        value="{{ student.user.email }}"
+                    >
+
+                </div>
+
+                <!-- ROLL -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+
+                        Roll Number
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="roll_number"
+                        class="form-control"
+                        value="{{ student.roll_number }}"
+                    >
+
+                </div>
+
+                <!-- SEMESTER -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+
+                        Semester
+
+                    </label>
+
+                    <input
+                        type="number"
+                        name="semester"
+                        class="form-control"
+                        value="{{ student.semester }}"
+                    >
+
+                </div>
+
+                <!-- PHONE -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+
+                        Phone Number
+
+                    </label>
+
+                    <input
+                        type="text"
+                        name="phone_number"
+                        class="form-control"
+                        value="{{ student.phone_number }}"
+                    >
+
+                </div>
+
+                <!-- DEPARTMENT -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+
+                        Department
+
+                    </label>
+
+                    <select
+                        name="department"
+                        class="form-select"
+                    >
+
+                        {% for department in departments %}
+
+                        <option
+                            value="{{ department.id }}"
+                            {% if student.department.id == department.id %}
+                            selected
+                            {% endif %}
+                        >
+
+                            {{ department.name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <!-- SECTION -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+
+                        Section
+
+                    </label>
+
+                    <select
+                        name="section"
+                        class="form-select"
+                    >
+
+                        {% for section in sections %}
+
+                        <option
+                            value="{{ section.id }}"
+                            {% if student.section.id == section.id %}
+                            selected
+                            {% endif %}
+                        >
+
+                            {{ section.name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <!-- BUTTON -->
+
+            <button
+                type="submit"
+                class="btn btn-primary mt-4 px-5 py-2"
+            >
+
+                Save Changes
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

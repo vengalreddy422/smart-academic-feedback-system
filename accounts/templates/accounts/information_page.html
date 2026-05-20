@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Academic Feedback System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root {
+      /* ── Palette: Deep Indigo × Electric Cyan × Warm Off-White ── */
+      --ink:        #0d0d2b;
+      --ink-2:      #2a2a5a;
+      --ink-3:      #6b6b9a;
+      --bg:         #fafaf7;
+      --bg-2:       #f2f2ec;
+      --bg-3:       #e8e8e0;
+      --white:      #ffffff;
+
+      --p1:         #3730a3; /* indigo-700  */
+      --p2:         #4f46e5; /* indigo-600  */
+      --p3:         #818cf8; /* indigo-400  */
+      --p-glow:     rgba(79,70,229,0.18);
+
+      --c1:         #06b6d4; /* cyan-500    */
+      --c2:         #22d3ee; /* cyan-400    */
+      --c-glow:     rgba(6,182,212,0.16);
+
+      --emerald:    #059669;
+      --amber:      #d97706;
+      --rose:       #e11d48;
+
+      --border:     rgba(13,13,43,0.09);
+      --border-p:   rgba(79,70,229,0.22);
+      --shadow-sm:  0 2px 12px rgba(13,13,43,0.06);
+      --shadow-md:  0 8px 40px rgba(13,13,43,0.10);
+      --shadow-lg:  0 20px 64px rgba(13,13,43,0.13);
+      --shadow-p:   0 8px 40px rgba(79,70,229,0.22);
+
+      --r-sm: 12px;
+      --r:    18px;
+      --r-lg: 26px;
+
+      --ff-head: 'Clash Display', 'Plus Jakarta Sans', sans-serif;
+      --ff-body: 'Plus Jakarta Sans', sans-serif;
+      --nav-h: 70px;
+    }
+
+    html{scroll-behavior:smooth;font-size:16px}
+    body{font-family:var(--ff-body);background:var(--bg);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6}
+
+    /* ── NAVBAR ── */
+    nav{
+      position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:900;
+      display:flex;align-items:center;
+      padding:0 clamp(1.25rem,4vw,3.5rem);
+      transition:background .35s,box-shadow .35s;
+    }
+    nav.scrolled{
+      background:rgba(250,250,247,.88);
+      backdrop-filter:blur(18px) saturate(160%);
+      -webkit-backdrop-filter:blur(18px) saturate(160%);
+      box-shadow:0 1px 0 var(--border),var(--shadow-sm);
+    }
+    .nav-inner{width:100%;max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{display:flex;align-items:center;gap:9px;font-family:var(--ff-head);font-size:1rem;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
+    .logo-mark{
+      width:34px;height:34px;border-radius:10px;
+      background:linear-gradient(135deg,var(--p1),var(--p2));
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 14px var(--p-glow);
+    }
+    .logo-mark svg{width:18px;height:18px}
+    .nav-links{display:flex;align-items:center;gap:2px;list-style:none}
+    .nav-links a{
+      display:block;padding:7px 15px;
+      font-size:.88rem;font-weight:500;color:var(--ink-2);
+      text-decoration:none;border-radius:9px;
+      transition:color .18s,background .18s;
+    }
+    .nav-links a:hover{color:var(--p2);background:rgba(79,70,229,.07)}
+    .btn-nav{
+      padding:8px 20px;background:var(--p2);color:#fff;
+      border-radius:10px;font-size:.86rem;font-weight:600;
+      text-decoration:none;
+      transition:background .2s,transform .2s,box-shadow .2s;
+      box-shadow:0 4px 16px var(--p-glow);
+    }
+    .btn-nav:hover{background:var(--p1);transform:translateY(-1px);box-shadow:0 8px 24px var(--p-glow)}
+    .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px}
+    .hamburger span{width:22px;height:2px;background:var(--ink);border-radius:2px;transition:.3s}
+    @media(max-width:760px){
+      .nav-links,.nav-cta{display:none}
+      .hamburger{display:flex}
+      nav.open .nav-links,nav.open .nav-cta{
+        display:flex;flex-direction:column;gap:4px;
+        position:absolute;top:var(--nav-h);left:0;right:0;
+        background:rgba(250,250,247,.97);backdrop-filter:blur(16px);
+        padding:1rem 1.5rem 1.5rem;
+        border-bottom:1px solid var(--border);box-shadow:var(--shadow-md);
+      }
+    }
+
+    /* ── HERO ── */
+    #home{
+      min-height:100vh;display:flex;align-items:center;
+      padding:calc(var(--nav-h) + 3.5rem) clamp(1.25rem,4vw,3.5rem) 5.5rem;
+      position:relative;overflow:hidden;
+    }
+    /* Geometric background */
+    .hero-bg{
+      position:absolute;inset:0;z-index:0;
+      background:
+        radial-gradient(ellipse 72% 55% at 68% 38%, rgba(99,102,241,.09) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 35% at 22% 72%, rgba(6,182,212,.07) 0%, transparent 55%),
+        var(--bg);
+    }
+    /* Subtle dot grid */
+    .hero-dots{
+      position:absolute;inset:0;z-index:0;
+      background-image:radial-gradient(circle, rgba(79,70,229,.18) 1px, transparent 1px);
+      background-size:36px 36px;
+      mask-image:radial-gradient(ellipse 75% 70% at 50% 50%,black,transparent);
+      -webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 50%,black,transparent);
+    }
+    .hero-wrap{width:100%;max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:1}
+    .badge{
+      display:inline-flex;align-items:center;gap:7px;
+      padding:5px 14px 5px 7px;
+      background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.22);
+      border-radius:100px;font-size:.75rem;font-weight:600;color:var(--p2);
+      margin-bottom:1.5rem;
+      animation:up .6s ease both;
+    }
+    .badge-pip{width:6px;height:6px;border-radius:50%;background:var(--p2);animation:pip 2s infinite}
+    @keyframes pip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
+    h1{
+      font-family:var(--ff-head);font-size:clamp(2.5rem,4.8vw,3.8rem);
+      font-weight:700;line-height:1.08;letter-spacing:-.035em;
+      color:var(--ink);margin-bottom:1.25rem;
+      animation:up .6s .08s ease both;
+    }
+    .grad-text{
+      background:linear-gradient(120deg,var(--p2) 20%,var(--c1) 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .hero-sub{
+      font-size:1.05rem;color:var(--ink-3);line-height:1.75;font-weight:300;
+      max-width:460px;margin-bottom:2.25rem;
+      animation:up .6s .16s ease both;
+    }
+    .hero-btns{display:flex;flex-wrap:wrap;gap:11px;margin-bottom:2.75rem;animation:up .6s .22s ease both}
+    .btn-primary{
+      display:inline-flex;align-items:center;gap:8px;padding:13px 26px;
+      background:var(--p2);color:#fff;border-radius:12px;
+      font-size:.92rem;font-weight:600;text-decoration:none;
+      box-shadow:var(--shadow-p);transition:background .2s,transform .22s,box-shadow .22s;
+    }
+    .btn-primary:hover{background:var(--p1);transform:translateY(-2px);box-shadow:0 16px 44px rgba(79,70,229,.32)}
+    .btn-outline{
+      display:inline-flex;align-items:center;gap:7px;padding:12px 22px;
+      background:transparent;color:var(--ink-2);border:1.5px solid var(--border);
+      border-radius:12px;font-size:.92rem;font-weight:500;text-decoration:none;
+      transition:border-color .2s,color .2s,background .2s,transform .2s;
+    }
+    .btn-outline:hover{border-color:var(--p2);color:var(--p2);background:rgba(79,70,229,.05);transform:translateY(-1px)}
+    .hero-stats{display:flex;gap:2rem;animation:up .6s .3s ease both}
+    .hstat-v{font-family:var(--ff-head);font-size:1.4rem;font-weight:700;color:var(--ink)}
+    .hstat-l{font-size:.75rem;color:var(--ink-3);margin-top:2px}
+    .hstat+.hstat{padding-left:2rem;border-left:1px solid var(--border)}
+    @keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── DASHBOARD MOCKUP ── */
+    .mock-wrap{position:relative;animation:up .7s .18s ease both}
+    .mock-card{
+      background:#fff;border-radius:22px;
+      box-shadow:0 30px 80px rgba(13,13,43,.12),0 4px 16px rgba(13,13,43,.05);
+      border:1px solid var(--border);overflow:hidden;
+      transform:perspective(1100px) rotateY(-5deg) rotateX(2deg);
+      transition:transform .5s ease;
+    }
+    .mock-card:hover{transform:perspective(1100px) rotateY(-1deg) rotateX(.5deg)}
+    .mock-bar{
+      background:var(--ink);padding:12px 18px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .mock-dots{display:flex;gap:5px}
+    .md{width:9px;height:9px;border-radius:50%}
+    .md-r{background:#ff5f57}.md-y{background:#febc2e}.md-g{background:#28c840}
+    .mock-bar-title{flex:1;text-align:center;font-size:.7rem;color:rgba(255,255,255,.35);letter-spacing:.06em;font-family:var(--ff-head)}
+    .mock-body{padding:18px;background:#f8f8f6}
+    .mock-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .mock-pg-title{font-family:var(--ff-head);font-size:.9rem;font-weight:700;color:var(--ink)}
+    .mock-live{padding:3px 9px;background:#dcfce7;color:#15803d;border-radius:6px;font-size:.65rem;font-weight:700}
+    .mock-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+    .mm{background:#fff;border-radius:11px;padding:11px 13px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+    .mm-v{font-family:var(--ff-head);font-size:1.25rem;font-weight:700;color:var(--ink)}
+    .mm-l{font-size:.62rem;color:var(--ink-3);margin-top:1px}
+    .mm-d{font-size:.62rem;color:#16a34a;font-weight:700}
+    .mock-charts{display:grid;grid-template-columns:1.4fr 1fr;gap:8px;margin-bottom:14px}
+    .mc{background:#fff;border-radius:11px;padding:12px;border:1px solid var(--border)}
+    .mc-l{font-size:.62rem;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px}
+    /* bars */
+    .bars{display:flex;align-items:flex-end;gap:5px;height:55px}
+    .bar{flex:1;border-radius:4px 4px 0 0;animation:grow 1s ease both}
+    @keyframes grow{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1)}}
+    .b1{height:68%;background:linear-gradient(180deg,#a5b4fc,#6366f1);animation-delay:.1s}
+    .b2{height:88%;background:linear-gradient(180deg,#818cf8,#4f46e5);animation-delay:.16s}
+    .b3{height:52%;background:linear-gradient(180deg,#a5b4fc,#6366f1);animation-delay:.22s}
+    .b4{height:78%;background:linear-gradient(180deg,#818cf8,#4f46e5);animation-delay:.28s}
+    .b5{height:62%;background:linear-gradient(180deg,#a5b4fc,#6366f1);animation-delay:.34s}
+    .b6{height:95%;background:linear-gradient(180deg,#67e8f9,#06b6d4);animation-delay:.4s}
+    /* donut */
+    .donut-box{display:flex;flex-direction:column;align-items:center;height:100%;justify-content:center}
+    .donut-svg{width:68px;height:68px}
+    .donut-leg{display:flex;flex-direction:column;gap:3px;margin-top:5px}
+    .dl{display:flex;align-items:center;gap:4px;font-size:.58rem;color:var(--ink-3)}
+    .dlc{width:6px;height:6px;border-radius:50%}
+    /* list items */
+    .mock-list{display:flex;flex-direction:column;gap:6px}
+    .mli{display:flex;align-items:center;gap:9px;background:#fff;border-radius:9px;padding:8px 11px;border:1px solid var(--border);font-size:.68rem}
+    .av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#fff;flex-shrink:0}
+    .mli-c{flex:1}
+    .mli-n{font-weight:600;color:var(--ink);font-size:.66rem}
+    .mli-s{color:var(--ink-3);font-size:.6rem}
+    .stars{color:#f59e0b;font-size:.62rem;letter-spacing:1px}
+    /* floaters */
+    .floater{
+      position:absolute;background:#fff;border-radius:13px;padding:9px 13px;
+      box-shadow:var(--shadow-md);border:1px solid var(--border);
+      display:flex;align-items:center;gap:7px;font-size:.7rem;font-weight:600;color:var(--ink);
+      animation:bob 3.2s ease-in-out infinite;
+    }
+    @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    .f1{top:-16px;right:-14px;animation-delay:0s}
+    .f2{bottom:28px;left:-18px;animation-delay:1.6s}
+    .fi{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+
+    @media(max-width:860px){.hero-wrap{grid-template-columns:1fr;gap:3rem}.mock-wrap{max-width:500px;margin:0 auto}.mock-card{transform:none}}
+    @media(max-width:480px){h1{font-size:2.2rem}}
+
+    /* ── SECTION SHARED ── */
+    section{padding:5.5rem clamp(1.25rem,4vw,3.5rem)}
+    .sec-inner{max-width:1240px;margin:0 auto}
+    .sec-tag{
+      display:inline-flex;align-items:center;gap:6px;
+      font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--p2);margin-bottom:.9rem;
+    }
+    .sec-tag::before{content:'';width:18px;height:2px;background:linear-gradient(90deg,var(--p2),var(--c1));border-radius:2px}
+    h2{
+      font-family:var(--ff-head);font-size:clamp(1.9rem,3.8vw,2.9rem);
+      font-weight:700;letter-spacing:-.03em;line-height:1.12;color:var(--ink);margin-bottom:.9rem;
+    }
+    .sec-desc{font-size:1rem;color:var(--ink-3);max-width:500px;line-height:1.75;font-weight:300}
+    .sec-head{margin-bottom:3.5rem}
+    .reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease}
+    .reveal.on{opacity:1;transform:translateY(0)}
+
+    /* ── FEATURES ── */
+    #features{background:var(--bg-2)}
+    .feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem}
+    .feat-card{
+      background:var(--white);border-radius:var(--r);padding:1.75rem;
+      border:1px solid var(--border);box-shadow:var(--shadow-sm);
+      transition:transform .3s,box-shadow .3s;
+      position:relative;overflow:hidden;
+    }
+    .feat-card::after{
+      content:'';position:absolute;inset:-1px;border-radius:var(--r);
+      opacity:0;transition:opacity .3s;pointer-events:none;
+      background:linear-gradient(135deg,rgba(79,70,229,.12),rgba(6,182,212,.08));
+      border:1.5px solid rgba(79,70,229,.25);
+    }
+    .feat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-p)}
+    .feat-card:hover::after{opacity:1}
+    .feat-card-top{width:3px;position:absolute;top:0;left:0;bottom:0;border-radius:var(--r) 0 0 var(--r)}
+    .tc-indigo .feat-card-top{background:linear-gradient(180deg,var(--p2),var(--p3))}
+    .tc-cyan .feat-card-top{background:linear-gradient(180deg,var(--c1),var(--c2))}
+    .tc-emerald .feat-card-top{background:linear-gradient(180deg,#059669,#34d399)}
+    .tc-amber .feat-card-top{background:linear-gradient(180deg,#d97706,#fbbf24)}
+    .feat-icon{
+      width:46px;height:46px;border-radius:13px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.35rem;margin-bottom:1.25rem;
+    }
+    .tc-indigo .feat-icon{background:rgba(79,70,229,.1)}
+    .tc-cyan .feat-icon{background:rgba(6,182,212,.1)}
+    .tc-emerald .feat-icon{background:rgba(5,150,105,.1)}
+    .tc-amber .feat-icon{background:rgba(217,119,6,.1)}
+    .feat-title{font-family:var(--ff-head);font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:.45rem}
+    .feat-desc{font-size:.85rem;color:var(--ink-3);line-height:1.65;font-weight:300;margin-bottom:1.1rem}
+    .feat-pills{display:flex;flex-wrap:wrap;gap:6px}
+    .pill{padding:3px 10px;border-radius:100px;font-size:.68rem;font-weight:600;border:1px solid}
+    .tc-indigo .pill{background:rgba(79,70,229,.07);color:var(--p1);border-color:rgba(79,70,229,.2)}
+    .tc-cyan .pill{background:rgba(6,182,212,.07);color:#0e7490;border-color:rgba(6,182,212,.22)}
+    .tc-emerald .pill{background:rgba(5,150,105,.07);color:#065f46;border-color:rgba(5,150,105,.22)}
+    .tc-amber .pill{background:rgba(217,119,6,.07);color:#92400e;border-color:rgba(217,119,6,.22)}
+
+    .feat-minis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.9rem;margin-top:1.1rem}
+    .feat-mini{
+      display:flex;align-items:center;gap:10px;padding:.85rem 1.1rem;
+      background:var(--white);border-radius:var(--r-sm);border:1px solid var(--border);
+      box-shadow:var(--shadow-sm);transition:border-color .2s,transform .2s;
+    }
+    .feat-mini:hover{border-color:var(--p3);transform:translateY(-2px)}
+    .feat-mini-icon{font-size:1.2rem;flex-shrink:0}
+    .feat-mini-txt{font-size:.82rem;font-weight:500;color:var(--ink-2)}
+
+    /* ── HOW IT WORKS ── */
+    #how-it-works{background:var(--white)}
+    .steps-wrap{
+      display:grid;grid-template-columns:repeat(4,1fr);
+      gap:0;position:relative;margin-top:4rem;
+    }
+    .steps-wrap::before{
+      content:'';position:absolute;
+      top:38px;left:calc(12.5% + 18px);right:calc(12.5% + 18px);
+      height:1.5px;
+      background:linear-gradient(90deg,var(--p2) 0%,var(--c1) 100%);
+      z-index:0;
+    }
+    .step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 .9rem;position:relative;z-index:1}
+    .step-ring{
+      width:76px;height:76px;border-radius:50%;border:1.5px solid var(--p2);
+      background:var(--white);display:flex;align-items:center;justify-content:center;
+      margin-bottom:1.4rem;
+      box-shadow:0 0 0 8px rgba(79,70,229,.07);
+      transition:transform .3s,box-shadow .3s;font-size:1.7rem;
+    }
+    .step:hover .step-ring{transform:scale(1.08);box-shadow:0 0 0 12px rgba(79,70,229,.1),var(--shadow-p)}
+    .step-n{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--p2);margin-bottom:.4rem}
+    .step-t{font-family:var(--ff-head);font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:.4rem}
+    .step-d{font-size:.8rem;color:var(--ink-3);line-height:1.6;font-weight:300}
+
+    @media(max-width:750px){.steps-wrap{grid-template-columns:1fr 1fr;gap:2rem}.steps-wrap::before{display:none}}
+    @media(max-width:460px){.steps-wrap{grid-template-columns:1fr}}
+
+    .roles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:3rem}
+    @media(max-width:760px){.roles-grid{grid-template-columns:1fr}}
+    .role-card{border-radius:var(--r);padding:1.75rem;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s}
+    .role-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+    .rc-admin{background:linear-gradient(140deg,var(--ink) 0%,var(--p1) 100%)}
+    .rc-teacher{background:linear-gradient(140deg,#0c4a6e 0%,#0284c7 100%)}
+    .rc-student{background:linear-gradient(140deg,#064e3b 0%,#059669 100%)}
+    .role-card *{color:#fff}
+    .rc-icon{font-size:1.9rem;margin-bottom:.9rem}
+    .rc-title{font-family:var(--ff-head);font-size:1.1rem;font-weight:700;margin-bottom:.45rem}
+    .rc-desc{font-size:.83rem;opacity:.75;line-height:1.65;font-weight:300;margin-bottom:1.1rem}
+    .rc-feats{display:flex;flex-direction:column;gap:5px}
+    .rc-fi{font-size:.78rem;opacity:.85;padding-left:.8rem;position:relative}
+    .rc-fi::before{content:'→';position:absolute;left:0;opacity:.5}
+
+    /* ── CTA ── */
+    #cta{
+      background:linear-gradient(135deg,var(--ink) 0%,#1e1b4b 50%,#0e3a5c 100%);
+      text-align:center;padding:7rem clamp(1.25rem,4vw,3.5rem);
+      position:relative;overflow:hidden;
+    }
+    .cta-ring{
+      position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.06);
+      animation:bob 7s ease-in-out infinite;
+    }
+    .cr1{width:500px;height:500px;top:-200px;left:-150px;animation-delay:0s}
+    .cr2{width:380px;height:380px;bottom:-140px;right:-80px;animation-delay:3.5s}
+    .cta-inner{position:relative;z-index:1;max-width:600px;margin:0 auto}
+    .cta-eye{
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+      color:rgba(255,255,255,.5);margin-bottom:1.25rem;
+    }
+    .cta-eye::before,.cta-eye::after{content:'';width:28px;height:1px;background:rgba(255,255,255,.25)}
+    .cta-title{
+      font-family:var(--ff-head);font-size:clamp(2rem,5vw,3.4rem);
+      font-weight:700;letter-spacing:-.03em;line-height:1.1;
+      color:#fff;margin-bottom:1.1rem;
+    }
+    .cta-title span{
+      background:linear-gradient(120deg,#a5b4fc,var(--c2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .cta-desc{font-size:1rem;color:rgba(255,255,255,.55);line-height:1.75;margin-bottom:2.5rem;font-weight:300}
+    .btn-cta{
+      display:inline-flex;align-items:center;gap:9px;padding:15px 34px;
+      background:#fff;color:var(--p2);border-radius:14px;
+      font-family:var(--ff-head);font-size:.95rem;font-weight:700;
+      text-decoration:none;
+      box-shadow:0 16px 48px rgba(0,0,0,.28);
+      transition:transform .25s,box-shadow .25s;
+    }
+    .btn-cta:hover{transform:translateY(-3px);box-shadow:0 24px 64px rgba(0,0,0,.38)}
+    .cta-note{margin-top:1.1rem;font-size:.76rem;color:rgba(255,255,255,.35)}
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#home" class="nav-logo" onclick="ss(event,'home')">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3L4 7V13C4 17 7.5 20.5 12 21C16.5 20.5 20 17 20 13V7L12 3Z" fill="rgba(255,255,255,.15)" stroke="white" stroke-width="1.5"/>
+          <path d="M9 12L11 14L15 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      SAFS
+    </a>
+    <ul class="nav-links">
+      <li><a href="#home" onclick="ss(event,'home')">Home</a></li>
+      <li><a href="#features" onclick="ss(event,'features')">Features</a></li>
+      <li><a href="#how-it-works" onclick="ss(event,'how-it-works')">How It Works</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="/accounts/login/" class="btn-nav">Login →</a>
+    </div>
+    <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-dots"></div>
+  <div class="hero-wrap">
+    <!-- LEFT -->
+    <div>
+      <div class="badge"><span class="badge-pip"></span>Academic Feedback Intelligence Platform</div>
+      <h1>Smarter Feedback.<br><span class="grad-text">Better Outcomes.</span></h1>
+      <p class="hero-sub">A unified platform empowering universities to collect, analyze, and act on academic feedback — in real time, with precision and clarity.</p>
+      <div class="hero-btns">
+        <a href="/accounts/login/" class="btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Login Now
+        </a>
+        <a href="#features" class="btn-outline" onclick="ss(event,'features')">
+          Explore Features
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hstat-v">3</div><div class="hstat-l">Role Dashboards</div></div>
+        <div class="hstat"><div class="hstat-v">100%</div><div class="hstat-l">Anonymous &amp; Secure</div></div>
+        <div class="hstat"><div class="hstat-v">Live</div><div class="hstat-l">Real-Time Analytics</div></div>
+      </div>
+    </div>
+    <!-- RIGHT: MOCKUP -->
+    <div class="mock-wrap">
+      <div class="floater f1">
+        <div class="fi" style="background:rgba(5,150,105,.1)">📊</div> Analytics Live
+      </div>
+      <div class="floater f2">
+        <div class="fi" style="background:rgba(79,70,229,.1)">🔒</div> Secure &amp; Private
+      </div>
+      <div class="mock-card">
+        <div class="mock-bar">
+          <div class="mock-dots"><div class="md md-r"></div><div class="md md-y"></div><div class="md md-g"></div></div>
+          <span class="mock-bar-title">SAFS — Admin Dashboard</span>
+        </div>
+        <div class="mock-body">
+          <div class="mock-row">
+            <span class="mock-pg-title">Feedback Overview</span>
+            <span class="mock-live">● Live</span>
+          </div>
+          <div class="mock-metrics">
+            <div class="mm"><div class="mm-v">248</div><div class="mm-l">Responses</div><div class="mm-d">↑ 12%</div></div>
+            <div class="mm"><div class="mm-v">4.6</div><div class="mm-l">Avg Rating</div><div class="mm-d">↑ 0.3</div></div>
+            <div class="mm"><div class="mm-v">18</div><div class="mm-l">Active Forms</div><div class="mm-d">↑ 3</div></div>
+          </div>
+          <div class="mock-charts">
+            <div class="mc">
+              <div class="mc-l">Weekly Feedback</div>
+              <div class="bars">
+                <div class="bar b1"></div><div class="bar b2"></div><div class="bar b3"></div>
+                <div class="bar b4"></div><div class="bar b5"></div><div class="bar b6"></div>
+              </div>
+            </div>
+            <div class="mc">
+              <div class="mc-l">Sentiment</div>
+              <div class="donut-box">
+                <svg class="donut-svg" viewBox="0 0 42 42">
+                  <circle cx="21" cy="21" r="15.91" fill="transparent" stroke="#e0e7ff" stroke-width="6"/>
+                  <circle cx="21" cy="21" r="15.91" fill="transparent" stroke="#4f46e5" stroke-width="6" stroke-dasharray="62 38" stroke-dashoffset="25" stroke-linecap="round"/>
+                  <circle cx="21" cy="21" r="15.91" fill="transparent" stroke="#06b6d4" stroke-width="6" stroke-dasharray="25 75" stroke-dashoffset="-37" stroke-linecap="round"/>
+                  <text x="21" y="24" text-anchor="middle" font-size="7" font-weight="700" fill="#0d0d2b">87%</text>
+                </svg>
+                <div class="donut-leg">
+                  <div class="dl"><span class="dlc" style="background:#4f46e5"></span>Positive</div>
+                  <div class="dl"><span class="dlc" style="background:#06b6d4"></span>Neutral</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mock-list">
+            <div class="mli">
+              <div class="av" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">AK</div>
+              <div class="mli-c"><div class="mli-n">Advanced Mathematics — Form 3</div><div class="mli-s">34 responses · Anonymous</div></div>
+              <div class="stars">★★★★★</div>
+            </div>
+            <div class="mli">
+              <div class="av" style="background:linear-gradient(135deg,#06b6d4,#4f46e5)">CS</div>
+              <div class="mli-c"><div class="mli-n">Computer Science — Mid Term</div><div class="mli-s">52 responses · Public QR</div></div>
+              <div class="stars">★★★★☆</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section id="features">
+  <div class="sec-inner">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Platform Features</div>
+      <h2>Everything in one platform</h2>
+      <p class="sec-desc">Purpose-built for academic institutions — from form creation to deep analytics, all cohesively unified.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card tc-indigo reveal">
+        <div class="feat-card-top"></div>
+        <div class="feat-icon">📋</div>
+        <div class="feat-title">Intelligent Form Builder</div>
+        <div class="feat-desc">Design flexible, multi-format feedback forms with a powerful dynamic question builder supporting ratings, text, and more — tailored to every academic use case.</div>
+        <div class="feat-pills">
+          <span class="pill">Dynamic Questions</span><span class="pill">Rating System</span><span class="pill">QR Code Forms</span><span class="pill">Private Forms</span>
+        </div>
+      </div>
+      <div class="feat-card tc-cyan reveal">
+        <div class="feat-card-top"></div>
+        <div class="feat-icon">🔐</div>
+        <div class="feat-title">Privacy &amp; Access Control</div>
+        <div class="feat-desc">Granular control over who submits and how. Enable anonymous or identified feedback, with role-based authentication protecting every layer of your data.</div>
+        <div class="feat-pills">
+          <span class="pill">Anonymous Mode</span><span class="pill">Identified Mode</span><span class="pill">Role-Based Auth</span><span class="pill">Secure Login</span>
+        </div>
+      </div>
+      <div class="feat-card tc-emerald reveal">
+        <div class="feat-card-top"></div>
+        <div class="feat-icon">📈</div>
+        <div class="feat-title">Analytics &amp; Reporting</div>
+        <div class="feat-desc">Visualize feedback trends with interactive pie charts. Export polished data to Excel or PDF for institutional records and presentations.</div>
+        <div class="feat-pills">
+          <span class="pill">Pie Chart Analysis</span><span class="pill">Excel Export</span><span class="pill">PDF Export</span><span class="pill">Visual Insights</span>
+        </div>
+      </div>
+      <div class="feat-card tc-amber reveal">
+        <div class="feat-card-top"></div>
+        <div class="feat-icon">🏛️</div>
+        <div class="feat-title">Multi-Role Dashboards</div>
+        <div class="feat-desc">Three purpose-built dashboards — each tailored to administrators, teachers, and students — delivering the right information to the right person.</div>
+        <div class="feat-pills">
+          <span class="pill">Admin Dashboard</span><span class="pill">Teacher Dashboard</span><span class="pill">Student Dashboard</span>
+        </div>
+      </div>
+    </div>
+    <div class="feat-minis">
+      <div class="feat-mini reveal"><span class="feat-mini-icon">📱</span><span class="feat-mini-txt">Fully Responsive Interface</span></div>
+      <div class="feat-mini reveal"><span class="feat-mini-icon">🔗</span><span class="feat-mini-txt">Public QR Feedback Links</span></div>
+      <div class="feat-mini reveal"><span class="feat-mini-icon">🛡️</span><span class="feat-mini-txt">Encrypted Sessions</span></div>
+      <div class="feat-mini reveal"><span class="feat-mini-icon">🎯</span><span class="feat-mini-txt">Targeted Private Forms</span></div>
+      <div class="feat-mini reveal"><span class="feat-mini-icon">📥</span><span class="feat-mini-txt">One-Click Data Exports</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section id="how-it-works">
+  <div class="sec-inner">
+    <div class="sec-head reveal" style="text-align:center;display:flex;flex-direction:column;align-items:center">
+      <div class="sec-tag">Workflow</div>
+      <h2 style="text-align:center">From setup to insight<br>in four steps</h2>
+      <p class="sec-desc" style="text-align:center">A streamlined process making feedback collection effortless for every stakeholder.</p>
+    </div>
+    <div class="steps-wrap reveal">
+      <div class="step"><div class="step-ring">🏗️</div><div class="step-n">Step 01</div><div class="step-t">Admin Creates Form</div><div class="step-d">Design custom feedback forms with dynamic questions, rating fields, and access controls.</div></div>
+      <div class="step"><div class="step-ring">📤</div><div class="step-n">Step 02</div><div class="step-t">Teacher Shares Form</div><div class="step-d">Distribute forms via secure links or QR codes with full visibility from their dashboard.</div></div>
+      <div class="step"><div class="step-ring">✍️</div><div class="step-n">Step 03</div><div class="step-t">Student Gives Feedback</div><div class="step-d">Submit responses — anonymously or identified — through a clean mobile-friendly interface.</div></div>
+      <div class="step">
+        <div class="step-ring" style="background:linear-gradient(135deg,var(--p2),var(--c1));border-color:transparent;box-shadow:0 0 0 8px rgba(79,70,229,.1),var(--shadow-p)">
+          <span style="filter:brightness(10)">📊</span>
+        </div>
+        <div class="step-n">Step 04</div><div class="step-t">Analytics Generated</div>
+        <div class="step-d">Rich charts, sentiment breakdowns, and exportable reports generated instantly.</div>
+      </div>
+    </div>
+
+    <div class="sec-head reveal" style="margin-top:5rem">
+      <div class="sec-tag">Roles</div>
+      <h2>A platform for<br>every stakeholder</h2>
+    </div>
+    <div class="roles-grid">
+      <div class="role-card rc-admin reveal">
+        <div class="rc-icon">🏛️</div>
+        <div class="rc-title">Administrator</div>
+        <div class="rc-desc">Full platform control — manage users, forms, system-wide analytics, and export institutional reports.</div>
+        <div class="rc-feats">
+          <div class="rc-fi">Create &amp; manage all feedback forms</div>
+          <div class="rc-fi">User and role management</div>
+          <div class="rc-fi">System-wide analytics dashboard</div>
+          <div class="rc-fi">Export data to Excel &amp; PDF</div>
+        </div>
+      </div>
+      <div class="role-card rc-teacher reveal">
+        <div class="rc-icon">🎓</div>
+        <div class="rc-title">Teacher</div>
+        <div class="rc-desc">Distribute forms, monitor real-time responses, and gain insights into student experience.</div>
+        <div class="rc-feats">
+          <div class="rc-fi">Share forms via QR or link</div>
+          <div class="rc-fi">Track form response rates</div>
+          <div class="rc-fi">View analytics per form</div>
+          <div class="rc-fi">Download response reports</div>
+        </div>
+      </div>
+      <div class="role-card rc-student reveal">
+        <div class="rc-icon">📚</div>
+        <div class="rc-title">Student</div>
+        <div class="rc-desc">Submit honest, structured feedback securely — anonymously or identified — on any device.</div>
+        <div class="rc-feats">
+          <div class="rc-fi">Access assigned feedback forms</div>
+          <div class="rc-fi">Submit via QR code or link</div>
+          <div class="rc-fi">Choose anonymous submission</div>
+          <div class="rc-fi">Rate &amp; review on mobile</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section id="cta">
+  <div class="cta-ring cr1"></div>
+  <div class="cta-ring cr2"></div>
+  <div class="cta-inner reveal">
+    <div class="cta-eye">Get Started Today</div>
+    <h2 class="cta-title">Ready for <span>smarter</span><br>academic feedback?</h2>
+    <p class="cta-desc">Join administrators, teachers, and students who use SAFS to transform how feedback is collected, understood, and acted upon.</p>
+    <a href="/accounts/login/" class="btn-cta">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      Login to Your Dashboard
+    </a>
+    <div class="cta-note">Role-based access · Secure authentication · No setup required</div>
+  </div>
+</section>
+
+<script>
+  function ss(e,id){e.preventDefault();document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('nav').classList.remove('open')}
+  window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>20),{passive:true})
+  function toggleMenu(){document.getElementById('nav').classList.toggle('open')}
+  const obs=new IntersectionObserver((entries)=>{entries.forEach(en=>{if(en.isIntersecting){const sibs=[...en.target.parentElement.querySelectorAll('.reveal')];const i=sibs.indexOf(en.target);en.target.style.transitionDelay=(i*.07)+'s';en.target.classList.add('on');obs.unobserve(en.target)}})},{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
