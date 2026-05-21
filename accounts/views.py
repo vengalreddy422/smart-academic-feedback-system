@@ -207,7 +207,7 @@ def user_login(request):
 
         username = request.POST.get(
             'username'
-        ).strip().upper()
+        )
 
         password = request.POST.get(
             'password'
