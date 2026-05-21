@@ -293,85 +293,51 @@ def submit_form(request, form_id):
     )
     
 def public_form(request, uuid):
-    
     form = get_object_or_404(
-
         DynamicForm,
-
         uuid=uuid,
-
         is_active=True,
     )
 
+    # Clean, simple ordering: First created stays first, newest goes to the bottom
     questions = FormQuestion.objects.filter(
-
-    form=form
-
+        form=form
     ).order_by(
-
-        '-is_system_field',
-
-        'order',
-
+        'order', 
         'id'
     )   
 
-    _attach_options_list(
-        questions
-    )
+    _attach_options_list(questions)
 
     if request.method == "POST":
-        response = PublicFormResponse.objects.create(
-
-        form=form)
+        response = PublicFormResponse.objects.create(form=form)
+        
         for question in questions:
-
             if question.field_type == "checkbox":
-
-                selected = request.POST.getlist(
-                    str(question.id)
-                )
-
+                selected = request.POST.getlist(str(question.id))
                 answer = ",".join(selected)
-
             else:
-
-                answer = request.POST.get(
-                    str(question.id),
-                    ""
-                )
+                answer = request.POST.get(str(question.id), "")
 
             PublicFormAnswer.objects.create(
-
                 response=response,
-
                 question=question,
-
                 answer=answer,
             )
 
         return render(
-
             request,
-
             'forms_engine/form_success.html',
-
             {
-
                 'form_type': 'public',
             }
-)
+        )
 
     return render(
-
         request,
-
         "forms_engine/public_form.html",
-
         {
-
             "form": form,
-
             "questions": questions,
         },
     )

@@ -246,148 +246,108 @@ import csv
 # PUBLIC FORM EXCEL EXPORT
 # ==========================================
 
-def public_form_excel(
-    request,
-    form_id
-):
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from openpyxl import Workbook
 
-    form = get_object_or_404(
+# ReportLab imports needed for the PDF layout generation
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, HRFlowable
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 
-        DynamicForm,
-        id=form_id
-    )
-
-    responses = PublicFormResponse.objects.filter(
-        form=form
-    )
-
+# ==========================================
+# 1. EXCEL EXPORT (Horizontal Rows)
+# ==========================================
+def public_form_excel(request, form_id):
+    form = get_object_or_404(DynamicForm, id=form_id)
+    
+    # Optimized query prefetching answers to prevent database bottlenecks
+    responses = PublicFormResponse.objects.filter(form=form).prefetch_related('publicformanswer_set')
+    questions = FormQuestion.objects.filter(form=form).order_by('-is_system_field', 'order', 'id')
+    
     workbook = Workbook()
-
     worksheet = workbook.active
-
     worksheet.title = 'Public Responses'
 
-    # ==========================================
-    # DYNAMIC QUESTIONS
-    # ==========================================
-
-    questions = FormQuestion.objects.filter(
-
-    form=form
-
-).order_by(
-
-    '-is_system_field',
-
-    'order',
-
-    'id'
-)
-
-    headers = []
-
-    for question in questions:
-
-        headers.append(
-            question.question
-        )
-
-    headers.append(
-        'Submitted At'
-    )
-
+    # Append Header columns
+    headers = [question.question for question in questions]
+    headers.append('Submitted At')
     worksheet.append(headers)
 
-    # ==========================================
-    # RESPONSE ROWS
-    # ==========================================
-
+    # Populate data side-by-side
     for response in responses:
-
         row = []
-
-        answers = PublicFormAnswer.objects.filter(
-            response=response
-        )
-
-        answer_map = {}
-
-        for answer in answers:
-
-            answer_map[
-                answer.question.id
-            ] = answer.answer
+        answer_map = {ans.question_id: ans.answer for ans in response.publicformanswer_set.all()}
 
         for question in questions:
+            row.append(answer_map.get(question.id, ''))
 
-            row.append(
-
-                answer_map.get(
-                    question.id,
-                    ''
-                )
-            )
-
-        row.append(
-            str(response.submitted_at)
-        )
-
+        row.append(response.submitted_at.strftime('%Y-%m-%d %H:%M:%S'))
         worksheet.append(row)
 
     response_file = HttpResponse(
-
-        content_type=
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-
-    response_file[
-        'Content-Disposition'
-    ] = f'attachment; filename={form.title}.xlsx'
-
+    response_file['Content-Disposition'] = f'attachment; filename="{form.title}.xlsx"'
     workbook.save(response_file)
-
     return response_file
+
+
 # ==========================================
-# PUBLIC DETAILED PDF
+# 2. PDF EXPORT (Vertical Sequential Records)
 # ==========================================
+def public_detailed_pdf(request, form_id):
+    form = get_object_or_404(DynamicForm, id=form_id)
+    responses = PublicFormResponse.objects.filter(form=form).prefetch_related('publicformanswer_set')
+    questions = FormQuestion.objects.filter(form=form).order_by('-is_system_field', 'order', 'id')
 
-def public_detailed_pdf(
-    request,
-    form_id
-):
+    response_file = HttpResponse(content_type='application/pdf')
+    response_file['Content-Disposition'] = f'attachment; filename="{form.title}.pdf"'
 
-    form = get_object_or_404(
-
-        DynamicForm,
-        id=form_id
+    doc = SimpleDocTemplate(
+        response_file, 
+        pagesize=letter, 
+        rightMargin=40, 
+        leftMargin=40, 
+        topMargin=40, 
+        bottomMargin=40
     )
+    story = []
 
-    queryset = (
-        PublicFormResponse.objects
-        .filter(form=form)
-        .prefetch_related(
-            'publicformanswer_set__question'
-        )
-    )
-
-    return export_anonymous_detailed_pdf(
-
-        queryset,
-
-        f'{form.title}_public_detailed'
-    )
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('DocTitle', parent=styles['Heading1'], fontSize=22, spaceAfter=20)
+    record_header_style = ParagraphStyle('RecHead', parent=styles['Heading3'], fontSize=12, spaceBefore=15, spaceAfter=10, textColor=colors.HexColor('#2563eb'))
     
-# ==========================================
-# PRIVATE ANONYMOUS PDF
-# ==========================================
-# ==========================================
-# PRIVATE ANONYMOUS PDF
-# ==========================================
+    # Q_STYLE: The question label (at the top)
+    q_style = ParagraphStyle('QuestText', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=10, leading=14, spaceAfter=2, textColor=colors.HexColor('#0f172a'))
+    
+    # A_STYLE: The answer text (under the question)
+    a_style = ParagraphStyle('AnsText', parent=styles['Normal'], fontName='Helvetica', fontSize=10, leading=14, spaceAfter=12, textColor=colors.HexColor('#334155'))
 
-# ==========================================
-# PRIVATE ANONYMOUS PDF
-# ==========================================
+    story.append(Paragraph(f"{form.title} - Responses Report", title_style))
 
+    for index, response in enumerate(responses, start=1):
+        timestamp = response.submitted_at.strftime('%Y-%m-%d %H:%M:%S')
+        story.append(Paragraph(f"Submission #{index} — Date: {timestamp}", record_header_style))
+        
+        answer_map = {ans.question_id: ans.answer for ans in response.publicformanswer_set.all()}
+
+        # CORRECT ORDER: Question First, then Answer
+        for question in questions:
+            user_answer = answer_map.get(question.id, '—')
+
+            # 1. ADD QUESTION FIRST
+            story.append(Paragraph(f"<b>Q: {question.question}</b>", q_style))
+            
+            # 2. ADD ANSWER UNDER THE QUESTION
+            story.append(Paragraph(f"{user_answer}", a_style))
+
+        # Divider
+        story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#cbd5e1'), spaceBefore=5, spaceAfter=20))
+
+    doc.build(story)
+    return response_file
 # ==========================================
 # PRIVATE ANONYMOUS PDF
 # ==========================================

@@ -378,8 +378,6 @@
 
                 </div>
 
-                
-
                 <div class="left-title">
 
                     {{ form.title }}
@@ -455,6 +453,7 @@
                 <form
                     method="POST"
                     id="dynamicForm"
+                    novalidate
                 >
 
                     {% csrf_token %}
@@ -468,21 +467,22 @@
                                 {{ question.question }}
 
                             </label>
-{% if question.field_type == 'text' %}
 
-    <input
-        type="text"
-        class="form-control text-input"
-        name="{{ question.id }}"
-        data-question="{{ question.question|lower }}"
-        required="{{ question.required }}"
-    >
+                            {% if question.field_type == 'text' %}
 
-    <div class="error-message text-error">
+                                <input
+                                    type="text"
+                                    class="form-control text-input"
+                                    name="{{ question.id }}"
+                                    data-question="{{ question.question|lower }}"
+                                    {% if question.required %}required{% endif %}
+                                >
 
-        Invalid Input
+                                <div class="error-message text-error">
 
-    </div>
+                                    This field is required
+
+                                </div>
 
                             {% elif question.field_type == 'email' %}
 
@@ -490,7 +490,7 @@
                                     type="email"
                                     class="form-control"
                                     name="{{ question.id }}"
-                                    required="{{ question.required }}"
+                                    {% if question.required %}required{% endif %}
                                 >
 
                                 <div class="error-message">
@@ -507,29 +507,29 @@
                                     name="{{ question.id }}"
                                     maxlength="10"
                                     pattern="[0-9]{10}"
-                                    required="{{ question.required }}"
+                                    {% if question.required %}required{% endif %}
                                 >
 
                                 <div class="error-message phone-error">
 
-                                    Enter valid phone number
+                                    Enter valid 10-digit phone number
 
                                 </div>
 
-                {% elif question.field_type == 'date' %}
+                            {% elif question.field_type == 'date' %}
 
-        <input
-            type="date"
-            class="form-control dob-input"
-            name="{{ question.id }}"
-            required="{{ question.required }}"
-        >
+                                <input
+                                    type="date"
+                                    class="form-control dob-input"
+                                    name="{{ question.id }}"
+                                    {% if question.required %}required{% endif %}
+                                >
 
-        <div class="error-message dob-error">
+                                <div class="error-message dob-error">
 
-            Please enter valid date of birth
+                                    Please enter valid date
 
-        </div>
+                                </div>
 
                             {% elif question.field_type == 'textarea' %}
 
@@ -537,14 +537,20 @@
                                     class="form-control"
                                     rows="4"
                                     name="{{ question.id }}"
-                                    required="{{ question.required }}"
+                                    {% if question.required %}required{% endif %}
                                 ></textarea>
+                                
+                                <div class="error-message">
 
-                                {% elif question.field_type == 'select' %}
+                                    This field is required
+
+                                </div>
+
+                            {% elif question.field_type == 'select' %}
                                 <select
                                     class="form-select"
                                     name="{{ question.id }}"
-                                    required="{{ question.required }}"
+                                    {% if question.required %}required{% endif %}
                                 >
 
                                     <option value="">
@@ -564,6 +570,12 @@
                                     {% endfor %}
 
                                 </select>
+                                
+                                <div class="error-message">
+
+                                    Please select an option
+
+                                </div>
 
                             {% elif question.field_type == 'checkbox' %}
 
@@ -610,6 +622,7 @@
                                                 name="{{ question.id }}"
                                                 value="{{ opt.option_text }}"
                                                 id="r{{ question.id }}{{ forloop.counter }}"
+                                                {% if question.required %}required{% endif %}
                                             >
 
                                             <label
@@ -632,6 +645,7 @@
                                 <select
                                     class="form-select"
                                     name="{{ question.id }}"
+                                    {% if question.required %}required{% endif %}
                                 >
 
                                     <option value="">
@@ -647,6 +661,12 @@
                                     <option value="5">5</option>
 
                                 </select>
+                                
+                                <div class="error-message">
+
+                                    Please select a rating option
+
+                                </div>
 
                             {% endif %}
 
@@ -674,246 +694,146 @@
     </div>
 
 </div>
+
 <script>
-
-    const form =
-        document.getElementById(
-            'dynamicForm'
-        );
-
-    form.addEventListener(
-
-        'submit',
-
-        function(event){
-
-            let valid = true;
-
-            // ==========================================
-            // PHONE VALIDATION
-            // ==========================================
-
-            const phoneInputs =
-                document.querySelectorAll(
-                    '.phone-input'
-                );
-
-            phoneInputs.forEach(
-
-                function(input){
-
-                    const value =
-                        input.value.trim();
-
-                    const error =
-                        input.parentElement.querySelector(
-                            '.phone-error'
-                        );
-
-                    const allSame =
-                        /^(\d)\1+$/.test(value);
-
-                    if(
-
-                        value.length !== 10
-
-                        ||
-
-                        !/^\d+$/.test(value)
-
-                        ||
-
-                        allSame
-                    ){
-
-                        valid = false;
-
-                        error.style.display =
-                            'block';
-                    }
-
-                    else{
-
-                        error.style.display =
-                            'none';
-                    }
-                }
-            );
-
-            // ==========================================
-            // TEXT FIELD VALIDATION
-            // ==========================================
-
-            const textInputs =
-                document.querySelectorAll(
-                    '.text-input'
-                );
-
-            textInputs.forEach(
-
-                function(input){
-
-                    const value =
-                        input.value.trim();
-
-                    const question =
-                        input.dataset.question
-                        .toLowerCase();
-
-                    const error =
-                        input.parentElement.querySelector(
-                            '.text-error'
-                        );
-
-                    let validText = true;
-
-                    // ==================================
-                    // COLLEGE NAME
-                    // ==================================
-
-                    if(
-
-                        question.includes(
-                            'college'
-                        )
-                    ){
-
-                        validText =
-                            /^[A-Za-z ]+$/.test(
-                                value
-                            );
-
-                        error.innerText =
-                            'College name must contain only letters';
-                    }
-
-                    // ==================================
-                    // BRANCH / DEPARTMENT
-                    // ==================================
-
-                    else if(
-
-                        question.includes(
-                            'branch'
-                        )
-
-                        ||
-
-                        question.includes(
-                            'department'
-                        )
-                    ){
-
-                        validText =
-                            /^[A-Za-z ]+$/.test(
-                                value
-                            );
-
-                        error.innerText =
-                            'Branch must contain only letters';
-                    }
-
-                    // ==================================
-                    // NAME
-                    // ==================================
-
-                    else if(
-
-                        question.includes(
-                            'name'
-                        )
-                    ){
-
-                        validText =
-                            /^[A-Za-z ]+$/.test(
-                                value
-                            );
-
-                        error.innerText =
-                            'Name must contain only letters';
-                    }
-
-                    // ==================================
-                    // SHOW ERROR
-                    // ==================================
-
-                    if(!validText){
-
-                        valid = false;
-
-                        error.style.display =
-                            'block';
-                    }
-
-                    else{
-
-                        error.style.display =
-                            'none';
-                    }
-                }
-            );
-
-            // ==========================================
-            // DOB VALIDATION
-            // ==========================================
-
-            const dobInputs =
-                document.querySelectorAll(
-                    '.dob-input'
-                );
-
-            dobInputs.forEach(
-
-                function(input){
-
-                    const value =
-                        input.value;
-
-                    const error =
-                        input.parentElement.querySelector(
-                            '.dob-error'
-                        );
-
-                    if(value){
-
-                        const selectedDate =
-                            new Date(value);
-
-                        const today =
-                            new Date();
-
-                        if(
-
-                            selectedDate >= today
-                        ){
-
-                            valid = false;
-
-                            error.style.display =
-                                'block';
+    const form = document.getElementById('dynamicForm');
+
+    form.addEventListener('submit', function(event) {
+        let valid = true;
+
+        // ========================================================
+        // 1. FORCE THE RED ERROR MESSAGES TO SHOW FOR NATIVE BLANK / INVALID FIELDS
+        // ========================================================
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+            valid = false;
+        }
+
+        // Display or hide the error block based on validity status
+        form.querySelectorAll('.form-control, .form-select').forEach(input => {
+            const error = input.parentElement.querySelector('.error-message');
+            
+            if (error) {
+                if (!input.checkValidity()) {
+                    // Match standard text message to field requirements if empty
+                    if (input.validity.valueMissing) {
+                        if (input.tagName.toLowerCase() === 'select') {
+                            error.innerText = 'Please select an option';
+                        } else {
+                            error.innerText = 'This field is required';
                         }
+                    } else if (input.type === 'email' && input.validity.typeMismatch) {
+                        error.innerText = 'Please enter valid email address';
+                    }
+                    error.style.display = 'block'; 
+                } else {
+                    error.style.display = 'none';  
+                }
+            }
+        });
 
-                        else{
+        // ========================================================
+        // 2. CUSTOM PHONE VALIDATION
+        // ========================================================
+        const phoneInputs = document.querySelectorAll('.phone-input');
+        phoneInputs.forEach(function(input) {
+            const value = input.value.trim();
+            const error = input.parentElement.querySelector('.phone-error');
+            const allSame = /^(\d)\1+$/.test(value);
 
-                            error.style.display =
-                                'none';
-                        }
+            if (input.hasAttribute('required') && value === '') {
+                valid = false;
+                if (error) {
+                    error.innerText = 'This field is required';
+                    error.style.display = 'block';
+                }
+            } else if (value !== '') {
+                if (value.length !== 10 || !/^\d+$/.test(value) || allSame) {
+                    valid = false;
+                    if (error) {
+                        error.innerText = 'Enter valid 10-digit phone number';
+                        error.style.display = 'block';
                     }
                 }
-            );
+            }
+        });
 
-            // ==========================================
-            // STOP FORM SUBMIT
-            // ==========================================
+        // ========================================================
+        // 3. CUSTOM TEXT FIELD VALIDATION (NAME/COLLEGE/BRANCH)
+        // ========================================================
+        const textInputs = document.querySelectorAll('.text-input');
+        textInputs.forEach(function(input) {
+            const value = input.value.trim();
+            const question = input.dataset.question ? input.dataset.question.toLowerCase() : '';
+            const error = input.parentElement.querySelector('.text-error');
+            let validText = true;
 
-            if(!valid){
-
-                event.preventDefault();
+            if (input.hasAttribute('required') && value === '') {
+                valid = false;
+                if (error) {
+                    error.innerText = 'This field is required';
+                    error.style.display = 'block';
+                }
+                return;
             }
 
-        }
-    );
+            if (value !== '') {
+                if (question.includes('college') || question.includes('branch') || question.includes('department') || question.includes('name')) {
+                    validText = /^[A-Za-z ]+$/.test(value);
+                }
 
+                if (!validText) {
+                    valid = false;
+                    if (error) {
+                        if (question.includes('college')) {
+                            error.innerText = 'College name must contain only letters';
+                        } else if (question.includes('branch') || question.includes('department')) {
+                            error.innerText = 'Branch must contain only letters';
+                        } else {
+                            error.innerText = 'Name must contain only letters';
+                        }
+                        error.style.display = 'block';
+                    }
+                }
+            }
+        });
+
+        // ========================================================
+        // 4. CUSTOM DOB VALIDATION
+        // ========================================================
+        const dobInputs = document.querySelectorAll('.dob-input');
+        dobInputs.forEach(function(input) {
+            const value = input.value;
+            const error = input.parentElement.querySelector('.dob-error');
+
+            if (input.hasAttribute('required') && value === '') {
+                valid = false;
+                if (error) {
+                    error.innerText = 'This field is required';
+                    error.style.display = 'block';
+                }
+            } else if (value) {
+                const selectedDate = new Date(value);
+                const today = new Date();
+
+                if (selectedDate >= today) {
+                    valid = false;
+                    if (error) {
+                        error.innerText = 'Please enter valid date';
+                        error.style.display = 'block';
+                    }
+                }
+            }
+        });
+
+        // ========================================================
+        // 5. BLOCK SUBMISSION IF ANY FIELD HAS FAILED
+        // ========================================================
+        if (!valid) {
+            event.preventDefault(); 
+        }
+    });
 </script>
 
 </body>

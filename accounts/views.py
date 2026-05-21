@@ -1452,250 +1452,135 @@ def public_form_users(request, form_id):
         context
     )
     
+from collections import Counter
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+# Make sure to import your models here (DynamicForm, PublicFormResponse, FormQuestion, PublicFormAnswer)
+
 @login_required
 def public_form_detail(request, form_id):
 
     # ==========================================
     # ADMIN CHECK
     # ==========================================
-
     if request.user.role != 'admin':
-
-        return HttpResponse(
-            'Unauthorized'
-        )
+        return HttpResponse('Unauthorized')
 
     # ==========================================
     # GET FORM
     # ==========================================
-
-    form = get_object_or_404(
-
-        DynamicForm,
-
-        id=form_id
-    )
+    form = get_object_or_404(DynamicForm, id=form_id)
 
     # ==========================================
     # RESPONSES
     # ==========================================
-
-    responses = PublicFormResponse.objects.filter(
-
-        form=form
-    )
-
+    responses = PublicFormResponse.objects.filter(form=form)
     total_responses = responses.count()
 
     # ==========================================
     # QUESTIONS
     # ==========================================
-
-    questions = FormQuestion.objects.filter(
-
-        form=form
-
-    ).order_by(
-
+    questions = FormQuestion.objects.filter(form=form).order_by(
         '-is_system_field',
-
         'order',
-
         'id'
-    )
+    )   
 
     # ==========================================
-    # ANALYTICS
+    # ANALYTICS & TEXT CONTAINERS
     # ==========================================
-
     question_analytics = []
-
-    # ==========================================
-    # TEXT RESPONSES
-    # ==========================================
-
     text_questions = []
 
     # ==========================================
     # LOOP QUESTIONS
     # ==========================================
-
     for question in questions:
 
         # ======================================
         # SKIP SYSTEM FIELDS
         # ======================================
-
         if question.is_system_field:
-
             continue
 
         # ======================================
         # GET ANSWERS
         # ======================================
-
-        answers = PublicFormAnswer.objects.filter(
-
-            question=question
-        )
+        answers = PublicFormAnswer.objects.filter(question=question)
 
         # ======================================
-        # TEXT RESPONSES
+        # TEXT RESPONSES (TEXTAREA ONLY)
         # ======================================
-
-        if question.field_type in [
-
-            'text',
-
-            'textarea',
-
-            'email'
-        ]:
-
+        if question.field_type == 'textarea':
             text_answer_list = []
-
             for answer in answers:
-
                 if answer.answer.strip():
-
-                    text_answer_list.append(
-
-                        answer.answer
-                    )
+                    text_answer_list.append(answer.answer)
 
             text_questions.append({
-
                 'question': question.question,
-
                 'answers': text_answer_list,
             })
 
         # ======================================
-        # VISUALIZATION QUESTIONS
+        # VISUALIZATION QUESTIONS (RATING, CHECKBOX, SELECT, RADIO)
         # ======================================
-
-        elif question.field_type in [
-
-            'radio',
-
-            'checkbox',
-
-            'select',
-
-            'rating'
-        ]:
-
+        elif question.field_type in ['radio', 'checkbox', 'select', 'rating']:
             answer_list = []
-
             for answer in answers:
-
-                # ==============================
-                # CHECKBOX SUPPORT
-                # ==============================
-
+                
+                # Checkbox items handling
                 if ',' in answer.answer:
-
-                    split_answers = (
-
-                        answer.answer.split(',')
-                    )
-
+                    split_answers = answer.answer.split(',')
                     for item in split_answers:
-
                         clean_item = item.strip()
-
                         if clean_item:
-
-                            answer_list.append(
-                                clean_item
-                            )
-
+                            answer_list.append(clean_item)
                 else:
-
                     if answer.answer.strip():
-
-                        answer_list.append(
-
-                            answer.answer
-                        )
+                        answer_list.append(answer.answer)
 
             # ==================================
-            # COUNTS
+            # COUNTS & LABELS
             # ==================================
-
-            answer_counts = Counter(
-
-                answer_list
-            )
-
-            labels = list(
-
-                answer_counts.keys()
-            )
-
-            values = list(
-
-                answer_counts.values()
-            )
+            answer_counts = Counter(answer_list)
+            labels = list(answer_counts.keys())
+            values = list(answer_counts.values())
 
             # ==================================
-            # EMPTY CHECK
+            # EMPTY CHECK & CHART TYPE ASSIGNMENT
             # ==================================
-
             if labels and values:
-
-                # ==============================
-                # CHART TYPE
-                # ==============================
-
                 if question.field_type == 'checkbox':
-
                     chart_type = 'bar'
-
                 else:
-
                     chart_type = 'pie'
 
                 question_analytics.append({
-
                     'question': question.question,
-
                     'labels': labels,
-
                     'values': values,
-
                     'chart_type': chart_type,
                 })
 
     # ==========================================
     # CONTEXT
     # ==========================================
-
     context = {
-
         'form': form,
-
         'responses': responses,
-
         'total_responses': total_responses,
-
         'question_analytics': question_analytics,
-
         'text_questions': text_questions,
     }
 
     # ==========================================
     # RENDER
     # ==========================================
+    return render(request, 'accounts/public_form_detail.html', context)
 
-    return render(
 
-        request,
-
-        'accounts/public_form_detail.html',
-
-        context
-    )
 @login_required
 @role_required('admin')
 def edit_form(request, form_id):

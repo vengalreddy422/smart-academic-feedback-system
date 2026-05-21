@@ -10,160 +10,65 @@ Public Form Analytics
 Public Form Analytics
 {% endblock %}
 
-<!-- ===================================== -->
-<!-- EXTRA CSS -->
-<!-- ===================================== -->
-
 {% block extra_css %}
-
 <link
     rel="stylesheet"
     href="{% static 'accounts/css/public_form_detail.css' %}?v=99"
 >
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 {% endblock %}
 
-<!-- ===================================== -->
-<!-- CONTENT -->
-<!-- ===================================== -->
-
 {% block content %}
-
 <div class="analytics-container">
 
-    <!-- ===================================== -->
-    <!-- HEADER -->
-    <!-- ===================================== -->
-
     <div class="top-banner">
-
-        <h1>
-
-            {{ form.title }}
-
-        </h1>
-
-        <p>
-
-            Public Form Analytics Dashboard
-
-        </p>
-
+        <h1>{{ form.title }}</h1>
+        <p>Public Form Analytics Dashboard</p>
     </div>
-
-    <!-- ===================================== -->
-    <!-- SUMMARY -->
-    <!-- ===================================== -->
 
     <div class="summary-grid">
-
-        <!-- CARD 1 -->
-
         <div class="summary-card blue">
-
-            <h2>
-
-                {{ total_responses }}
-
-            </h2>
-
-            <p>
-
-                Total Responses
-
-            </p>
-
+            <h2>{{ total_responses }}</h2>
+            <p>Total Responses</p>
         </div>
-
-        <!-- CARD 2 -->
 
         <div class="summary-card green">
-
-            <h2>
-
-                {{ question_analytics|length }}
-
-            </h2>
-
-            <p>
-
-                Analytics Questions
-
-            </p>
-
+            <h2>{{ question_analytics|length }}</h2>
+            <p>Analytics Questions</p>
         </div>
-
-        <!-- CARD 3 -->
 
         <div class="summary-card red">
-
-            <h2>
-
-                Active
-
-            </h2>
-
-            <p>
-
-                Form Status
-
-            </p>
-
+            <h2>Active</h2>
+            <p>Form Status</p>
         </div>
-
     </div>
 
-    <!-- ===================================== -->
-    <!-- CHART QUESTIONS -->
-    <!-- ===================================== -->
-
     <div class="accordion-group accordion-group--charts">
-
         {% for item in question_analytics %}
-
-        <div class="question-card">
-
-            <!-- HEADER -->
-
+        <div class="question-card" style="border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 16px; background: #fff; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            
             <button
                 type="button"
                 class="question-header"
                 data-accordion-toggle="chart"
                 data-accordion-target="chart-acc-{{ forloop.counter }}"
                 aria-expanded="false"
+                style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border: none; background: transparent; text-align: left; cursor: pointer; transition: background 0.2s;"
+                onmouseover="this.style.background='#f8fafc'"
+                onmouseout="this.style.background='transparent'"
             >
-
-                <div>
-
-                    <h2 class="question-title">
-
-                        {{ forloop.counter }}.
-                        {{ item.question }}
-
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <h2 class="question-title" style="font-size: 15px; font-weight: 600; color: #1e293b; margin: 0; line-height: 1.4;">
+                        {{ forloop.counter }}. {{ item.question }}
                     </h2>
-
-                    <span class="chart-badge">
-
+                    <span class="chart-badge" style="font-size: 11px; padding: 3px 10px; background: #eff6ff; color: #2563eb; border-radius: 20px; font-weight: 500;">
                         Analytics Report
-
                     </span>
-
                 </div>
-
-                <div
-                    class="toggle-btn"
-                    aria-hidden="true"
-                >
-
+                <div class="toggle-btn" aria-hidden="true" style="font-size: 11px; color: #64748b; transition: transform 0.2s; padding: 2px 6px;">
                     ▼
-
                 </div>
-
             </button>
-
-            <!-- BODY -->
 
             <div
                 class="question-body accordion-body--chart"
@@ -171,74 +76,43 @@ Public Form Analytics
                 role="region"
                 aria-hidden="true"
             >
-
-                <div class="chart-wrapper">
-
-                    <div class="chart-box">
-
-                        <canvas
-                            id="chart-{{ forloop.counter }}"
-                            aria-label="Chart"
-                        ></canvas>
-
+                <div class="chart-wrapper" style="padding: 20px; border-top: 1px solid #f1f5f9; background: #f8fafc;">
+                    <div class="chart-box" style="max-width: 500px; margin: 0 auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <canvas id="chart-{{ forloop.counter }}" aria-label="Chart"></canvas>
                     </div>
-
                 </div>
-
             </div>
 
         </div>
-
         {% endfor %}
-
     </div>
 
-    <!-- ===================================== -->
-    <!-- TEXT QUESTIONS -->
-    <!-- ===================================== -->
-
     <div class="accordion-group accordion-group--text">
-
         {% for item in text_questions %}
-
-        <div class="question-card accordion-card--text">
-
-            <!-- HEADER -->
-
+        <div class="question-card accordion-card--text" style="border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 16px; background: #fff; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            
             <button
                 type="button"
                 class="question-header"
                 data-accordion-toggle="text"
                 data-accordion-target="text-acc-{{ forloop.counter }}"
                 aria-expanded="false"
+                style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border: none; background: transparent; text-align: left; cursor: pointer; transition: background 0.2s;"
+                onmouseover="this.style.background='#f8fafc'"
+                onmouseout="this.style.background='transparent'"
             >
-
-                <div>
-
-                    <h2 class="question-title">
-
-                        {{ forloop.counter }}.
-                        {{ item.question }}
-
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <h2 class="question-title" style="font-size: 15px; font-weight: 600; color: #1e293b; margin: 0; line-height: 1.4;">
+                        {{ forloop.counter }}. {{ item.question }}
                     </h2>
-
-                    <span class="chart-badge text-badge">
-
+                    <span class="chart-badge text-badge" style="font-size: 11px; padding: 3px 10px; background: #fdf2f8; color: #db2777; border-radius: 20px; font-weight: 500;">
                         Text Responses
-
                     </span>
-
                 </div>
-
-                <div class="toggle-btn">
-
+                <div class="toggle-btn" style="font-size: 11px; color: #64748b; transition: transform 0.2s; padding: 2px 6px;">
                     ▼
-
                 </div>
-
             </button>
-
-            <!-- BODY -->
 
             <div
                 class="question-body accordion-body--text"
@@ -246,72 +120,39 @@ Public Form Analytics
                 role="region"
                 aria-hidden="true"
             >
-
-                <div class="response-count">
-
-                    Total Responses :
-                    {{ item.answers|length }}
-
-                </div>
-
-                <div class="answers-wrapper">
-
-                    {% for answer in item.answers %}
-
-                    <div class="answer-card">
-
-                        <div class="answer-icon">
-
-                            💬
-
-                        </div>
-
-                        <div class="answer-text">
-
-                            {{ answer }}
-
-                        </div>
-
+                <div style="padding: 20px; border-top: 1px solid #f1f5f9; background: #f8fafc;">
+                    <div class="response-count" style="font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 12px;">
+                        Total Responses : {{ item.answers|length }}
                     </div>
 
-                    {% empty %}
-
-                    <div class="empty-response">
-
-                        No Responses Found
-
+                    <div class="answers-wrapper" style="display: flex; flex-direction: column; gap: 8px;">
+                        {% for answer in item.answers %}
+                        <div class="answer-card" style="background: #fff; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px; display: flex; gap: 12px; align-items: flex-start;">
+                            <div class="answer-icon" style="font-size: 14px; margin-top: 2px;">💬</div>
+                            <div class="answer-text" style="font-size: 14px; color: #334155; line-height: 1.5; word-break: break-word;">
+                                {{ answer }}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-response" style="text-align: center; padding: 20px; color: #94a3b8; font-size: 14px; background: #fff; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                            No Responses Found
+                        </div>
+                        {% endfor %}
                     </div>
-
-                    {% endfor %}
-
                 </div>
-
             </div>
 
         </div>
-
         {% endfor %}
-
     </div>
 
 </div>
 
-<!-- ===================================== -->
-<!-- DJANGO JSON -->
-<!-- ===================================== -->
-
 {{ question_analytics|json_script:"question-data" }}
-
 {% endblock %}
 
-<!-- ===================================== -->
-<!-- EXTRA JS -->
-<!-- ===================================== -->
-
 {% block extra_js %}
-
 <script
     src="{% static 'accounts/js/public_form_detail.js' %}?v=99"
 ></script>
-
 {% endblock %}
