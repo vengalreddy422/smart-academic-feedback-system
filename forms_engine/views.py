@@ -88,7 +88,7 @@ def open_form(request, form_id):
 
         'system_first': """
         CASE
-            WHEN is_system_field = 1 THEN 0
+            WHEN is_system_field = TRUE THEN 0
             ELSE 1
         END
         """
