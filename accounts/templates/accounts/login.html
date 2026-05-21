@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -51,7 +50,6 @@
 
     <main class="w-full max-w-6xl overflow-hidden rounded-3xl bg-white shadow-2xl shadow-slate-200/70 border border-slate-200/70 grid lg:grid-cols-12 min-h-[660px]">
         
-        <!-- Left panel -->
         <section class="hidden lg:flex lg:col-span-5 brand-mesh text-white p-10 xl:p-12 flex-col justify-between relative overflow-hidden">
             <div class="absolute inset-0 opacity-[0.06] bg-[linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] bg-[size:28px_28px]"></div>
 
@@ -100,7 +98,6 @@
             </div>
         </section>
 
-        <!-- Right panel -->
         <section class="lg:col-span-7 bg-white flex items-center justify-center px-6 py-10 sm:px-10 lg:px-14">
             <div class="w-full max-w-md">
                 <div class="mb-8">
@@ -111,11 +108,26 @@
                     </p>
                 </div>
 
-                {% if messages or form.errors %}
+                {% if error or messages or form.errors %}
                 <div class="mb-6 space-y-3">
+
+                    {% if error %}
+                    <div
+                        class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+                        role="alert"
+                        aria-live="assertive"
+                    >
+                        {{ error }}
+                    </div>
+                    {% endif %}
+
                     {% if form.non_field_errors %}
                         {% for error in form.non_field_errors %}
-                        <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800" role="alert" aria-live="assertive">
+                        <div
+                            class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
+                            role="alert"
+                            aria-live="assertive"
+                        >
                             {{ error }}
                         </div>
                         {% endfor %}
@@ -123,11 +135,21 @@
 
                     {% if messages %}
                         {% for message in messages %}
-                        <div class="rounded-2xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-800{% else %}border-amber-200 bg-amber-50 text-amber-800{% endif %}" role="status" aria-live="polite">
+                        <div
+                            class="rounded-2xl border px-4 py-3 text-sm
+                            {% if message.tags == 'error' %}
+                                border-rose-200 bg-rose-50 text-rose-800
+                            {% else %}
+                                border-amber-200 bg-amber-50 text-amber-800
+                            {% endif %}"
+                            role="status"
+                            aria-live="polite"
+                        >
                             {{ message }}
                         </div>
                         {% endfor %}
                     {% endif %}
+
                 </div>
                 {% endif %}
 

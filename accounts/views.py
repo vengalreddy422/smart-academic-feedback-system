@@ -275,7 +275,6 @@ def user_login(request):
 
             },
 
-            status=400,
         )
 
     return render(
