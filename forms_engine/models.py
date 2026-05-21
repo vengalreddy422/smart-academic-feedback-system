@@ -346,6 +346,8 @@ class FormQuestion(models.Model):
         ('email', 'Email'),
 
         ('date', 'Date'),
+
+
     )
 
     form = models.ForeignKey(
@@ -441,7 +443,14 @@ class FormAnswer(models.Model):
         on_delete=models.CASCADE
     )
 
-    answer = models.TextField()
+    answer = models.TextField(
+        blank=True,
+        null=True
+    )
+    uploaded_file = models.FileField(
+    upload_to='resumes/',
+    blank=True,
+    null=True)
 
     def __str__(self):
 
