@@ -105,11 +105,16 @@
     }
 
     /* ── HERO ── */
-    #home{
-      min-height:100vh;display:flex;align-items:center;
-      padding:calc(var(--nav-h) + 3.5rem) clamp(1.25rem,4vw,3.5rem) 5.5rem;
-      position:relative;overflow:hidden;
-    }
+   #home {
+  /* Change min-height to allow content to dictate space on tiny mobile screens */
+  min-height: auto; 
+  display: flex;
+  align-items: center;
+  /* Add responsive vertical padding so it shrinks appropriately on mobile */
+  padding: calc(var(--nav-h) + 2rem) clamp(1.25rem, 4vw, 3.5rem) 3rem;
+  position: relative;
+  overflow: hidden;
+}
     /* Geometric background */
     .hero-bg{
       position:absolute;inset:0;z-index:0;
