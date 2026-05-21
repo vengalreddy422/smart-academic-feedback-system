@@ -94,11 +94,13 @@ class DynamicForm(models.Model):
 
         # 3. Generate QR code mapping payload dynamically
         qr_data = f"https://feedback-system-s3ty.onrender.com/forms/public-form/{self.uuid}/"
+
+        print("QR URL =", qr_data)        
         qr_image = qrcode.make(qr_data)
 
         buffer = BytesIO()
         qr_image.save(buffer, format='PNG')
-        file_name = f'{self.title}.png'
+        file_name = f'{self.title}_{self.uuid}.png'
 
         self.qr_code.save(file_name, File(buffer), save=False)
         

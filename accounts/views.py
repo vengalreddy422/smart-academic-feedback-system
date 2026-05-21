@@ -1275,7 +1275,6 @@ def teacher_forms(request):
             'forms': forms,
         }
     )
-
 @login_required
 def public_form_qr(request, form_id):
 
@@ -1292,12 +1291,9 @@ def public_form_qr(request, form_id):
         id=form_id
     )
 
-    ip_address = '192.168.1.95'
-
     public_url = (
 
-        f'http://{ip_address}:8000'
-
+        f'https://feedback-system-s3ty.onrender.com'
         f'/forms/public-form/{form.uuid}/'
     )
 

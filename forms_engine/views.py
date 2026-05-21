@@ -26,11 +26,13 @@ from .models import (
 
 
 def _attach_options_list(questions):
-
+    
     for question in questions:
 
         question.options_list = (
-            question.question_options.all()
+            question.question_options.all().order_by(
+                'id'
+            )
         )
 
     return questions
