@@ -824,8 +824,6 @@ def teacher_form_detail(request, form_id):
             question.field_type
         ).lower().strip()
 
-        print(field_type)
-
         # ==========================================
         # RADIO
         # ==========================================
@@ -844,7 +842,8 @@ def teacher_form_detail(request, form_id):
 
                 'values': list(answer_counts.values()),
 
-                'chart_type': 'pie'
+                'chart_type': 'pie',
+                'field_type': field_type
             })
 
         # ==========================================
@@ -872,9 +871,30 @@ def teacher_form_detail(request, form_id):
 
                 'values': list(answer_counts.values()),
 
+                'chart_type': 'bar',
+                'field_type': field_type
+            })
+            
+        # ==========================================
+        # RATING FIELD
+        # ==========================================
+
+        elif 'rating' in field_type:
+
+            answer_counts = Counter(
+                answer_list
+            )
+
+            question_analytics.append({
+
+                'question': question.question,
+
+                'labels': list(answer_counts.keys()),
+
+                'values': list(answer_counts.values()),
+
                 'chart_type': 'bar'
             })
-
         # ==========================================
         # CHECKBOX
         # ==========================================
@@ -916,13 +936,15 @@ def teacher_form_detail(request, form_id):
         # TEXT FIELDS
         # ==========================================
 
-        else:
-
-            text_questions.append({
+        elif 'textarea' in field_type:
+    
+            question_analytics.append({
 
                 'question': question.question,
 
-                'answers': answer_list
+                'answers': answer_list,
+
+                'chart_type': 'text'
             })
 
     context = {

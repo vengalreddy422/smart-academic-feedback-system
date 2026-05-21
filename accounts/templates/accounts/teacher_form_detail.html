@@ -2,858 +2,484 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ form.title }} - Analytics</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-
-        {{ form.title }}
-
-    </title>
-
-    <!-- Bootstrap -->
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-    <!-- Bootstrap Icons -->
-
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    >
-
-    <!-- Chart JS -->
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- Font -->
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet"
-    >
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        body{
-
-            background:#f8fafc;
-
-            font-family:'Outfit',sans-serif;
-
-            color:#0f172a;
+        body {
+            background: #f8fafc;
+            font-family: 'Outfit', sans-serif;
+            color: #0f172a;
         }
 
         /* ==========================================
            HEADER
         ========================================== */
-
-        .hero-section{
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #0f172a,
-                    #1e293b
-                );
-
-            border-radius:0 0 35px 35px;
-
-            padding:45px;
-
-            color:white;
-
-            margin-bottom:40px;
+        .hero-section {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border-radius: 0 0 35px 35px;
+            padding: 45px;
+            color: white;
+            margin-bottom: 40px;
         }
 
-        .hero-title{
-
-            font-size:42px;
-
-            font-weight:800;
+        .hero-title {
+            font-size: 42px;
+            font-weight: 800;
         }
 
-        .hero-sub{
-
-            color:rgba(255,255,255,0.72);
-
-            margin-top:10px;
-
-            font-size:15px;
+        .hero-sub {
+            color: rgba(255, 255, 255, 0.72);
+            margin-top: 10px;
+            font-size: 15px;
         }
 
         /* ==========================================
            SUMMARY CARDS
         ========================================== */
-
-        .summary-card{
-
-            border:none;
-
-            border-radius:24px;
-
-            overflow:hidden;
-
-            transition:0.3s;
+        .summary-card {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            transition: 0.3s;
         }
 
-        .summary-card:hover{
-
-            transform:translateY(-5px);
+        .summary-card:hover {
+            transform: translateY(-5px);
         }
 
-        .summary-body{
-
-            padding:28px;
+        .summary-body {
+            padding: 28px;
         }
 
-        .summary-title{
-
-            font-size:15px;
-
-            opacity:0.9;
+        .summary-title {
+            font-size: 15px;
+            opacity: 0.9;
         }
 
-        .summary-number{
-
-            font-size:42px;
-
-            font-weight:800;
+        .summary-number {
+            font-size: 42px;
+            font-weight: 800;
         }
 
-        .blue{
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #2563eb,
-                    #1d4ed8
-                );
-
-            color:white;
+        .blue {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
         }
 
-        .green{
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #16a34a,
-                    #15803d
-                );
-
-            color:white;
+        .green {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
         }
 
-        .red{
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #dc2626,
-                    #b91c1c
-                );
-
-            color:white;
+        .red {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
         }
 
         /* ==========================================
            ACCORDION
         ========================================== */
-
-        .custom-accordion{
-
-            border:none;
-
-            border-radius:24px;
-
-            overflow:hidden;
-
-            box-shadow:
-                0 10px 30px rgba(15,23,42,0.05);
-
-            margin-bottom:25px;
+        .custom-accordion {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+            margin-bottom: 25px;
         }
 
-        .accordion-button{
-
-            padding:24px;
-
-            font-size:18px;
-
-            font-weight:700;
-
-            background:white;
+        .accordion-button {
+            padding: 24px;
+            font-size: 18px;
+            font-weight: 700;
+            background: white;
         }
 
-        .accordion-button:not(.collapsed){
-
-            background:#eff6ff;
-
-            color:#2563eb;
-
-            box-shadow:none;
+        .accordion-button:not(.collapsed) {
+            background: #eff6ff;
+            color: #2563eb;
+            box-shadow: none;
         }
 
-        .accordion-button:focus{
-
-            box-shadow:none;
+        .accordion-button:focus {
+            box-shadow: none;
         }
 
-        .accordion-body{
-
-            padding:30px;
-
-            background:#ffffff;
+        .accordion-body {
+            padding: 30px;
+            background: #ffffff;
         }
 
         /* ==========================================
            CHART BOX
         ========================================== */
-
-        .chart-box{
-
-            background:#f8fafc;
-
-            border-radius:22px;
-
-            padding:24px;
-
-            height:100%;
+        .chart-box {
+            background: #f8fafc;
+            border-radius: 22px;
+            padding: 24px;
+            height: 100%;
         }
 
-        .chart-title{
-
-            font-size:18px;
-
-            font-weight:700;
-
-            margin-bottom:18px;
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            color: #475569;
         }
 
-        .chart-wrapper{
-
-            position:relative;
-
-            height:320px;
+        .chart-wrapper {
+            position: relative;
+            height: 320px;
         }
 
         /* ==========================================
            BUTTONS
         ========================================== */
-
-        .custom-btn{
-
-            border:none;
-
-            border-radius:14px;
-
-            padding:12px 18px;
-
-            font-weight:600;
-
-            transition:0.3s;
+        .custom-btn {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-weight: 600;
+            transition: 0.3s;
         }
 
-        .custom-btn:hover{
-
-            transform:translateY(-2px);
+        .custom-btn:hover {
+            transform: translateY(-2px);
         }
 
         /* ==========================================
-           TABLE
+           TABLE CARD
         ========================================== */
-
-        .table-card{
-
-            background:#ffffff;
-
-            border-radius:22px;
-
-            overflow:hidden;
-
-            border:1px solid #e2e8f0;
+        .table-card {
+            background: #ffffff;
+            border-radius: 22px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
         }
 
-        .table thead{
-
-            background:#0f172a;
-
-            color:white;
+        .table thead {
+            background: #0f172a;
+            color: white;
         }
 
-        .table th{
-
-            padding:16px;
-
-            border:none;
+        .table th {
+            padding: 16px;
+            border: none;
         }
 
-        .table td{
-
-            padding:16px;
-
-            vertical-align:middle;
+        .table td {
+            padding: 16px;
+            vertical-align: middle;
         }
 
         /* ==========================================
-           MOBILE
+           TEXTAREA RESPONSES
         ========================================== */
-
-        @media(max-width:768px){
-
-            .hero-section{
-
-                padding:30px 22px;
-            }
-
-            .hero-title{
-
-                font-size:28px;
-            }
-
-            .summary-number{
-
-                font-size:34px;
-            }
-
-            .accordion-button{
-
-                font-size:16px;
-
-                padding:18px;
-            }
-
-            .chart-wrapper{
-
-                height:260px;
-            }
+        .student-answer {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 18px 22px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            line-height: 1.8;
+            color: #334155;
+            transition: 0.3s;
         }
 
+        .student-answer:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ==========================================
+           MOBILE RESPONSIVENESS
+        ========================================== */
+        @media(max-width:768px) {
+            .hero-section {
+                padding: 30px 22px;
+            }
+
+            .hero-title {
+                font-size: 28px;
+            }
+
+            .summary-number {
+                font-size: 34px;
+            }
+
+            .accordion-button {
+                font-size: 16px;
+                padding: 18px;
+            }
+
+            .chart-wrapper {
+                height: 260px;
+            }
+        }
     </style>
-
 </head>
 
 <body>
 
 <div class="container-fluid px-3 px-lg-4">
 
-    <!-- HERO -->
-
     <div class="hero-section">
-
-        <h1 class="hero-title">
-
-            {{ form.title }}
-
-        </h1>
-
-        <p class="hero-sub">
-
-            Advanced Teacher Analytics Dashboard
-
-        </p>
-
+        <h1 class="hero-title">{{ form.title }}</h1>
+        <p class="hero-sub">Advanced Teacher Analytics Dashboard</p>
     </div>
-
-    <!-- SUMMARY -->
 
     <div class="row g-4 mb-5">
-
         <div class="col-lg-4">
-
             <div class="card summary-card blue">
-
                 <div class="summary-body">
-
-                    <div class="summary-title">
-
-                        Total Students
-
-                    </div>
-
-                    <div class="summary-number">
-
-                        {{ students.count }}
-
-                    </div>
-
+                    <div class="summary-title">Total Scope Students</div>
+                    <div class="summary-number">{{ students.count }}</div>
                 </div>
-
             </div>
-
         </div>
 
         <div class="col-lg-4">
-
             <div class="card summary-card green">
-
                 <div class="summary-body">
-
-                    <div class="summary-title">
-
-                        Completed Students
-
-                    </div>
-
-                    <div class="summary-number">
-
-                        {{ submitted_students.count }}
-
-                    </div>
-
+                    <div class="summary-title">Completed Submissions</div>
+                    <div class="summary-number">{{ submitted_students.count }}</div>
                 </div>
-
             </div>
-
         </div>
 
         <div class="col-lg-4">
-
             <div class="card summary-card red">
-
                 <div class="summary-body">
-
-                    <div class="summary-title">
-
-                        Pending Students
-
-                    </div>
-
-                    <div class="summary-number">
-
-                        {{ pending_students.count }}
-
-                    </div>
-
+                    <div class="summary-title">Pending Submissions</div>
+                    <div class="summary-number">{{ pending_students.count }}</div>
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
-    <!-- BUTTONS -->
 
     <div class="d-flex gap-3 flex-wrap mb-4">
-
-        <button
-            class="btn btn-success custom-btn"
-            data-bs-toggle="collapse"
-            data-bs-target="#submittedStudents"
-        >
-
-            <i class="bi bi-check-circle-fill"></i>
-
-            View Completed Students
-
+        <button class="btn btn-success custom-btn" data-bs-toggle="collapse" data-bs-target="#submittedStudents">
+            <i class="bi bi-check-circle-fill"></i> View Completed Students
         </button>
-
-        <button
-            class="btn btn-danger custom-btn"
-            data-bs-toggle="collapse"
-            data-bs-target="#pendingStudents"
-        >
-
-            <i class="bi bi-x-circle-fill"></i>
-
-            View Pending Students
-
+        <button class="btn btn-danger custom-btn" data-bs-toggle="collapse" data-bs-target="#pendingStudents">
+            <i class="bi bi-x-circle-fill"></i> View Pending Students
         </button>
-
     </div>
 
-    <!-- COMPLETED -->
-
-    <div
-        class="collapse mb-5"
-        id="submittedStudents"
-    >
-
+    <div class="collapse mb-5" id="submittedStudents">
         <div class="table-card">
-
             <div class="table-responsive">
-
                 <table class="table table-hover mb-0">
-
                     <thead>
-
                         <tr>
-
                             <th>Roll Number</th>
-
                             <th>Name</th>
-
                             <th>Section</th>
-
                         </tr>
-
                     </thead>
-
                     <tbody>
-
                         {% for student in submitted_students %}
-
                             <tr>
-
-                                <td>
-
-                                    {{ student.roll_number }}
-
-                                </td>
-
-                                <td>
-
-                                    {{ student.user.first_name }}
-
-                                </td>
-
-                                <td>
-
-                                    {{ student.section }}
-
-                                </td>
-
+                                <td>{{ student.roll_number }}</td>
+                                <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                                <td>{{ student.section }}</td>
                             </tr>
-
                         {% empty %}
-
                             <tr>
-
-                                <td colspan="3">
-
-                                    No Completed Students
-
-                                </td>
-
+                                <td colspan="3" class="text-center py-4 text-muted">No completed student records.</td>
                             </tr>
-
                         {% endfor %}
-
                     </tbody>
-
                 </table>
-
             </div>
-
         </div>
-
     </div>
 
-    <!-- PENDING -->
-
-    <div
-        class="collapse mb-5"
-        id="pendingStudents"
-    >
-
+    <div class="collapse mb-5" id="pendingStudents">
         <div class="table-card">
-
             <div class="table-responsive">
-
                 <table class="table table-hover mb-0">
-
                     <thead>
-
                         <tr>
-
                             <th>Roll Number</th>
-
                             <th>Name</th>
-
                             <th>Section</th>
-
                         </tr>
-
                     </thead>
-
                     <tbody>
-
                         {% for student in pending_students %}
-
                             <tr>
-
-                                <td>
-
-                                    {{ student.roll_number }}
-
-                                </td>
-
-                                <td>
-
-                                    {{ student.user.first_name }}
-
-                                </td>
-
-                                <td>
-
-                                    {{ student.section }}
-
-                                </td>
-
+                                <td>{{ student.roll_number }}</td>
+                                <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
+                                <td>{{ student.section }}</td>
                             </tr>
-
                         {% empty %}
-
                             <tr>
-
-                                <td colspan="3">
-
-                                    No Pending Students
-
-                                </td>
-
+                                <td colspan="3" class="text-center py-4 text-muted">No pending student records.</td>
                             </tr>
-
                         {% endfor %}
-
                     </tbody>
-
                 </table>
-
             </div>
-
         </div>
-
     </div>
-
-    <!-- ANALYTICS -->
 
     <div class="accordion" id="analyticsAccordion">
-
         {% for analytics in question_analytics %}
+            
+            {% if analytics.field_type == 'rating' or analytics.field_type == 'select' or 'dropdown' in analytics.field_type or analytics.field_type == 'radio' or analytics.field_type == 'checkbox' or analytics.field_type == 'textarea' or 'radio' in analytics.chart_type or 'pie' in analytics.chart_type or 'bar' in analytics.chart_type %}
+                
+                <div class="accordion-item custom-accordion">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}">
+                            {{ analytics.question }}
+                        </button>
+                    </h2>
 
-            <div class="accordion-item custom-accordion">
-
-                <h2 class="accordion-header">
-
-                    <button
-                        class="accordion-button collapsed"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#collapse{{ forloop.counter }}"
-                    >
-
-                        {{ analytics.question }}
-
-                    </button>
-
-                </h2>
-
-                <div
-                    id="collapse{{ forloop.counter }}"
-                    class="accordion-collapse collapse"
-                    data-bs-parent="#analyticsAccordion"
-                >
-
-                    <div class="accordion-body">
-
-                        <div class="row g-4">
-
-                            <!-- BAR -->
-
-                            <div class="col-lg-6">
-
-                                <div class="chart-box">
-
-                                    <div class="chart-title">
-
-                                        Bar Analytics
-
+                    <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#analyticsAccordion">
+                        <div class="accordion-body">
+                            
+                            {% if analytics.chart_type != 'text' %}
+                                <div class="row g-4">
+                                    <div class="col-lg-6">
+                                        <div class="chart-box">
+                                            <div class="chart-title"><i class="bi bi-bar-chart-fill text-primary"></i> Bar Chart Distribution</div>
+                                            <div class="chart-wrapper">
+                                                <canvas id="barChart{{ forloop.counter }}"></canvas>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="chart-wrapper">
-
-                                        <canvas
-                                            id="barChart{{ forloop.counter }}"
-                                        ></canvas>
-
+                                    <div class="col-lg-6">
+                                        <div class="chart-box">
+                                            <div class="chart-title"><i class="bi bi-pie-chart-fill text-success"></i> Proportion Analysis</div>
+                                            <div class="chart-wrapper">
+                                                <canvas id="pieChart{{ forloop.counter }}"></canvas>
+                                            </div>
+                                        </div>
                                     </div>
-
                                 </div>
 
-                            </div>
-
-                            <!-- DOUGHNUT -->
-
-                            <div class="col-lg-6">
-
-                                <div class="chart-box">
-
-                                    <div class="chart-title">
-
-                                        Distribution Analytics
-
+                            {% else %}
+                                <div class="text-responses-wrapper">
+                                    <div class="chart-title text-muted mb-3">
+                                        <i class="bi bi-chat-left-text-fill"></i> Written Feedback Submissions
                                     </div>
-
-                                    <div class="chart-wrapper">
-
-                                        <canvas
-                                            id="pieChart{{ forloop.counter }}"
-                                        ></canvas>
-
-                                    </div>
-
+                                    {% if analytics.answers %}
+                                        {% for answer in analytics.answers %}
+                                            <div class="student-answer border-start border-primary border-4 shadow-sm">
+                                                {{ answer }}
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="student-answer text-muted bg-light border-0">No descriptive text feedback submitted yet.</div>
+                                    {% endif %}
                                 </div>
-
-                            </div>
-
+                            {% endif %}
+                        
                         </div>
-
                     </div>
-
                 </div>
 
-            </div>
-
+            {% endif %}
         {% endfor %}
-
     </div>
 
 </div>
 
-<!-- BOOTSTRAP -->
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- CHARTS -->
-
 <script>
-
     const colors = [
-
-        '#2563eb',
-        '#16a34a',
-        '#dc2626',
-        '#f59e0b',
-        '#7c3aed',
-        '#0891b2',
-        '#ea580c',
-        '#14b8a6'
+        '#2563eb', // Blue
+        '#16a34a', // Green
+        '#dc2626', // Red
+        '#f59e0b', // Amber
+        '#7c3aed', // Purple
+        '#0891b2', // Cyan
+        '#ea580c', // Orange
+        '#14b8a6'  // Teal
     ];
 
     {% for analytics in question_analytics %}
+        {% if analytics.chart_type != 'text' %}
+            // Verify component exists before rendering chart safely
+            if (document.getElementById('barChart{{ forloop.counter }}')) {
 
-        // BAR CHART
-
-        new Chart(
-
-            document.getElementById(
-                'barChart{{ forloop.counter }}'
-            ),
-
-            {
-
-                type:'bar',
-
-                data:{
-
-                    labels:{{ analytics.labels|safe }},
-
-                    datasets:[{
-
-                        data:{{ analytics.values|safe }},
-
-                        backgroundColor:colors,
-
-                        borderRadius:12
-                    }]
-                },
-
-                options:{
-
-                    responsive:true,
-
-                    maintainAspectRatio:false,
-
-                    plugins:{
-
-                        legend:{
-                            display:false
-                        }
-                    },
-
-                    scales:{
-
-                        y:{
-                            beginAtZero:true
-                        }
-                    }
-                }
-            }
-        );
-
-        // DOUGHNUT CHART
-
-        new Chart(
-
-            document.getElementById(
-                'pieChart{{ forloop.counter }}'
-            ),
-
-            {
-
-                type:'doughnut',
-
-                data:{
-
-                    labels:{{ analytics.labels|safe }},
-
-                    datasets:[{
-
-                        data:{{ analytics.values|safe }},
-
-                        backgroundColor:colors,
-
-                        borderWidth:0
-                    }]
-                },
-
-                options:{
-
-                    responsive:true,
-
-                    maintainAspectRatio:false,
-
-                    cutout:'65%',
-
-                    plugins:{
-
-                        legend:{
-
-                            position:'bottom',
-
-                            labels:{
-
-                                padding:20,
-
-                                usePointStyle:true
+                // BAR CHART CONSTRUCTOR
+                new Chart(
+                    document.getElementById('barChart{{ forloop.counter }}'),
+                    {
+                        type: 'bar',
+                        data: {
+                            labels: {{ analytics.labels|safe }},
+                            datasets: [{
+                                data: {{ analytics.values|safe }},
+                                backgroundColor: colors,
+                                borderRadius: 12
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: { beginAtZero: true }
                             }
                         }
                     }
-                }
+                );
+
+                // DOUGHNUT / PIE CHART CONSTRUCTOR
+                new Chart(
+                    document.getElementById('pieChart{{ forloop.counter }}'),
+                    {
+                        type: 'doughnut',
+                        data: {
+                            labels: {{ analytics.labels|safe }},
+                            datasets: [{
+                                data: {{ analytics.values|safe }},
+                                backgroundColor: colors,
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '65%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 20,
+                                        usePointStyle: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                );
             }
-        );
-
+        {% endif %}
     {% endfor %}
-
 </script>
 
 </body>
-
 </html>
