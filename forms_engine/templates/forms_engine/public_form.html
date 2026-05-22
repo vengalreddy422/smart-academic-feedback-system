@@ -357,7 +357,22 @@
                 font-size:28px;
             }
         }
+        /* Make sure the date input looks like a text input on mobile */
+input[type="date"] {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 18px;
+}
 
+/* This is a hack to show a placeholder-like label for dates on mobile */
+input[type="date"]:invalid::before {
+    content: attr(placeholder);
+    color: #64748b;
+}
+
+input[type="date"]:focus::before {
+    content: "" !important;
+}
     </style>
 
 </head>
@@ -522,6 +537,7 @@
                                     type="date"
                                     class="form-control dob-input"
                                     name="{{ question.id }}"
+                                    placeholder="Select Date" 
                                     {% if question.required %}required{% endif %}
                                 >
 
@@ -802,6 +818,9 @@
         // ========================================================
         // 4. CUSTOM DOB VALIDATION
         // ========================================================
+        // ========================================================
+        // 4. CUSTOM DOB VALIDATION
+        // ========================================================
         const dobInputs = document.querySelectorAll('.dob-input');
         dobInputs.forEach(function(input) {
             const value = input.value;
@@ -814,15 +833,19 @@
                     error.style.display = 'block';
                 }
             } else if (value) {
-                const selectedDate = new Date(value);
+                // Create date at midnight local time
+                const selectedDate = new Date(value + 'T00:00:00');
                 const today = new Date();
+                today.setHours(0, 0, 0, 0); // Set time to midnight for accurate date comparison
 
-                if (selectedDate >= today) {
+                if (selectedDate > today) { // Changed to > to allow 'today'
                     valid = false;
                     if (error) {
-                        error.innerText = 'Please enter valid date';
+                        error.innerText = 'Date cannot be in the future';
                         error.style.display = 'block';
                     }
+                } else {
+                    if (error) error.style.display = 'none';
                 }
             }
         });
