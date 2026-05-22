@@ -805,10 +805,30 @@ def teacher_form_detail(request, form_id):
     text_questions = []
 
     for question in questions:
+    
+        if request.user.role == 'admin':
 
-        answers = FormAnswer.objects.filter(
-            question=question
-        )
+            answers = FormAnswer.objects.filter(
+                question=question,
+                response__form=form
+            )
+
+        else:
+
+            teacher_profile = get_object_or_404(
+                TeacherProfile.objects.prefetch_related(
+                    'assigned_sections'
+                ),
+                user=request.user
+            )
+
+            assigned_sections = teacher_profile.assigned_sections.all()
+
+            answers = FormAnswer.objects.filter(
+                question=question,
+                response__form=form,
+                response__student__section__in=assigned_sections
+            )
 
         answer_list = []
 
