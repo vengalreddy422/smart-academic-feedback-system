@@ -81,13 +81,9 @@ def open_form(request, form_id):
         )
 
     questions = FormQuestion.objects.filter(
-
     form=form
-
-).extra(
-
+    ).extra(
     select={
-
         'system_first': """
         CASE
             WHEN is_system_field = TRUE THEN 0
@@ -95,13 +91,10 @@ def open_form(request, form_id):
         END
         """
     }
-
-).order_by(
-
+    ).order_by(
     'system_first',
-
-    'order'
-)
+    'id'   # first created comes first
+    )
 
     _attach_options_list(
         questions
