@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import get_object_or_404
 
 from openpyxl import Workbook
@@ -364,16 +366,58 @@ def private_anonymous_pdf(
         id=form_id
     )
 
-    queryset = (
+        # ==========================================
+    # ADMIN USER
+    # ==========================================
 
-        FormResponse.objects
-        .filter(
-            form=form
+    if request.user.role == 'admin':
+
+        queryset = (
+            FormResponse.objects
+            .filter(
+                form=form
+            )
+            .prefetch_related(
+                'formanswer_set__question'
+            )
         )
-        .prefetch_related(
-            'formanswer_set__question'
+
+    # ==========================================
+    # TEACHER USER
+    # ==========================================
+
+    elif request.user.role == 'teacher':
+
+        teacher_profile = get_object_or_404(
+            TeacherProfile,
+            user=request.user
         )
-    )
+
+        assigned_sections = (
+            teacher_profile.assigned_sections.all()
+        )
+
+        queryset = (
+            FormResponse.objects
+            .filter(
+                form=form,
+                student__section__in=assigned_sections
+            )
+            .prefetch_related(
+                'formanswer_set__question'
+            )
+        )
+
+    # ==========================================
+    # OTHER USERS
+    # ==========================================
+
+    else:
+
+        return HttpResponse(
+            'Unauthorized',
+            status=403
+        )
 
     return export_anonymous_detailed_pdf(
 
@@ -381,87 +425,15 @@ def private_anonymous_pdf(
 
         f'{form.title}_private_anonymous'
     )
-# ==========================================
-# PRIVATE ANONYMOUS EXCEL
-# ==========================================
+
 
 # ==========================================
 # PRIVATE ANONYMOUS EXCEL
-# ==========================================
-import openpyxl
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
-
+# =========================================
 # Crucial: Import your models from your main forms engine app folder
 # (Replace 'forms_engine' with 'forms' or 'dynamic_forms' if your folder name is different)
 from forms_engine.models import DynamicForm, FormQuestion, FormResponse, FormAnswer
 from accounts.models import TeacherProfile
-
-# ==============================================================================
-# 1. IDENTIFIED EXCEL DOWNLOAD (Shows Username, Section, Department)
-# ==============================================================================
-@login_required
-def identified_summary_excel(request, form_id):
-    form = get_object_or_404(DynamicForm, id=form_id)
-
-    # Admin Filter
-    if request.user.role == 'admin':
-        queryset = FormResponse.objects.filter(form=form).select_related(
-            'student', 'student__user', 'form'
-        )
-    # Teacher Filter
-    elif request.user.role == 'teacher':
-        teacher_profile = get_object_or_404(TeacherProfile, user=request.user)
-        assigned_sections = teacher_profile.assigned_sections.all()
-        queryset = FormResponse.objects.filter(
-            form=form, student__section__in=assigned_sections
-        ).select_related('student', 'student__user', 'form')
-    else:
-        return HttpResponse('Unauthorized', status=403)
-
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Identified Summary"
-
-    # Fetch questions ordered perfectly
-    questions = FormQuestion.objects.filter(form=form).order_by(
-        '-is_system_field', 'order', 'id'
-    )
-
-    # Headers with user information columns
-    headers = ["Username", "Section", "Department"]
-    for q in questions:
-        headers.append(q.question)
-    ws.append(headers)
-
-    # Populate Rows
-    for response_obj in queryset:
-        student = response_obj.student
-        user = student.user if student else None
-        
-        # Safe text strings prevent Excel conversion values crashes
-        row_data = [
-            user.username if user else "N/A",
-            str(student.section) if student and student.section else "N/A",
-            str(getattr(student, 'department', 'N/A'))
-        ]
-
-        for q in questions:
-            answer_obj = FormAnswer.objects.filter(question=q, response=response_obj).first()
-            if answer_obj and answer_obj.answer:
-                row_data.append(answer_obj.answer)
-            else:
-                row_data.append("")
-
-        ws.append(row_data)
-
-    clean_title = "".join([c if c.isalnum() else "_" for c in form.title])
-    excel_response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    excel_response["Content-Disposition"] = f'attachment; filename="{clean_title}_identified_summary.xlsx"'
-    wb.save(excel_response)
-    return excel_response
-
 
 # ==============================================================================
 # 2. PRIVATE ANONYMOUS EXCEL DOWNLOAD (Hides ALL Identity, No Time Field)

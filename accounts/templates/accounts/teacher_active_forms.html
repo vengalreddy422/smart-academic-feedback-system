@@ -141,18 +141,77 @@
 
                 </div>
 
-                <div class="d-grid gap-2 mt-4">
+                <div class="d-flex gap-2 mt-4">
 
+    <!-- VIEW ANALYTICS -->
+
+    <a
+        href="{% url 'teacher_form_detail' item.form.id %}"
+        class="btn analytics-btn flex-fill"
+    >
+        View Analytics
+    </a>
+
+    <!-- DOWNLOAD -->
+
+    <div class="dropdown flex-fill">
+
+        <button
+            class="btn download-btn w-100 dropdown-toggle"            type="button"
+            data-bs-toggle="dropdown"
+        >
+            Download
+        </button>
+
+        <ul class="dropdown-menu">
+
+            {% if item.form.identity_type == 'identified' %}
+
+                <li>
                     <a
-                        href="{% url 'teacher_form_detail' item.form.id %}"
-                        class="btn analytics-btn"
+                        class="dropdown-item"
+                        href="{% url 'identified_detailed_pdf' item.form.id %}"
                     >
-
-                        View Analytics
-
+                        PDF
                     </a>
+                </li>
 
-                </div>
+                <li>
+                    <a
+                        class="dropdown-item"
+                        href="{% url 'identified_summary_excel' item.form.id %}"
+                    >
+                        Excel
+                    </a>
+                </li>
+
+            {% else %}
+
+                <li>
+                    <a
+                        class="dropdown-item"
+                        href="{% url 'private_anonymous_pdf' item.form.id %}"
+                    >
+                        PDF
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        class="dropdown-item"
+                        href="{% url 'private_anonymous_excel' item.form.id %}"
+                    >
+                        Excel
+                    </a>
+                </li>
+
+            {% endif %}
+
+        </ul>
+
+    </div>
+
+</div>
 
             </div>
 
@@ -175,7 +234,7 @@
     </div>
 
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

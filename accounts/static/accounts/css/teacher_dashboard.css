@@ -520,3 +520,48 @@ ANALYTICS GRID
 
     color:#c2410c;
 }
+/* ==========================================
+   DOWNLOAD BUTTON
+========================================== */
+
+.download-btn {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 10px 18px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.download-btn:hover {
+    transform: translateY(-2px);
+    color: white;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+}
+
+/* ==========================================
+   DROPDOWN MENU
+========================================== */
+
+.dropdown-menu {
+    border: none;
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    overflow: hidden;
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+.dropdown-item:hover {
+    background: #f3f6ff;
+    color: #2563eb;
+    transform: translateX(4px);
+}
