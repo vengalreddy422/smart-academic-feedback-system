@@ -1,3 +1,5 @@
+from tracemalloc import start
+
 from forms_engine.models import DynamicForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -307,54 +309,52 @@ def admin_dashboard(request):
     # TOTAL RESPONSES
     # ==========================================
 
-    total_private_responses = FormResponse.objects.count()
+    total_private_responses = (
+        FormResponse.objects.count()
+    )
 
-    total_public_responses = PublicFormResponse.objects.count()
+    total_public_responses = (
+        PublicFormResponse.objects.count()
+    )
 
     total_responses = (
-
         total_private_responses
-        +
-        total_public_responses
+        + total_public_responses
     )
 
     # ==========================================
     # RECENT FORMS
     # ==========================================
 
-    recent_forms = DynamicForm.objects.order_by(
-
-        '-created_at'
-
-    )[:5]
+    recent_forms = (
+        DynamicForm.objects.order_by(
+            '-created_at'
+        )[:5]
+    )
 
     # ==========================================
     # RECENT STUDENTS
     # ==========================================
 
-    recent_students = StudentProfile.objects.select_related(
-
-        'user'
-
-    ).order_by(
-
-        '-id'
-
-    )[:5]
+    recent_students = (
+        StudentProfile.objects.select_related(
+            'user'
+        ).order_by(
+            '-id'
+        )[:5]
+    )
 
     # ==========================================
     # RECENT TEACHERS
     # ==========================================
 
-    recent_teachers = TeacherProfile.objects.select_related(
-
-        'user'
-
-    ).order_by(
-
-        '-id'
-
-    )[:5]
+    recent_teachers = (
+        TeacherProfile.objects.select_related(
+            'user'
+        ).order_by(
+            '-id'
+        )[:5]
+    )
 
     # ==========================================
     # CONTEXT
@@ -380,24 +380,22 @@ def admin_dashboard(request):
     }
 
     return render(
-
         request,
-
         'accounts/admin_dashboard.html',
-
         context
     )
-    
 @login_required
 @role_required('teacher')
 def teacher_dashboard(request):
 
-    teacher_profile = get_object_or_404(
+    # ==========================================
+    # TEACHER PROFILE
+    # ==========================================
 
+    teacher_profile = get_object_or_404(
         TeacherProfile.objects.prefetch_related(
             'assigned_sections'
         ),
-
         user=request.user
     )
 
@@ -405,115 +403,144 @@ def teacher_dashboard(request):
         teacher_profile.assigned_sections.all()
     )
 
+    # ==========================================
+    # STUDENTS
+    # ==========================================
+
     students = StudentProfile.objects.filter(
-
         section__in=assigned_sections
-    )
+    ).select_related(
+        'user',
+        'section',
+        'department'
+    ).distinct()
+
+    total_students = students.count()
 
     # ==========================================
-    # ONLY PRIVATE FORMS
+    # ACTIVE PRIVATE FORMS
     # ==========================================
-
-    # ==========================================
-# ACTIVE FORMS ONLY
-# ==========================================
 
     today = timezone.now().date()
 
     forms = DynamicForm.objects.filter(
-
         access_type='private',
-
         is_active=True,
-
         start_date__lte=today,
-
         deadline_date__gte=today
-
     ).distinct()
+
+    # ==========================================
+    # GET ALL RESPONSES ONCE
+    # ==========================================
+
+    all_responses = FormResponse.objects.filter(
+        student__section__in=assigned_sections,
+        form__in=forms
+    ).select_related(
+        'student',
+        'form'
+    )
+
+    # ==========================================
+    # GROUP RESPONSES BY FORM
+    # ==========================================
+
+    submitted_by_form = {}
+
+    for response in all_responses:
+
+        form_id = response.form_id
+        student_id = response.student_id
+
+        if form_id not in submitted_by_form:
+            submitted_by_form[form_id] = set()
+
+        submitted_by_form[form_id].add(
+            student_id
+        )
+
+    # ==========================================
+    # ANALYTICS
+    # ==========================================
 
     analytics = []
 
     for form in forms:
 
+        submitted_ids = submitted_by_form.get(
+            form.id,
+            set()
+        )
+
         submitted_students = students.filter(
-
-            formresponse__form=form
-
-        ).distinct()
+            id__in=submitted_ids
+        )
 
         pending_students = students.exclude(
-
-            id__in=submitted_students.values_list(
-
-                'id',
-
-                flat=True
-            )
+            id__in=submitted_ids
         )
 
         analytics.append({
 
-    'form': form,
+            'form': form,
 
-    'submitted_students': submitted_students,
+            'submitted_students':
+                submitted_students,
 
-    'pending_students': pending_students,
+            'pending_students':
+                pending_students,
 
-    'submitted_count': submitted_students.count(),
+            'submitted_count':
+                len(submitted_ids),
 
-    'pending_count': pending_students.count(),
+            'pending_count':
+                total_students - len(submitted_ids),
 
-    'total_students': students.count(),
+            'total_students':
+                total_students,
 
-    # ==================================
-    # ANONYMOUS CHECK
-    # ==================================
+            'is_anonymous':
+                form.identity_type == 'anonymous',
 
-    'is_anonymous':
+            'start_date':
+                form.start_date,
 
-        form.identity_type == 'anonymous',
+            'start_time':
+                form.start_time,
 
-    # ==================================
-    # START DATE
-    # ==================================
+            'deadline_date':
+                form.deadline_date,
 
-    'start_date': form.start_date,
+            'deadline_time':
+                form.deadline_time,
+        })
 
-    'start_time': form.start_time,
-
-    # ==================================
-    # DEADLINE
-    # ==================================
-
-    'deadline_date': form.deadline_date,
-
-    'deadline_time': form.deadline_time,})
-
-    total_students = StudentProfile.objects.filter(
-
-    section__in=assigned_sections
-
-    ).distinct().count()
+    # ==========================================
+    # CONTEXT
+    # ==========================================
 
     context = {
 
-    'teacher_profile': teacher_profile,
+        'teacher_profile':
+            teacher_profile,
 
-    'assigned_sections': assigned_sections,
+        'assigned_sections':
+            assigned_sections,
 
-    'analytics': analytics,
+        'analytics':
+            analytics,
 
-    'total_students': total_students,
+        'total_students':
+            total_students,
 
-    'today': timezone.now().date(),}
+        'today':
+            today,
+    }
 
     return render(
-
         request,
-
         'accounts/teacher_dashboard.html',
-
         context
     )
     
@@ -734,8 +761,11 @@ class UserPasswordChangeView(
     
 @login_required
 @role_required('teacher', 'admin')
-
 def teacher_form_detail(request, form_id):
+
+    # ==========================================
+    # GET FORM
+    # ==========================================
 
     form = get_object_or_404(
         DynamicForm,
@@ -743,12 +773,22 @@ def teacher_form_detail(request, form_id):
     )
 
     # ==========================================
-    # ADMIN ACCESS
+    # ADMIN / TEACHER STUDENTS
     # ==========================================
 
     if request.user.role == 'admin':
 
-        students = StudentProfile.objects.all()
+        students = (
+            StudentProfile.objects
+            .select_related(
+                'user',
+                'section',
+                'department'
+            )
+            .all()
+        )
+
+        assigned_sections = None
 
     else:
 
@@ -759,10 +799,19 @@ def teacher_form_detail(request, form_id):
             user=request.user
         )
 
-        assigned_sections = teacher_profile.assigned_sections.all()
+        assigned_sections = (
+            teacher_profile.assigned_sections.all()
+        )
 
-        students = StudentProfile.objects.filter(
-            section__in=assigned_sections
+        students = (
+            StudentProfile.objects.filter(
+                section__in=assigned_sections
+            )
+            .select_related(
+                'user',
+                'section',
+                'department'
+            )
         )
 
     # ==========================================
@@ -773,15 +822,19 @@ def teacher_form_detail(request, form_id):
         formresponse__form=form
     ).distinct()
 
+    submitted_ids = list(
+        submitted_students.values_list(
+            'id',
+            flat=True
+        )
+    )
+
     # ==========================================
     # PENDING STUDENTS
     # ==========================================
 
     pending_students = students.exclude(
-        id__in=submitted_students.values_list(
-            'id',
-            flat=True
-        )
+        id__in=submitted_ids
     )
 
     # ==========================================
@@ -797,6 +850,57 @@ def teacher_form_detail(request, form_id):
     )
 
     # ==========================================
+    # LOAD ALL ANSWERS ONCE
+    # ==========================================
+
+    if request.user.role == 'admin':
+
+        all_answers = (
+            FormAnswer.objects.filter(
+                response__form=form
+            )
+            .select_related(
+                'question',
+                'response'
+            )
+        )
+
+    else:
+
+        all_answers = (
+            FormAnswer.objects.filter(
+                response__form=form,
+                response__student__section__in=assigned_sections
+            )
+            .select_related(
+                'question',
+                'response'
+            )
+        )
+
+    # ==========================================
+    # GROUP ANSWERS BY QUESTION
+    # ==========================================
+
+    answers_by_question = {}
+
+    for answer in all_answers:
+
+        question_id = answer.question_id
+
+        if question_id not in answers_by_question:
+            answers_by_question[
+                question_id
+            ] = []
+
+        if answer.answer:
+            answers_by_question[
+                question_id
+            ].append(
+                answer.answer
+            )
+
+    # ==========================================
     # ANALYTICS
     # ==========================================
 
@@ -805,48 +909,21 @@ def teacher_form_detail(request, form_id):
     text_questions = []
 
     for question in questions:
-    
-        if request.user.role == 'admin':
 
-            answers = FormAnswer.objects.filter(
-                question=question,
-                response__form=form
+        answer_list = (
+            answers_by_question.get(
+                question.id,
+                []
             )
-
-        else:
-
-            teacher_profile = get_object_or_404(
-                TeacherProfile.objects.prefetch_related(
-                    'assigned_sections'
-                ),
-                user=request.user
-            )
-
-            assigned_sections = teacher_profile.assigned_sections.all()
-
-            answers = FormAnswer.objects.filter(
-                question=question,
-                response__form=form,
-                response__student__section__in=assigned_sections
-            )
-
-        answer_list = []
-
-        for answer in answers:
-
-            if answer.answer:
-
-                answer_list.append(
-                    answer.answer
-                )
+        )
 
         field_type = str(
             question.field_type
         ).lower().strip()
 
-        # ==========================================
+        # ======================================
         # RADIO
-        # ==========================================
+        # ======================================
 
         if 'radio' in field_type:
 
@@ -856,26 +933,29 @@ def teacher_form_detail(request, form_id):
 
             question_analytics.append({
 
-                'question': question.question,
+                'question':
+                    question.question,
 
-                'labels': list(answer_counts.keys()),
+                'labels':
+                    list(answer_counts.keys()),
 
-                'values': list(answer_counts.values()),
+                'values':
+                    list(answer_counts.values()),
 
-                'chart_type': 'pie',
-                'field_type': field_type
+                'chart_type':
+                    'pie',
+
+                'field_type':
+                    field_type
             })
 
-        # ==========================================
-        # DROPDOWN
-        # ==========================================
+        # ======================================
+        # DROPDOWN / SELECT
+        # ======================================
 
         elif (
-
             'dropdown' in field_type
-
             or
-
             'select' in field_type
         ):
 
@@ -885,19 +965,25 @@ def teacher_form_detail(request, form_id):
 
             question_analytics.append({
 
-                'question': question.question,
+                'question':
+                    question.question,
 
-                'labels': list(answer_counts.keys()),
+                'labels':
+                    list(answer_counts.keys()),
 
-                'values': list(answer_counts.values()),
+                'values':
+                    list(answer_counts.values()),
 
-                'chart_type': 'bar',
-                'field_type': field_type
+                'chart_type':
+                    'bar',
+
+                'field_type':
+                    field_type
             })
-            
-        # ==========================================
-        # RATING FIELD
-        # ==========================================
+
+        # ======================================
+        # RATING
+        # ======================================
 
         elif 'rating' in field_type:
 
@@ -907,17 +993,22 @@ def teacher_form_detail(request, form_id):
 
             question_analytics.append({
 
-                'question': question.question,
+                'question':
+                    question.question,
 
-                'labels': list(answer_counts.keys()),
+                'labels':
+                    list(answer_counts.keys()),
 
-                'values': list(answer_counts.values()),
+                'values':
+                    list(answer_counts.values()),
 
-                'chart_type': 'bar'
+                'chart_type':
+                    'bar'
             })
-        # ==========================================
+
+        # ======================================
         # CHECKBOX
-        # ==========================================
+        # ======================================
 
         elif 'checkbox' in field_type:
 
@@ -943,29 +1034,40 @@ def teacher_form_detail(request, form_id):
 
             question_analytics.append({
 
-                'question': question.question,
+                'question':
+                    question.question,
 
-                'labels': list(answer_counts.keys()),
+                'labels':
+                    list(answer_counts.keys()),
 
-                'values': list(answer_counts.values()),
+                'values':
+                    list(answer_counts.values()),
 
-                'chart_type': 'bar'
+                'chart_type':
+                    'bar'
             })
 
-        # ==========================================
-        # TEXT FIELDS
-        # ==========================================
+        # ======================================
+        # TEXTAREA
+        # ======================================
 
         elif 'textarea' in field_type:
-    
+
             question_analytics.append({
 
-                'question': question.question,
+                'question':
+                    question.question,
 
-                'answers': answer_list,
+                'answers':
+                    answer_list,
 
-                'chart_type': 'text'
+                'chart_type':
+                    'text'
             })
+
+    # ==========================================
+    # CONTEXT
+    # ==========================================
 
     context = {
 
@@ -973,24 +1075,24 @@ def teacher_form_detail(request, form_id):
 
         'students': students,
 
-        'submitted_students': submitted_students,
+        'submitted_students':
+            submitted_students,
 
-        'pending_students': pending_students,
+        'pending_students':
+            pending_students,
 
-        'question_analytics': question_analytics,
+        'question_analytics':
+            question_analytics,
 
-        'text_questions': text_questions,
+        'text_questions':
+            text_questions,
     }
 
     return render(
-
         request,
-
         'accounts/teacher_form_detail.html',
-
         context
     )
-
 @login_required    
 @role_required('teacher')
 
@@ -1135,15 +1237,9 @@ def teachers_list(request):
             'teachers': teachers,
         }
     )
-    
 @login_required
+@role_required('admin')
 def private_forms(request):
-
-    if request.user.role != 'admin':
-
-        return HttpResponse(
-            'Unauthorized'
-        )
 
     # ==========================================
     # TODAY
@@ -1152,37 +1248,83 @@ def private_forms(request):
     today = timezone.now().date()
 
     # ==========================================
-    # GET PRIVATE FORMS
+    # PRIVATE FORMS
     # ==========================================
 
     forms = DynamicForm.objects.filter(
         access_type='private'
     )
 
+    # ==========================================
+    # TOTAL STUDENTS (GET ONCE)
+    # ==========================================
+
+    total_students = (
+        StudentProfile.objects.count()
+    )
+
+    # ==========================================
+    # GET ALL FORM RESPONSES ONCE
+    # ==========================================
+
+    responses = FormResponse.objects.filter(
+        form__in=forms
+    ).values(
+        'form_id',
+        'student_id'
+    )
+
+    # ==========================================
+    # GROUP STUDENTS BY FORM
+    # ==========================================
+
+    submitted_by_form = {}
+
+    for response in responses:
+
+        form_id = response['form_id']
+
+        student_id = response[
+            'student_id'
+        ]
+
+        if form_id not in submitted_by_form:
+
+            submitted_by_form[
+                form_id
+            ] = set()
+
+        submitted_by_form[
+            form_id
+        ].add(student_id)
+
+    # ==========================================
+    # ANALYTICS
+    # ==========================================
+
     analytics = []
 
     for form in forms:
 
-        total_students = StudentProfile.objects.count()
-
-        submitted_students = StudentProfile.objects.filter(
-
-            formresponse__form=form
-
-        ).distinct()
-
-        submitted_count = submitted_students.count()
-
-        pending_count = (
-
-            total_students
-            -
-            submitted_count
+        submitted_ids = (
+            submitted_by_form.get(
+                form.id,
+                set()
+            )
         )
 
-        # ==========================================
+        submitted_count = len(
+            submitted_ids
+        )
+
+        pending_count = (
+            total_students
+            - submitted_count
+        )
+
+        # ======================================
         # ANONYMOUS FORM
-        # ==========================================
+        # ======================================
 
         if form.identity_type == 'anonymous':
 
@@ -1190,54 +1332,76 @@ def private_forms(request):
 
                 'form': form,
 
-                'total_students': total_students,
+                'total_students':
+                    total_students,
 
-                'submitted_count': submitted_count,
+                'submitted_count':
+                    submitted_count,
 
-                'pending_count': pending_count,
+                'pending_count':
+                    pending_count,
 
                 'students': [],
 
-                'is_anonymous': True
+                'is_anonymous':
+                    True
             })
 
-        # ==========================================
+        # ======================================
         # IDENTIFIED FORM
-        # ==========================================
+        # ======================================
 
         else:
+
+            submitted_students = (
+                StudentProfile.objects.filter(
+                    id__in=submitted_ids
+                )
+                .select_related(
+                    'user',
+                    'department',
+                    'section'
+                )
+            )
 
             analytics.append({
 
                 'form': form,
 
-                'total_students': total_students,
+                'total_students':
+                    total_students,
 
-                'submitted_count': submitted_count,
+                'submitted_count':
+                    submitted_count,
 
-                'pending_count': pending_count,
+                'pending_count':
+                    pending_count,
 
-                'students': submitted_students,
+                'students':
+                    submitted_students,
 
-                'is_anonymous': False
+                'is_anonymous':
+                    False
             })
+
+    # ==========================================
+    # CONTEXT
+    # ==========================================
 
     context = {
 
-        'analytics': analytics,
+        'analytics':
+            analytics,
 
-        'today': today
+        'today':
+            today
     }
 
     return render(
-
         request,
-
         'accounts/private_forms.html',
-
         context
     )
-    
 @login_required
 def public_forms(request):
 
