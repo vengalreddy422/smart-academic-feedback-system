@@ -122,7 +122,7 @@ class PreviewReportAJAXView(View):
             headers = list(rows[0].keys())
         else:
             if not is_public and not is_anonymous:
-                headers = ['Username', 'Name']
+                headers = ['Rollno', 'Name']
             elif not is_public and is_anonymous:
                 headers = ['Identity']
             else:
@@ -180,7 +180,7 @@ class DownloadReportView(View):
             
             headers = []
             if not is_public and not is_anonymous:
-                headers = ["Username", "First Name", "Last Name", "Department"]
+                headers = ["Rollno", "First Name", "Last Name", "Department"]
                 
             for q in questions:
                 headers.append(q.question)
@@ -227,7 +227,7 @@ class DownloadReportView(View):
             
             headers = []
             if not is_public and not is_anonymous:
-                headers = ["Username", "First Name", "Last Name", "Department"]
+                headers = ["Rollno", "First Name", "Last Name", "Department"]
             for q in questions:
                 headers.append(q.question)
             if is_public:
