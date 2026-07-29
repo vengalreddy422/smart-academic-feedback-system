@@ -120,7 +120,7 @@ def identified_summary_excel(request, form_id):
     )
 
     # Construct clean headers without time fields
-    headers = ["Username", "Section", "Department"]
+    headers = ["Rollno", "Department"]
     for q in questions:
         headers.append(q.question)
         
@@ -131,10 +131,9 @@ def identified_summary_excel(request, form_id):
         student = response_obj.student
         user = student.user if student else None
         
-        # Base metadata row data (Username, Section, Department only)
+        # Base metadata row data (Username, Department only)
         row_data = [
             user.username if user else "N/A",
-            str(student.section) if student and student.section else "N/A",  # ◄── CHANGED TO THIS
             str(getattr(student, 'department', 'N/A'))
         ]
 
