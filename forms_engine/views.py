@@ -23,6 +23,7 @@ from .models import (
     PublicFormAnswer,
     PublicFormResponse,
 )
+from .field_registry import validate_field
 
 
 def _attach_options_list(questions):
@@ -212,6 +213,15 @@ def submit_form(request, form_id):
 
             continue
 
+        # ======================================
+        # FORMAT VALIDATION
+        # ======================================
+
+        is_valid, err_msg = validate_field(question.field_type, answer)
+        if not is_valid:
+            errors[question.id] = err_msg
+            continue
+
         # STORE TEMP ANSWERS
 
         answers_data.append({
@@ -230,6 +240,10 @@ def submit_form(request, form_id):
         _attach_options_list(
             questions
         )
+
+        for q in questions:
+            if q.id in errors:
+                q.error = errors[q.id]
 
         return render(
 
@@ -305,19 +319,52 @@ def public_form(request, uuid):
     _attach_options_list(questions)
 
     if request.method == "POST":
-        response = PublicFormResponse.objects.create(form=form)
-        
+        errors = {}
+        answers_data = []
+
         for question in questions:
             if question.field_type == "checkbox":
                 selected = request.POST.getlist(str(question.id))
                 answer = ",".join(selected)
             else:
-                answer = request.POST.get(str(question.id), "")
+                answer = request.POST.get(str(question.id), "").strip()
 
+            if question.required and not answer:
+                errors[question.id] = f"{question.question} is required."
+                continue
+
+            is_valid, err_msg = validate_field(question.field_type, answer)
+            if not is_valid:
+                errors[question.id] = err_msg
+                continue
+
+            answers_data.append({
+                "question": question,
+                "answer": answer
+            })
+
+        if errors:
+            for q in questions:
+                if q.id in errors:
+                    q.error = errors[q.id]
+
+            return render(
+                request,
+                "forms_engine/public_form.html",
+                {
+                    "form": form,
+                    "questions": questions,
+                    "errors": errors,
+                },
+            )
+
+        response = PublicFormResponse.objects.create(form=form)
+        
+        for item in answers_data:
             PublicFormAnswer.objects.create(
                 response=response,
-                question=question,
-                answer=answer,
+                question=item["question"],
+                answer=item["answer"],
             )
 
         return render(

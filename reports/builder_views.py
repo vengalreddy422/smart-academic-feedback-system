@@ -172,127 +172,14 @@ class DownloadReportView(View):
         else:
             qs = qs.prefetch_related('formanswer_set', 'student__user')
 
+        from .export_utils import generate_dynamic_excel, generate_dynamic_csv, generate_dynamic_pdf
+        
         # EXPORT LOGIC ROUTING
         if export_format == 'excel':
-            wb = openpyxl.Workbook()
-            ws = wb.active
-            ws.title = "Report"
-            
-            headers = []
-            if not is_public and not is_anonymous:
-                headers = ["Rollno", "First Name", "Last Name", "Department"]
-                
-            for q in questions:
-                headers.append(q.question)
-                
-            if is_public:
-                headers.append("Submitted At")
-                
-            ws.append(headers)
-
-            for response in qs:
-                row_data = []
-                if not is_public and not is_anonymous:
-                    student = response.student
-                    user = student.user if student else None
-                    row_data.extend([
-                        user.username if user else "N/A",
-                        user.first_name if user else "N/A",
-                        user.last_name if user else "N/A",
-                        str(getattr(student, 'department', 'N/A'))
-                    ])
-                
-                if is_public:
-                    ans_map = {ans.question_id: ans.answer for ans in response.publicformanswer_set.all()}
-                else:
-                    ans_map = {ans.question_id: ans.answer for ans in response.formanswer_set.all()}
-
-                for q in questions:
-                    row_data.append(ans_map.get(q.id, ""))
-                    
-                if is_public:
-                    row_data.append(response.submitted_at.strftime('%Y-%m-%d %H:%M:%S'))
-                    
-                ws.append(row_data)
-
-            response_file = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-            response_file["Content-Disposition"] = f'attachment; filename="{clean_title}_report.xlsx"'
-            wb.save(response_file)
-            return response_file
-            
+            return generate_dynamic_excel(form, qs, questions, f'{clean_title}_report')
         elif export_format == 'csv':
-            response_file = HttpResponse(content_type='text/csv')
-            response_file['Content-Disposition'] = f'attachment; filename="{clean_title}_report.csv"'
-            writer = csv.writer(response_file)
-            
-            headers = []
-            if not is_public and not is_anonymous:
-                headers = ["Rollno", "First Name", "Last Name", "Department"]
-            for q in questions:
-                headers.append(q.question)
-            if is_public:
-                headers.append("Submitted At")
-                
-            writer.writerow(headers)
-            
-            for response in qs:
-                row_data = []
-                if not is_public and not is_anonymous:
-                    student = response.student
-                    user = student.user if student else None
-                    row_data.extend([
-                        user.username if user else "N/A",
-                        user.first_name if user else "N/A",
-                        user.last_name if user else "N/A",
-                        str(getattr(student, 'department', 'N/A'))
-                    ])
-                
-                if is_public:
-                    ans_map = {ans.question_id: ans.answer for ans in response.publicformanswer_set.all()}
-                else:
-                    ans_map = {ans.question_id: ans.answer for ans in response.formanswer_set.all()}
-
-                for q in questions:
-                    row_data.append(ans_map.get(q.id, ""))
-                
-                if is_public:
-                    row_data.append(response.submitted_at.strftime('%Y-%m-%d %H:%M:%S'))
-                    
-                writer.writerow(row_data)
-                
-            return response_file
-
+            return generate_dynamic_csv(form, qs, questions, f'{clean_title}_report')
         elif export_format == 'pdf':
-            # Use existing detailed pdf generators for private forms, custom for public
-            if not is_public and not is_anonymous:
-                # `export_identified_detailed_pdf` expects a specific layout, we reuse it.
-                return export_identified_detailed_pdf(qs, f'{clean_title}_report')
-            elif not is_public and is_anonymous:
-                # `export_anonymous_detailed_pdf` expects a specific layout.
-                return export_anonymous_detailed_pdf(qs, f'{clean_title}_report')
-            else:
-                # Public form PDF layout
-                response_file = HttpResponse(content_type='application/pdf')
-                response_file['Content-Disposition'] = f'attachment; filename="{clean_title}_report.pdf"'
-                doc = SimpleDocTemplate(response_file, pagesize=letter, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
-                story = []
-                styles = getSampleStyleSheet()
-                title_style = ParagraphStyle('DocTitle', parent=styles['Heading1'], fontSize=22, spaceAfter=20)
-                record_header_style = ParagraphStyle('RecHead', parent=styles['Heading3'], fontSize=12, spaceBefore=15, spaceAfter=10, textColor=colors.HexColor('#2563eb'))
-                q_style = ParagraphStyle('QuestText', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=10, leading=14, spaceAfter=2, textColor=colors.HexColor('#0f172a'))
-                a_style = ParagraphStyle('AnsText', parent=styles['Normal'], fontName='Helvetica', fontSize=10, leading=14, spaceAfter=12, textColor=colors.HexColor('#334155'))
-
-                story.append(Paragraph(f"{form.title} - Responses Report", title_style))
-                for index, response in enumerate(qs, start=1):
-                    timestamp = response.submitted_at.strftime('%Y-%m-%d %H:%M:%S')
-                    story.append(Paragraph(f"Submission #{index} — Date: {timestamp}", record_header_style))
-                    ans_map = {ans.question_id: ans.answer for ans in response.publicformanswer_set.all()}
-                    for question in questions:
-                        user_answer = ans_map.get(question.id, '—')
-                        story.append(Paragraph(f"<b>Q: {question.question}</b>", q_style))
-                        story.append(Paragraph(f"{user_answer}", a_style))
-                    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#cbd5e1'), spaceBefore=5, spaceAfter=20))
-                doc.build(story)
-                return response_file
-
+            return generate_dynamic_pdf(form, qs, questions, f'{clean_title}_report')
+        
         return HttpResponse("Invalid format", status=400)

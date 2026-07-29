@@ -110,17 +110,8 @@ class DynamicForm(models.Model):
 
 class FormQuestion(models.Model):
 
-    FIELD_TYPES = (
-        ('text', 'Text Input'),
-        ('textarea', 'Textarea'),
-        ('radio', 'Radio Button'),
-        ('checkbox', 'Checkbox'),
-        ('select', 'Dropdown'),
-        ('rating', 'Rating'),
-        ('number', 'Number'),
-        ('email', 'Email'),
-        ('date', 'Date'),
-    )
+    from .field_registry import get_field_choices
+    FIELD_TYPES = get_field_choices()
 
     form = models.ForeignKey(DynamicForm, on_delete=models.CASCADE, related_name='questions')
     question = models.CharField(max_length=500)

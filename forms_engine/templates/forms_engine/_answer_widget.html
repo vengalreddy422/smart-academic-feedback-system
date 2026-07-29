@@ -1,0 +1,141 @@
+{% load custom_filters %}
+<div class="question-box position-relative">
+    <label class="question-label">
+        {% if question.is_system_field %}
+            <i class="bi bi-shield-lock-fill text-primary"></i>
+        {% else %}
+            <i class="bi bi-patch-question-fill"></i>
+        {% endif %}
+
+        {{ question.question }}
+
+        {% if question.required %}
+            <span class="required-star">*</span>
+        {% endif %}
+    </label>
+
+    <div class="error-box mb-2" {% if question.error %}style="display: block;"{% endif %}>
+        <i class="bi bi-exclamation-circle-fill"></i> 
+        <span class="error-text">
+            {% if question.error %}
+                {{ question.error }}
+            {% else %}
+                {% if question.field_type == 'email' %}
+                    Please enter a valid email address.
+                {% elif question.field_type == 'phone' %}
+                    Please enter a valid 10-digit mobile number.
+                {% elif question.field_type == 'date' %}
+                    Please enter a valid date.
+                {% elif question.field_type == 'pan' %}
+                    Please enter a valid PAN number.
+                {% elif question.field_type == 'aadhaar' %}
+                    Please enter a valid 12-digit Aadhaar number.
+                {% elif question.field_type == 'apaar_id' %}
+                    Please enter a valid 12-digit APAAR ID.
+                {% else %}
+                    This field is required.
+                {% endif %}
+            {% endif %}
+        </span>
+    </div>
+
+    {% if question.field_type == 'text' %}
+        <input type="text" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
+               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               placeholder="{{ question.placeholder|default:'' }}"
+               {% if question.required %}required{% endif %}>
+
+    {% elif question.field_type == 'textarea' %}
+        <textarea name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
+                  rows="5" placeholder="{{ question.placeholder|default:'' }}"
+                  {% if question.required %}required{% endif %}>{{ request.POST|dict_get:question.id|default:'' }}</textarea>
+
+    {% elif question.field_type == 'number' %}
+        <input type="number" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
+               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               placeholder="{{ question.placeholder|default:'' }}"
+               {% if question.required %}required{% endif %}>
+
+    {% elif question.field_type == 'float' %}
+        <input type="number" step="0.01" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
+               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               placeholder="{{ question.placeholder|default:'' }}"
+               {% if question.required %}required{% endif %}>
+
+    {% elif question.field_type == 'email' %}
+        <input type="email" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
+               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               placeholder="{{ question.placeholder|default:'' }}"
+               {% if question.required %}required{% endif %}>
+
+    {% elif question.field_type == 'phone' %}
+        <input type="tel" pattern="^[6-9]\d{9}$" maxlength="10" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
+               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               placeholder="{{ question.placeholder|default:'10-digit mobile number' }}"
+               {% if question.required %}required{% endif %}>
+
+    {% elif question.field_type == 'pan' %}
+        <input type="text" pattern="^[A-Z]{5}[0-9]{4}[A-Z]$" maxlength="10" style="text-transform:uppercase" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
+               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               placeholder="{{ question.placeholder|default:'ABCDE1234F' }}"
+               {% if question.required %}required{% endif %}>
+
+    {% elif question.field_type == 'apaar_id' %}
+        <input type="text" pattern="^\d{12}$" maxlength="12" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
+               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               placeholder="{{ question.placeholder|default:'12-digit APAAR ID' }}"
+               {% if question.required %}required{% endif %}>
+
+    {% elif question.field_type == 'aadhaar' %}
+        <input type="text" pattern="^\d{12}$" maxlength="12" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
+               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               placeholder="{{ question.placeholder|default:'12-digit Aadhaar Number' }}"
+               {% if question.required %}required{% endif %}>
+
+    {% elif question.field_type == 'date' %}
+        <input type="date" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
+               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               {% if question.required %}required{% endif %}>
+
+    {% elif question.field_type == 'radio' %}
+        {% for option in question.options_list %}
+            <div class="option-box">
+                <div class="form-check">
+                    <input type="radio" name="{{ question.id }}" value="{{ option.option_text }}" class="form-check-input"
+                           {% if question.required %}required{% endif %}>
+                    <label class="form-check-label">{{ option.option_text }}</label>
+                </div>
+            </div>
+        {% endfor %}
+
+    {% elif question.field_type == 'checkbox' %}
+        {% for option in question.options_list %}
+            <div class="option-box">
+                <div class="form-check">
+                    <input type="checkbox" name="{{ question.id }}" value="{{ option.option_text }}" class="form-check-input">
+                    <label class="form-check-label">{{ option.option_text }}</label>
+                </div>
+            </div>
+        {% endfor %}
+
+    {% elif question.field_type == 'select' %}
+        <select name="{{ question.id }}" class="form-select {% if question.error %}is-invalid{% endif %}" {% if question.required %}required{% endif %}>
+            <option value="">Select Option</option>
+            {% for option in question.options_list %}
+                <option value="{{ option.option_text }}">{{ option.option_text }}</option>
+            {% endfor %}
+        </select>
+
+    {% elif question.field_type == 'rating' %}
+        <select name="{{ question.id }}" class="form-select {% if question.error %}is-invalid{% endif %}" {% if question.required %}required{% endif %}>
+            <option value="">Select Rating</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+
+    {% endif %}
+
+</div>

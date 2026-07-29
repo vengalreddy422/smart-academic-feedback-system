@@ -1915,11 +1915,11 @@ def delete_form(request, form_id):
 def add_question(request, form_id):
 
     form = get_object_or_404(
-
         DynamicForm,
-
         id=form_id
     )
+
+    from forms_engine.field_registry import FIELD_REGISTRY
 
     # ==========================================
     # POST REQUEST
@@ -1946,7 +1946,7 @@ def add_question(request, form_id):
             ),
 
             field_type=field_type,
-
+            placeholder=request.POST.get('placeholder', ''),
             required=(
 
                 request.POST.get(
@@ -1966,12 +1966,7 @@ def add_question(request, form_id):
         # OPTIONS
         # ==========================================
 
-        if field_type in [
-
-            'radio',
-            'checkbox',
-            'select'
-        ]:
+        if FIELD_REGISTRY.get(field_type, {}).get('needs_options', False):
 
             # GET MULTIPLE OPTION INPUTS
 
@@ -2013,8 +2008,8 @@ def add_question(request, form_id):
         'accounts/add_question.html',
 
         {
-
-            'form': form
+            'form': form,
+            'field_registry': FIELD_REGISTRY
         }
     )
 @login_required

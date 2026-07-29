@@ -288,15 +288,25 @@
             font-weight:500;
         }
 
-        .error-message{
+        .error-box{
 
-            color:#dc2626;
+            display:none;
+
+            margin-top: 10px;
+
+            background: #fef2f2;
+
+            border: 1px solid #fecaca;
+
+            color:#b91c1c;
+
+            padding: 10px 14px;
+
+            border-radius: 12px;
 
             font-size:14px;
 
-            margin-top:8px;
-
-            display:none;
+            font-weight: 500;
         }
 
         .submit-btn{
@@ -475,218 +485,7 @@ input[type="date"]:focus::before {
 
                     {% for question in questions %}
 
-                        <div class="question-card">
-
-                            <label class="form-label">
-
-                                {{ question.question }}
-
-                            </label>
-
-                            {% if question.field_type == 'text' %}
-
-                                <input
-                                    type="text"
-                                    class="form-control text-input"
-                                    name="{{ question.id }}"
-                                    data-question="{{ question.question|lower }}"
-                                    {% if question.required %}required{% endif %}
-                                >
-
-                                <div class="error-message text-error">
-
-                                    This field is required
-
-                                </div>
-
-                            {% elif question.field_type == 'email' %}
-
-                                <input
-                                    type="email"
-                                    class="form-control"
-                                    name="{{ question.id }}"
-                                    {% if question.required %}required{% endif %}
-                                >
-
-                                <div class="error-message">
-
-                                    Please enter valid email address
-
-                                </div>
-
-                            {% elif question.field_type == 'number' %}
-
-                                <input
-                                    type="tel"
-                                    class="form-control phone-input"
-                                    name="{{ question.id }}"
-                                    maxlength="10"
-                                    pattern="[0-9]{10}"
-                                    {% if question.required %}required{% endif %}
-                                >
-
-                                <div class="error-message phone-error">
-
-                                    Enter valid 10-digit phone number
-
-                                </div>
-
-                            {% elif question.field_type == 'date' %}
-
-                                <input
-                                    type="date"
-                                    class="form-control dob-input"
-                                    name="{{ question.id }}"
-                                    placeholder="Select Date" 
-                                    {% if question.required %}required{% endif %}
-                                >
-
-                                <div class="error-message dob-error">
-
-                                    Please enter valid date
-
-                                </div>
-
-                            {% elif question.field_type == 'textarea' %}
-
-                                <textarea
-                                    class="form-control"
-                                    rows="4"
-                                    name="{{ question.id }}"
-                                    {% if question.required %}required{% endif %}
-                                ></textarea>
-                                
-                                <div class="error-message">
-
-                                    This field is required
-
-                                </div>
-
-                            {% elif question.field_type == 'select' %}
-                                <select
-                                    class="form-select"
-                                    name="{{ question.id }}"
-                                    {% if question.required %}required{% endif %}
-                                >
-
-                                    <option value="">
-
-                                        Select Option
-
-                                    </option>
-
-                                    {% for opt in question.options_list %}
-
-                                        <option value="{{ opt.option_text }}">
-
-                                            {{ opt.option_text }}
-
-                                        </option>
-
-                                    {% endfor %}
-
-                                </select>
-                                
-                                <div class="error-message">
-
-                                    Please select an option
-
-                                </div>
-
-                            {% elif question.field_type == 'checkbox' %}
-
-                                {% for opt in question.options_list %}
-
-                                    <div class="option-card">
-
-                                        <div class="form-check">
-
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                name="{{ question.id }}"
-                                                value="{{ opt.option_text }}"
-                                                id="c{{ question.id }}{{ forloop.counter }}"
-                                            >
-
-                                            <label
-                                                class="form-check-label"
-                                                for="c{{ question.id }}{{ forloop.counter }}"
-                                            >
-
-                                                {{ opt.option_text }}
-
-                                            </label>
-
-                                        </div>
-
-                                    </div>
-
-                                {% endfor %}
-
-                            {% elif question.field_type == 'radio' %}
-
-                                {% for opt in question.options_list %}
-
-                                    <div class="option-card">
-
-                                        <div class="form-check">
-
-                                            <input
-                                                class="form-check-input"
-                                                type="radio"
-                                                name="{{ question.id }}"
-                                                value="{{ opt.option_text }}"
-                                                id="r{{ question.id }}{{ forloop.counter }}"
-                                                {% if question.required %}required{% endif %}
-                                            >
-
-                                            <label
-                                                class="form-check-label"
-                                                for="r{{ question.id }}{{ forloop.counter }}"
-                                            >
-
-                                                {{ opt.option_text }}
-
-                                            </label>
-
-                                        </div>
-
-                                    </div>
-
-                                {% endfor %}
-
-                            {% elif question.field_type == 'rating' %}
-
-                                <select
-                                    class="form-select"
-                                    name="{{ question.id }}"
-                                    {% if question.required %}required{% endif %}
-                                >
-
-                                    <option value="">
-
-                                        Select Rating
-
-                                    </option>
-
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-
-                                </select>
-                                
-                                <div class="error-message">
-
-                                    Please select a rating option
-
-                                </div>
-
-                            {% endif %}
-
-                        </div>
+                            {% include 'forms_engine/_answer_widget.html' with question=question %}
 
                     {% endfor %}
 
@@ -716,6 +515,7 @@ input[type="date"]:focus::before {
 
     form.addEventListener('submit', function(event) {
         let valid = true;
+        let firstInvalidInput = null;
 
         // ========================================================
         // 1. FORCE THE RED ERROR MESSAGES TO SHOW FOR NATIVE BLANK / INVALID FIELDS
@@ -728,19 +528,21 @@ input[type="date"]:focus::before {
 
         // Display or hide the error block based on validity status
         form.querySelectorAll('.form-control, .form-select').forEach(input => {
-            const error = input.parentElement.querySelector('.error-message');
+            const error = input.parentElement.querySelector('.error-box');
+            const errorText = input.parentElement.querySelector('.error-text');
             
             if (error) {
                 if (!input.checkValidity()) {
+                    if (!firstInvalidInput) firstInvalidInput = input;
                     // Match standard text message to field requirements if empty
                     if (input.validity.valueMissing) {
                         if (input.tagName.toLowerCase() === 'select') {
-                            error.innerText = 'Please select an option';
+                            if(errorText) errorText.innerText = 'Please select an option';
                         } else {
-                            error.innerText = 'This field is required';
+                            if(errorText) errorText.innerText = 'This field is required';
                         }
                     } else if (input.type === 'email' && input.validity.typeMismatch) {
-                        error.innerText = 'Please enter valid email address';
+                        if(errorText) errorText.innerText = 'Please enter valid email address';
                     }
                     error.style.display = 'block'; 
                 } else {
@@ -760,15 +562,19 @@ input[type="date"]:focus::before {
 
             if (input.hasAttribute('required') && value === '') {
                 valid = false;
+                if (!firstInvalidInput) firstInvalidInput = input;
                 if (error) {
-                    error.innerText = 'This field is required';
+                    const errorText = error.querySelector('.error-text');
+                    if(errorText) errorText.innerText = 'This field is required';
                     error.style.display = 'block';
                 }
             } else if (value !== '') {
                 if (value.length !== 10 || !/^\d+$/.test(value) || allSame) {
                     valid = false;
+                    if (!firstInvalidInput) firstInvalidInput = input;
                     if (error) {
-                        error.innerText = 'Enter valid 10-digit phone number';
+                        const errorText = error.querySelector('.error-text');
+                        if(errorText) errorText.innerText = 'Enter valid 10-digit phone number';
                         error.style.display = 'block';
                     }
                 }
@@ -787,8 +593,10 @@ input[type="date"]:focus::before {
 
             if (input.hasAttribute('required') && value === '') {
                 valid = false;
+                if (!firstInvalidInput) firstInvalidInput = input;
                 if (error) {
-                    error.innerText = 'This field is required';
+                    const errorText = error.querySelector('.error-text');
+                    if(errorText) errorText.innerText = 'This field is required';
                     error.style.display = 'block';
                 }
                 return;
@@ -801,13 +609,17 @@ input[type="date"]:focus::before {
 
                 if (!validText) {
                     valid = false;
+                    if (!firstInvalidInput) firstInvalidInput = input;
                     if (error) {
-                        if (question.includes('college')) {
-                            error.innerText = 'College name must contain only letters';
-                        } else if (question.includes('branch') || question.includes('department')) {
-                            error.innerText = 'Branch must contain only letters';
-                        } else {
-                            error.innerText = 'Name must contain only letters';
+                        const errorText = error.querySelector('.error-text');
+                        if (errorText) {
+                            if (question.includes('college')) {
+                                errorText.innerText = 'College name must contain only letters';
+                            } else if (question.includes('branch') || question.includes('department')) {
+                                errorText.innerText = 'Branch must contain only letters';
+                            } else {
+                                errorText.innerText = 'Name must contain only letters';
+                            }
                         }
                         error.style.display = 'block';
                     }
@@ -828,8 +640,10 @@ input[type="date"]:focus::before {
 
             if (input.hasAttribute('required') && value === '') {
                 valid = false;
+                if (!firstInvalidInput) firstInvalidInput = input;
                 if (error) {
-                    error.innerText = 'This field is required';
+                    const errorText = error.querySelector('.error-text');
+                    if(errorText) errorText.innerText = 'This field is required';
                     error.style.display = 'block';
                 }
             } else if (value) {
@@ -840,8 +654,10 @@ input[type="date"]:focus::before {
 
                 if (selectedDate > today) { // Changed to > to allow 'today'
                     valid = false;
+                    if (!firstInvalidInput) firstInvalidInput = input;
                     if (error) {
-                        error.innerText = 'Date cannot be in the future';
+                        const errorText = error.querySelector('.error-text');
+                        if(errorText) errorText.innerText = 'Date cannot be in the future';
                         error.style.display = 'block';
                     }
                 } else {
@@ -853,6 +669,10 @@ input[type="date"]:focus::before {
         // ========================================================
         // 5. BLOCK SUBMISSION IF ANY FIELD HAS FAILED
         // ========================================================
+        if (firstInvalidInput) {
+            firstInvalidInput.focus();
+        }
+
         if (!valid) {
             event.preventDefault(); 
         }

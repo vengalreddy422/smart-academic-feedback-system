@@ -181,6 +181,25 @@ Add Question
 
         </div>
 
+        <!-- PLACEHOLDER -->
+
+        <div class="mb-4">
+
+            <label class="form-label">
+
+                Placeholder (Optional)
+
+            </label>
+
+            <input
+                type="text"
+                name="placeholder"
+                class="form-control"
+                placeholder="Enter placeholder text"
+            >
+
+        </div>
+
         <!-- FIELD TYPE -->
 
         <div class="mb-4">
@@ -197,60 +216,11 @@ Add Question
                 id="fieldType"
                 required
             >
-
-                <option value="text">
-
-                    Text
-
-                </option>
-
-                <option value="textarea">
-
-                    Textarea
-
-                </option>
-
-                <option value="email">
-
-                    Email
-
-                </option>
-
-                <option value="number">
-
-                    Number
-
-                </option>
-
-                <option value="date">
-
-                    Date
-
-                </option>
-
-                <option value="radio">
-
-                    Radio Button
-
-                </option>
-
-                <option value="checkbox">
-
-                    Checkbox
-
-                </option>
-
-                <option value="select">
-
-                    Dropdown Select
-
-                </option>
-                <option value="rating">
-
-    Rating (1-5 Stars)
-
-</option>
-
+                {% for key, meta in field_registry.items %}
+                    <option value="{{ key }}">
+                        {{ meta.label }}
+                    </option>
+                {% endfor %}
             </select>
 
         </div>
@@ -342,7 +312,7 @@ Add Question
 
 </div>
 
-<!-- SCRIPT -->
+{{ field_registry|json_script:"registry-data" }}
 
 <script>
 
@@ -361,6 +331,8 @@ Add Question
     const optionsContainer = document.getElementById(
         'optionsContainer'
     );
+    
+    const registry = JSON.parse(document.getElementById('registry-data').textContent);
 
     // =====================================
     // SHOW OPTIONS
@@ -369,32 +341,14 @@ Add Question
     function toggleOptions(){
 
         const value = fieldType.value;
+        const meta = registry[value];
 
-        if(
-
-            value === 'radio'
-
-            ||
-
-            value === 'checkbox'
-
-            ||
-
-            value === 'select'
-        
-             ||
-
-    value === 'rating'
-)
-        {
-
+        if(meta && meta.needs_options){
             optionsBox.classList.remove(
                 'd-none'
             );
         }
-
         else{
-
             optionsBox.classList.add(
                 'd-none'
             );

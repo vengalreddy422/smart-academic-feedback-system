@@ -247,9 +247,10 @@
     }
 
     /* Show the red alert box instantly if the user types an invalid value and tries to submit */
-    .was-validated .form-control:invalid ~ .error-box,
-    .was-validated .form-select:invalid ~ .error-box {
-        display: block;
+    .was-validated .question-box:has(.form-control:invalid) .error-box,
+    .was-validated .question-box:has(.form-select:invalid) .error-box,
+    .was-validated .question-box:has(.form-check-input:invalid) .error-box {
+        display: block !important;
     }
     
     /* Turn input borders red on invalid entry */
@@ -366,197 +367,7 @@
                         {% csrf_token %}
 
                         {% for question in questions %}
-
-                            <div class="question-box position-relative">
-
-                                <label class="question-label">
-
-                                    {% if question.is_system_field %}
-                                        <i class="bi bi-shield-lock-fill text-primary"></i>
-                                    {% else %}
-                                        <i class="bi bi-patch-question-fill"></i>
-                                    {% endif %}
-
-                                    {{ question.question }}
-
-                                    {% if question.required %}
-
-                                        <span class="required-star">
-
-                                            *
-
-                                        </span>
-
-                                    {% endif %}
-
-                                </label>
-
-                                {% if question.field_type == 'text' %}
-
-                                    <input
-                                        type="text"
-                                        name="{{ question.id }}"
-                                        class="form-control"
-                                        {% if question.required %}required{% endif %}
-                                    >
-                                    <div class="error-box"><i class="bi bi-exclamation-circle-fill"></i> Please enter a valid response.</div>
-
-                                {% elif question.field_type == 'textarea' %}
-
-                                    <textarea
-                                        name="{{ question.id }}"
-                                        class="form-control"
-                                        rows="5"
-                                        {% if question.required %}required{% endif %}
-                                    ></textarea>
-                                    <div class="error-box"><i class="bi bi-exclamation-circle-fill"></i> This field cannot be left blank.</div>
-
-                                {% elif question.field_type == 'number' %}
-
-                                    <input
-                                        type="number"
-                                        name="{{ question.id }}"
-                                        class="form-control"
-                                        {% if question.required %}required{% endif %}
-                                    >
-                                    <div class="error-box"><i class="bi bi-exclamation-circle-fill"></i> Please enter a valid number.</div>
-
-                                {% elif question.field_type == 'email' %}
-
-                                    <input
-                                        type="email"
-                                        name="{{ question.id }}"
-                                        class="form-control"
-                                        {% if question.required %}required{% endif %}
-                                    >
-                                    <div class="error-box"><i class="bi bi-exclamation-circle-fill"></i> Please enter a valid email address (e.g., name@example.com).</div>
-
-                                {% elif question.field_type == 'date' %}
-
-                                    <input
-                                        type="date"
-                                        name="{{ question.id }}"
-                                        class="form-control"
-                                        {% if question.required %}required{% endif %}
-                                    >
-                                    <div class="error-box"><i class="bi bi-exclamation-circle-fill"></i> Please select a valid date.</div>
-
-                                {% elif question.field_type == 'radio' %}
-
-                                    {% for option in question.options_list %}
-
-                                        <div class="option-box">
-
-                                            <div class="form-check">
-
-                                                <input
-                                                    type="radio"
-                                                    name="{{ question.id }}"
-                                                    value="{{ option.option_text }}"
-                                                    class="form-check-input"
-                                                    {% if question.required %}required{% endif %}
-                                                >
-
-                                                <label class="form-check-label">
-
-                                                    {{ option.option_text }}
-
-                                                </label>
-
-                                            </div>
-
-                                        </div>
-
-                                    {% endfor %}
-                                    {% if errors.question.id %}
-                                        <div class="error-box d-block">{{ errors.question.id }}</div>
-                                    {% endif %}
-
-                                {% elif question.field_type == 'checkbox' %}
-
-                                    {% for option in question.options_list %}
-
-                                        <div class="option-box">
-
-                                            <div class="form-check">
-
-                                                <input
-                                                    type="checkbox"
-                                                    name="{{ question.id }}"
-                                                    value="{{ option.option_text }}"
-                                                    class="form-check-input"
-                                                >
-
-                                                <label class="form-check-label">
-
-                                                    {{ option.option_text }}
-
-                                                </label>
-
-                                            </div>
-
-                                        </div>
-
-                                    {% endfor %}
-
-                                {% elif question.field_type == 'select' %}
-
-                                    <select
-                                        name="{{ question.id }}"
-                                        class="form-select"
-                                        {% if question.required %}required{% endif %}
-                                    >
-
-                                        <option value="">
-
-                                            Select Option
-
-                                        </option>
-
-                                        {% for option in question.options_list %}
-
-                                            <option value="{{ option.option_text }}">
-
-                                                {{ option.option_text }}
-
-                                            </option>
-
-                                        {% endfor %}
-
-                                    </select>
-                                    <div class="error-box"><i class="bi bi-exclamation-circle-fill"></i> Please select an option from the list.</div>
-
-                                {% elif question.field_type == 'rating' %}
-
-                                    <select
-                                        name="{{ question.id }}"
-                                        class="form-select"
-                                        {% if question.required %}required{% endif %}
-                                    >
-
-                                        <option value="">
-
-                                            Select Rating
-
-                                        </option>
-
-                                        <option value="1">1</option>
-
-                                        <option value="2">2</option>
-
-                                        <option value="3">3</option>
-
-                                        <option value="4">4</option>
-
-                                        <option value="5">5</option>
-
-                                    </select>
-                                    <div class="error-box"><i class="bi bi-exclamation-circle-fill"></i> Please select a rating score.</div>
-
-                                {% endif %}
-
-                            </div>
-
+                            {% include 'forms_engine/_answer_widget.html' with question=question %}
                         {% endfor %}
 
                         <button
@@ -588,10 +399,53 @@
         const forms = document.querySelectorAll('.needs-validation')
         Array.from(forms).forEach(form => {
             form.addEventListener('submit', event => {
+                let firstInvalidInput = null;
                 if (!form.checkValidity()) {
                     event.preventDefault()
                     event.stopPropagation()
                 }
+
+                form.querySelectorAll('.form-control, .form-select, .form-check-input').forEach(input => {
+                    const questionBox = input.closest('.question-box');
+                    if (questionBox) {
+                        const errorText = questionBox.querySelector('.error-text');
+                        const labelEl = questionBox.querySelector('.question-label');
+                        let label = 'this field';
+                        if (labelEl) {
+                            label = labelEl.innerText.replace('*', '').trim();
+                        }
+                        
+                        if (errorText && !input.checkValidity()) {
+                            if (!firstInvalidInput) {
+                                firstInvalidInput = input;
+                            }
+                            if (input.validity.valueMissing) {
+                                errorText.innerText = 'This field is required';
+                            } else if (input.type === 'email' && input.validity.typeMismatch) {
+                                errorText.innerText = 'Please enter a valid email address';
+                            } else if (input.pattern) {
+                                if (input.type === 'tel') {
+                                    errorText.innerText = 'Please enter a valid 10-digit mobile number';
+                                } else if (input.name && input.placeholder && input.placeholder.includes('PAN')) {
+                                    errorText.innerText = 'Please enter a valid PAN number';
+                                } else if (input.name && input.placeholder && input.placeholder.includes('Aadhaar')) {
+                                    errorText.innerText = 'Please enter a valid 12-digit Aadhaar number';
+                                } else if (input.name && input.placeholder && input.placeholder.includes('APAAR')) {
+                                    errorText.innerText = 'Please enter a valid 12-digit APAAR ID';
+                                } else {
+                                    errorText.innerText = 'Your value is wrong, choose another';
+                                }
+                            } else {
+                                errorText.innerText = 'Your value is wrong, choose another';
+                            }
+                        }
+                    }
+                });
+                
+                if (firstInvalidInput) {
+                    firstInvalidInput.focus();
+                }
+
                 form.classList.add('was-validated')
             }, false)
         })

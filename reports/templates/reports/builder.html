@@ -273,7 +273,7 @@ function renderFilters() {
         
         let controlHtml = '';
         
-        if (field.field_type === 'text' || field.field_type === 'textarea' || field.field_type === 'email') {
+        if (['text', 'textarea', 'email', 'phone', 'pan', 'apaar_id', 'aadhaar'].includes(field.field_type)) {
             controlHtml = `
                 <select class="form-select mb-2 filter-op" data-qid="${field.id}">
                     <option value="contains">Contains</option>
@@ -283,7 +283,7 @@ function renderFilters() {
                 </select>
                 <input type="text" class="form-control filter-val" data-qid="${field.id}" placeholder="Value...">
             `;
-        } else if (field.field_type === 'number' || field.field_type === 'rating') {
+        } else if (['number', 'rating', 'float'].includes(field.field_type)) {
             controlHtml = `
                 <select class="form-select mb-2 filter-op" data-qid="${field.id}" onchange="toggleValue2(this)">
                     <option value="=">=</option>

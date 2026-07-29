@@ -62,14 +62,14 @@ class FormReportFilterEngine:
 
             ans_qs = AnswerModel.objects.filter(question_id=question_id)
 
-            if field_type in ['text', 'textarea', 'email']:
+            if field_type in ['text', 'textarea', 'email', 'phone', 'pan', 'apaar_id', 'aadhaar']:
                 if operator == 'contains':
                     ans_qs = ans_qs.filter(answer__icontains=value)
                 elif operator == 'startswith':
                     ans_qs = ans_qs.filter(answer__istartswith=value)
                 elif operator == 'endswith':
                     ans_qs = ans_qs.filter(answer__iendswith=value)
-                elif operator == 'equals':
+                elif operator in ['equals', '=']:
                     ans_qs = ans_qs.filter(answer__iexact=value)
                 else:
                     ans_qs = ans_qs.filter(answer__icontains=value)
@@ -87,7 +87,7 @@ class FormReportFilterEngine:
                 elif isinstance(value, str):
                     ans_qs = ans_qs.filter(answer__icontains=value)
 
-            elif field_type in ['number', 'rating']:
+            elif field_type in ['number', 'float', 'rating']:
                 # Filter out invalid numeric strings, but ALLOW an optional '%' at the end
                 ans_qs = ans_qs.filter(answer__regex=r'^-?\d+(\.\d+)?\s*%?$')
                 # Strip out the '%' before casting to a float
