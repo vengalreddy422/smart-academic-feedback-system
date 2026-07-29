@@ -3,7 +3,8 @@ from datetime import datetime
 import logging
 
 from django.db.models import Q, FloatField, DateField
-from django.db.models.functions import Cast
+from django.db.models.functions import Cast, Replace
+from django.db.models import Value
 from forms_engine.models import FormResponse, FormAnswer, PublicFormResponse, PublicFormAnswer
 from accounts.models import TeacherProfile
 
@@ -87,9 +88,14 @@ class FormReportFilterEngine:
                     ans_qs = ans_qs.filter(answer__icontains=value)
 
             elif field_type in ['number', 'rating']:
-                # Filter out invalid numeric strings before casting
-                ans_qs = ans_qs.filter(answer__regex=r'^-?\d+(\.\d+)?$')
-                ans_qs = ans_qs.annotate(as_num=Cast('answer', output_field=FloatField()))
+                # Filter out invalid numeric strings, but ALLOW an optional '%' at the end
+                ans_qs = ans_qs.filter(answer__regex=r'^-?\d+(\.\d+)?\s*%?$')
+                # Strip out the '%' before casting to a float
+                ans_qs = ans_qs.annotate(
+                    clean_answer=Replace('answer', Value('%'), Value(''))
+                ).annotate(
+                    as_num=Cast('clean_answer', output_field=FloatField())
+                )
                 
                 try:
                     num_val = float(value)
