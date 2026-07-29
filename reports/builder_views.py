@@ -101,7 +101,6 @@ class PreviewReportAJAXView(View):
                 user = student.user if student else None
                 row_dict['Username'] = user.username if user else "N/A"
                 row_dict['Name'] = f"{user.first_name} {user.last_name}" if user else "N/A"
-                row_dict['Section'] = str(student.section) if student and student.section else "N/A"
             elif not is_public and is_anonymous:
                 row_dict['Identity'] = "Anonymous"
             else:
@@ -123,7 +122,7 @@ class PreviewReportAJAXView(View):
             headers = list(rows[0].keys())
         else:
             if not is_public and not is_anonymous:
-                headers = ['Username', 'Name', 'Section']
+                headers = ['Username', 'Name']
             elif not is_public and is_anonymous:
                 headers = ['Identity']
             else:
@@ -181,7 +180,7 @@ class DownloadReportView(View):
             
             headers = []
             if not is_public and not is_anonymous:
-                headers = ["Username", "First Name", "Last Name", "Section", "Department"]
+                headers = ["Username", "First Name", "Last Name", "Department"]
                 
             for q in questions:
                 headers.append(q.question)
@@ -200,7 +199,6 @@ class DownloadReportView(View):
                         user.username if user else "N/A",
                         user.first_name if user else "N/A",
                         user.last_name if user else "N/A",
-                        str(student.section) if student and student.section else "N/A",
                         str(getattr(student, 'department', 'N/A'))
                     ])
                 
@@ -229,7 +227,7 @@ class DownloadReportView(View):
             
             headers = []
             if not is_public and not is_anonymous:
-                headers = ["Username", "First Name", "Last Name", "Section", "Department"]
+                headers = ["Username", "First Name", "Last Name", "Department"]
             for q in questions:
                 headers.append(q.question)
             if is_public:
@@ -246,7 +244,6 @@ class DownloadReportView(View):
                         user.username if user else "N/A",
                         user.first_name if user else "N/A",
                         user.last_name if user else "N/A",
-                        str(student.section) if student and student.section else "N/A",
                         str(getattr(student, 'department', 'N/A'))
                     ])
                 
