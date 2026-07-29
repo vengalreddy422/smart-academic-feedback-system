@@ -1,0 +1,518 @@
+{% extends 'accounts/base_admin.html' %}
+{% load static %}
+
+{% block title %}Report Builder{% endblock %}
+{% block page_title %}Report Builder{% endblock %}
+
+{% block content %}
+<style>
+/* PREMIUM DESIGN AESTHETICS */
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* CARDS */
+.report-card {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.report-card:hover {
+    box-shadow: var(--shadow);
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* BUTTONS */
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 10px 20px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* FILTERS */
+.filter-block {
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.filter-block-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+/* STICKY HEADER */
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--surface);
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    margin: -24px -24px 24px -24px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+}
+
+/* TABLE */
+.table-responsive {
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+.table {
+    margin-bottom: 0;
+}
+.table thead th {
+    background-color: #f8fafc;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 12px 16px;
+}
+.table tbody td {
+    padding: 12px 16px;
+    vertical-align: middle;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border);
+}
+.table tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+/* SPINNER */
+.spinner-overlay {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.7);
+    z-index: 20;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+}
+</style>
+
+<div class="container-fluid py-4" style="position: relative;">
+
+    <!-- HEADER / FORM SELECTION -->
+    <div class="report-card">
+        <div class="sticky-header">
+            <h2 class="h4 mb-0 text-primary fw-bold"><i class="bi bi-funnel"></i> Report Builder</h2>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-success d-none" id="btn-export-excel" onclick="exportData('excel')"><i class="bi bi-file-earmark-excel"></i> Excel</button>
+                <button type="button" class="btn btn-outline-danger d-none" id="btn-export-pdf" onclick="exportData('pdf')"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
+                <button type="button" class="btn btn-outline-secondary d-none" id="btn-export-csv" onclick="exportData('csv')"><i class="bi bi-filetype-csv"></i> CSV</button>
+            </div>
+        </div>
+
+        <div class="row align-items-end">
+            <div class="col-md-8">
+                <label class="form-label fw-bold">Select Form</label>
+                <select id="form-select" class="form-select form-select-lg">
+                    <option value="">-- Choose a Form --</option>
+                    {% for f in forms %}
+                        <option value="{{ f.id }}" {% if f.id|stringformat:"s" == selected_form_id %}selected{% endif %}>{{ f.title }} ({{ f.get_form_type_display }} - {{ f.get_access_type_display|title }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary btn-lg w-100" onclick="loadFields()">
+                    <i class="bi bi-cloud-download"></i> Load Fields
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER SECTION -->
+    <div class="report-card d-none" id="filter-section">
+        <h3 class="section-title text-primary"><i class="bi bi-sliders"></i> Dynamic Filters</h3>
+        <p class="text-muted small mb-4">Build your report by selecting conditions on the fields below. Leave blank to ignore.</p>
+        
+        <div id="filters-container" class="row"></div>
+
+        <div class="mt-4 text-end">
+            <button class="btn btn-primary" onclick="previewReport(1)">
+                <i class="bi bi-eye"></i> Generate Preview
+            </button>
+        </div>
+    </div>
+
+    <!-- PREVIEW SECTION -->
+    <div class="report-card d-none" id="preview-section" style="position: relative;">
+        <div class="spinner-overlay" id="preview-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="section-title text-primary m-0"><i class="bi bi-table"></i> Data Preview</h3>
+            <span class="badge bg-primary rounded-pill fs-6 px-3 py-2" id="total-count-badge">0 Records Found</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover" id="preview-table">
+                <thead>
+                    <tr id="preview-thead"></tr>
+                </thead>
+                <tbody id="preview-tbody"></tbody>
+            </table>
+        </div>
+        
+        <!-- PAGINATION -->
+        <div class="d-flex justify-content-center mt-4 d-none" id="pagination-container">
+            <button class="btn btn-outline-primary me-2" id="btn-prev" onclick="changePage(-1)">Previous</button>
+            <span class="align-self-center fw-bold text-muted mx-3" id="page-indicator">Page 1 of 1</span>
+            <button class="btn btn-outline-primary ms-2" id="btn-next" onclick="changePage(1)">Next</button>
+        </div>
+    </div>
+    
+    <!-- EXPORT FORM -->
+    <form id="export-form" method="POST" action="{% url 'builder_download_report' %}" class="d-none">
+        {% csrf_token %}
+        <input type="hidden" name="form_id" id="export-form-id">
+        <input type="hidden" name="filters" id="export-filters">
+        <input type="hidden" name="format" id="export-format">
+    </form>
+
+</div>
+
+<script>
+let currentFields = [];
+let currentPage = 1;
+let totalPages = 1;
+
+// Pre-load if query param
+document.addEventListener("DOMContentLoaded", () => {
+    if(document.getElementById('form-select').value) {
+        loadFields();
+    }
+});
+
+async function loadFields() {
+    const formId = document.getElementById('form-select').value;
+    if (!formId) {
+        alert("Please select a form first.");
+        return;
+    }
+
+    const res = await fetch(`/reports/builder/api/fields/?form_id=${formId}`);
+    if (!res.ok) {
+        alert("Failed to load fields. You might not have permission.");
+        return;
+    }
+    const data = await res.json();
+    currentFields = data.fields;
+    
+    renderFilters();
+    
+    document.getElementById('filter-section').classList.remove('d-none');
+    document.getElementById('preview-section').classList.add('d-none');
+    hideExportButtons();
+}
+
+function renderFilters() {
+    const container = document.getElementById('filters-container');
+    container.innerHTML = '';
+    
+    currentFields.forEach(field => {
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-lg-4';
+        
+        let controlHtml = '';
+        
+        if (field.field_type === 'text' || field.field_type === 'textarea' || field.field_type === 'email') {
+            controlHtml = `
+                <select class="form-select mb-2 filter-op" data-qid="${field.id}">
+                    <option value="contains">Contains</option>
+                    <option value="equals">Equals</option>
+                    <option value="startswith">Starts With</option>
+                    <option value="endswith">Ends With</option>
+                </select>
+                <input type="text" class="form-control filter-val" data-qid="${field.id}" placeholder="Value...">
+            `;
+        } else if (field.field_type === 'number' || field.field_type === 'rating') {
+            controlHtml = `
+                <select class="form-select mb-2 filter-op" data-qid="${field.id}" onchange="toggleValue2(this)">
+                    <option value="=">=</option>
+                    <option value=">">&gt;</option>
+                    <option value=">=">&gt;=</option>
+                    <option value="<">&lt;</option>
+                    <option value="<=">&lt;=</option>
+                    <option value="between">Between</option>
+                </select>
+                <div class="d-flex gap-2">
+                    <input type="number" class="form-control filter-val" data-qid="${field.id}" placeholder="Value">
+                    <input type="number" class="form-control filter-val2 d-none" data-qid="${field.id}" placeholder="Max Value">
+                </div>
+            `;
+        } else if (field.field_type === 'date') {
+            controlHtml = `
+                <select class="form-select mb-2 filter-op" data-qid="${field.id}" onchange="toggleValue2(this)">
+                    <option value="=">On</option>
+                    <option value="before">Before</option>
+                    <option value="after">After</option>
+                    <option value="between">Between</option>
+                </select>
+                <div class="d-flex gap-2">
+                    <input type="date" class="form-control filter-val" data-qid="${field.id}">
+                    <input type="date" class="form-control filter-val2 d-none" data-qid="${field.id}">
+                </div>
+            `;
+        } else if (field.field_type === 'select' || field.field_type === 'radio') {
+            let optionsHtml = '<option value="">-- Any --</option>';
+            field.options.forEach(opt => {
+                optionsHtml += `<option value="${opt}">${opt}</option>`;
+            });
+            controlHtml = `
+                <input type="hidden" class="filter-op" data-qid="${field.id}" value="equals">
+                <select class="form-select filter-val" data-qid="${field.id}">
+                    ${optionsHtml}
+                </select>
+            `;
+        } else if (field.field_type === 'checkbox') {
+            let checksHtml = '';
+            field.options.forEach((opt, idx) => {
+                checksHtml += `
+                <div class="form-check">
+                    <input class="form-check-input filter-val-check" type="checkbox" data-qid="${field.id}" value="${opt}" id="chk_${field.id}_${idx}">
+                    <label class="form-check-label" for="chk_${field.id}_${idx}">${opt}</label>
+                </div>
+                `;
+            });
+            controlHtml = `
+                <input type="hidden" class="filter-op" data-qid="${field.id}" value="contains">
+                <div class="border rounded p-2 bg-white" style="max-height: 120px; overflow-y: auto;">
+                    ${checksHtml}
+                </div>
+            `;
+        }
+        
+        col.innerHTML = `
+            <div class="filter-block">
+                <div class="filter-block-title text-truncate" title="${field.question}">${field.question}</div>
+                ${controlHtml}
+            </div>
+        `;
+        container.appendChild(col);
+    });
+}
+
+function toggleValue2(selectElem) {
+    const qid = selectElem.getAttribute('data-qid');
+    const val2Input = document.querySelector(`.filter-val2[data-qid="${qid}"]`);
+    if(val2Input) {
+        if(selectElem.value === 'between') {
+            val2Input.classList.remove('d-none');
+        } else {
+            val2Input.classList.add('d-none');
+            val2Input.value = '';
+        }
+    }
+}
+
+function collectFilters() {
+    const filters = [];
+    currentFields.forEach(field => {
+        const qid = field.id;
+        
+        if (field.field_type === 'checkbox') {
+            const checks = document.querySelectorAll(`.filter-val-check[data-qid="${qid}"]:checked`);
+            if (checks.length > 0) {
+                const vals = Array.from(checks).map(c => c.value);
+                filters.push({
+                    question_id: qid,
+                    field_type: field.field_type,
+                    operator: 'contains',
+                    value: vals
+                });
+            }
+        } else {
+            const opElem = document.querySelector(`.filter-op[data-qid="${qid}"]`);
+            const valElem = document.querySelector(`.filter-val[data-qid="${qid}"]`);
+            const val2Elem = document.querySelector(`.filter-val2[data-qid="${qid}"]`);
+            
+            if (valElem && valElem.value.trim() !== '') {
+                filters.push({
+                    question_id: qid,
+                    field_type: field.field_type,
+                    operator: opElem ? opElem.value : 'equals',
+                    value: valElem.value.trim(),
+                    value2: (val2Elem && val2Elem.value.trim() !== '') ? val2Elem.value.trim() : null
+                });
+            }
+        }
+    });
+    return filters;
+}
+
+async function previewReport(page) {
+    currentPage = page;
+    const formId = document.getElementById('form-select').value;
+    const filters = collectFilters();
+    
+    document.getElementById('preview-section').classList.remove('d-none');
+    document.getElementById('preview-spinner').style.display = 'flex';
+    
+    const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    
+    try {
+        const res = await fetch(`/reports/builder/api/preview/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf
+            },
+            body: JSON.stringify({
+                form_id: formId,
+                filters: filters,
+                page: currentPage
+            })
+        });
+        
+        const data = await res.json();
+        
+        // Update Count
+        document.getElementById('total-count-badge').innerText = `${data.total_count} Record${data.total_count!==1?'s':''} Found`;
+        
+        // Render Table Headers
+        const thead = document.getElementById('preview-thead');
+        thead.innerHTML = '';
+        if(data.headers && data.headers.length > 0) {
+            data.headers.forEach(h => {
+                const th = document.createElement('th');
+                th.innerText = h;
+                thead.appendChild(th);
+            });
+        }
+        
+        // Render Table Body
+        const tbody = document.getElementById('preview-tbody');
+        tbody.innerHTML = '';
+        if (data.rows && data.rows.length > 0) {
+            data.rows.forEach(row => {
+                const tr = document.createElement('tr');
+                data.headers.forEach(h => {
+                    const td = document.createElement('td');
+                    td.innerText = row[h] || '';
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            showExportButtons();
+        } else {
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = data.headers ? data.headers.length : 1;
+            td.className = 'text-center py-4 text-muted';
+            td.innerText = "No matching records found.";
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+            hideExportButtons();
+        }
+        
+        // Pagination
+        totalPages = data.num_pages;
+        const pagContainer = document.getElementById('pagination-container');
+        document.getElementById('page-indicator').innerText = `Page ${data.page} of ${totalPages}`;
+        
+        document.getElementById('btn-prev').disabled = data.page <= 1;
+        document.getElementById('btn-next').disabled = data.page >= totalPages;
+        
+        if (totalPages > 1) {
+            pagContainer.classList.remove('d-none');
+        } else {
+            pagContainer.classList.add('d-none');
+        }
+        
+    } catch(err) {
+        console.error(err);
+        alert("Error generating preview.");
+    } finally {
+        document.getElementById('preview-spinner').style.display = 'none';
+    }
+}
+
+function changePage(delta) {
+    const newPage = currentPage + delta;
+    if (newPage >= 1 && newPage <= totalPages) {
+        previewReport(newPage);
+    }
+}
+
+function showExportButtons() {
+    document.getElementById('btn-export-excel').classList.remove('d-none');
+    document.getElementById('btn-export-pdf').classList.remove('d-none');
+    document.getElementById('btn-export-csv').classList.remove('d-none');
+}
+
+function hideExportButtons() {
+    document.getElementById('btn-export-excel').classList.add('d-none');
+    document.getElementById('btn-export-pdf').classList.add('d-none');
+    document.getElementById('btn-export-csv').classList.add('d-none');
+}
+
+function exportData(format) {
+    const formId = document.getElementById('form-select').value;
+    const filters = collectFilters();
+    
+    document.getElementById('export-form-id').value = formId;
+    document.getElementById('export-filters').value = JSON.stringify(filters);
+    document.getElementById('export-format').value = format;
+    
+    document.getElementById('export-form').submit();
+}
+</script>
+{% endblock %}

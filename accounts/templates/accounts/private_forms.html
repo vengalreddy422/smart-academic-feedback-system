@@ -284,89 +284,14 @@ Private Forms
 
             </button>
 
-            <!-- DOWNLOAD -->
+            <!-- REPORT BUILDER -->
 
-            <div class="download-wrapper">
-
-                <button
-                    class="action-btn download-btn"
-
-                    onclick="
-                        toggleDownload(
-                            'download{{ forloop.counter }}'
-                        )
-                    "
-                >
-
-                    Download
-
-                </button>
-
-                <!-- MENU -->
-
-<div
-    class="download-menu"
-    id="download{{ forloop.counter }}"
->
-
-    <!-- ================================= -->
-    <!-- ANONYMOUS FORM -->
-    <!-- ================================= -->
-
-   {% if item.is_anonymous %}
-
-    <a
-        href="{% url 'private_anonymous_pdf' item.form.id %}"
-        class="download-item pdf-item"
-    >
-
-        Anonymous PDF
-
-    </a>
-
-    <a
-        href="{% url 'private_anonymous_excel' item.form.id %}"
-        class="download-item excel-item"
-    >
-
-        Anonymous Excel
-
-    </a>
-
-    <!-- ================================= -->
-    <!-- IDENTIFIED FORM -->
-    <!-- ================================= -->
-
-    {% else %}
-
-        <!-- PDF -->
-
-        <a
-            href="{% url 'identified_detailed_pdf' item.form.id %}"
-            class="download-item pdf-item"
-        >
-
-            Identified PDF
-
-        </a>
-
-        <!-- EXCEL -->
-
-        <a
-            href="{% url 'identified_summary_excel' item.form.id %}"
-            class="download-item excel-item"
-        >
-
-            Identified Excel
-
-        </a>
-
-    {% endif %}
-
-</div>
-
-
-            </div>
+            <a
+                href="{% url 'report_builder' %}?form_id={{ item.form.id }}"
+                class="action-btn download-btn"
+            >
+                Report Builder
+            </a>
 
         </div>
 

@@ -152,64 +152,14 @@
         View Analytics
     </a>
 
-    <!-- DOWNLOAD -->
+    <!-- REPORT BUILDER -->
 
-    <div class="dropdown flex-fill">
-
-        <button
-            class="btn download-btn w-100 dropdown-toggle"            type="button"
-            data-bs-toggle="dropdown"
-        >
-            Download
-        </button>
-
-        <ul class="dropdown-menu">
-
-            {% if item.form.identity_type == 'identified' %}
-
-                <li>
-                    <a
-                        class="dropdown-item"
-                        href="{% url 'identified_detailed_pdf' item.form.id %}"
-                    >
-                        PDF
-                    </a>
-                </li>
-
-                <li>
-                    <a
-                        class="dropdown-item"
-                        href="{% url 'identified_summary_excel' item.form.id %}"
-                    >
-                        Excel
-                    </a>
-                </li>
-
-            {% else %}
-
-                <li>
-                    <a
-                        class="dropdown-item"
-                        href="{% url 'private_anonymous_pdf' item.form.id %}"
-                    >
-                        PDF
-                    </a>
-                </li>
-
-                <li>
-                    <a
-                        class="dropdown-item"
-                        href="{% url 'private_anonymous_excel' item.form.id %}"
-                    >
-                        Excel
-                    </a>
-                </li>
-
-            {% endif %}
-
-        </ul>
-
-    </div>
+    <a
+        href="{% url 'report_builder' %}?form_id={{ item.form.id }}"
+        class="btn download-btn flex-fill"
+    >
+        Report Builder
+    </a>
 
 </div>
 
