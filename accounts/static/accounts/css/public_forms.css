@@ -168,13 +168,13 @@ body{
 
 .form-title{
 
-    font-size:28px;
+    font-size:26px;
 
     font-weight:800;
 
     color:#0f172a;
 
-    margin-bottom:15px;
+    margin-bottom:10px;
 }
 
 .form-description{
@@ -183,7 +183,9 @@ body{
 
     line-height:1.7;
 
-    margin-bottom:25px;
+    margin-bottom:20px;
+
+    font-size:14px;
 }
 
 /* DATES */
@@ -196,55 +198,66 @@ body{
 
     gap:15px;
 
-    margin-bottom:30px;
+    margin-bottom:20px;
 }
 
-.date-card{
+.date-box{
 
     background:#f8fafc;
 
-    border-radius:18px;
+    padding:16px;
 
-    padding:18px;
+    border-radius:14px;
+
+    text-align:center;
 }
 
-.date-card small{
+.date-box span{
 
     display:block;
 
-    color:#94a3b8;
+    font-size:13px;
 
-    margin-bottom:8px;
+    color:#64748b;
+
+    margin-bottom:6px;
 }
 
-.date-card strong{
+.date-box h4{
+
+    margin:0;
+
+    font-size:24px;
 
     color:#0f172a;
+
+    font-weight:800;
 }
 
-/* ACTIONS */
+/* BUTTON ROW */
 
-.actions-grid{
+.button-row{
 
-    display:grid;
+    display:flex;
 
-    grid-template-columns:
-        repeat(3,1fr);
+    gap:10px;
 
-    gap:15px;
+    margin-top:20px;
+
+    flex-wrap:wrap;
 }
 
 .action-btn{
 
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
+    border:none;
 
     text-decoration:none;
 
-    border:none;
+    padding:10px 18px;
+
+    border-radius:14px;
+
+    font-size:14px;
 
     color:white;
 
@@ -426,6 +439,8 @@ body{
 
     margin-bottom:15px;
 }
+
+
 
 .empty-card p{
 

@@ -371,9 +371,9 @@ def teacher_form_detail(request, form_id):
             FormAnswer.objects.filter(
                 response__form=form
             )
-            .select_related(
-                'question',
-                'response'
+            .values_list(
+                'question_id',
+                'answer'
             )
         )
 
@@ -384,9 +384,9 @@ def teacher_form_detail(request, form_id):
                 response__form=form,
                 response__student__section__in=assigned_sections
             )
-            .select_related(
-                'question',
-                'response'
+            .values_list(
+                'question_id',
+                'answer'
             )
         )
 
@@ -396,20 +396,18 @@ def teacher_form_detail(request, form_id):
 
     answers_by_question = {}
 
-    for answer in all_answers:
-
-        question_id = answer.question_id
+    for question_id, answer_text in all_answers:
 
         if question_id not in answers_by_question:
             answers_by_question[
                 question_id
             ] = []
 
-        if answer.answer:
+        if answer_text:
             answers_by_question[
                 question_id
             ].append(
-                answer.answer
+                answer_text
             )
 
     # ==========================================

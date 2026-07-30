@@ -160,8 +160,8 @@ class FormResponse(models.Model):
 
 
 class FormAnswer(models.Model):
-    response = models.ForeignKey(FormResponse, on_delete=models.CASCADE)
-    question = models.ForeignKey(FormQuestion, on_delete=models.CASCADE)
+    response = models.ForeignKey(FormResponse, on_delete=models.CASCADE, db_index=True)
+    question = models.ForeignKey(FormQuestion, on_delete=models.CASCADE, db_index=True)
     answer = models.TextField(blank=True, null=True)
     uploaded_file = models.FileField(upload_to='resumes/', blank=True, null=True)
 
@@ -186,8 +186,8 @@ class PublicFormResponse(models.Model):
     
     
 class PublicFormAnswer(models.Model):
-    response = models.ForeignKey(PublicFormResponse, on_delete=models.CASCADE)
-    question = models.ForeignKey(FormQuestion, on_delete=models.CASCADE)
+    response = models.ForeignKey(PublicFormResponse, on_delete=models.CASCADE, db_index=True)
+    question = models.ForeignKey(FormQuestion, on_delete=models.CASCADE, db_index=True)
     answer = models.TextField()
 
     def __str__(self):

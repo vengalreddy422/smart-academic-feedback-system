@@ -528,6 +528,20 @@ def public_form_detail(request, form_id):
     text_questions = []
 
     # ==========================================
+    # LOAD ALL ANSWERS ONCE
+    # ==========================================
+    all_answers = PublicFormAnswer.objects.filter(
+        response__form=form
+    ).values_list('question_id', 'answer')
+
+    answers_by_question = {}
+    for question_id, answer_text in all_answers:
+        if question_id not in answers_by_question:
+            answers_by_question[question_id] = []
+        if answer_text:
+            answers_by_question[question_id].append(answer_text)
+
+    # ==========================================
     # LOOP QUESTIONS
     # ==========================================
     for question in questions:
@@ -541,16 +555,16 @@ def public_form_detail(request, form_id):
         # ======================================
         # GET ANSWERS
         # ======================================
-        answers = PublicFormAnswer.objects.filter(question=question)
+        answer_list_raw = answers_by_question.get(question.id, [])
 
         # ======================================
         # TEXT RESPONSES (TEXTAREA ONLY)
         # ======================================
         if question.field_type == 'textarea':
             text_answer_list = []
-            for answer in answers:
-                if answer.answer.strip():
-                    text_answer_list.append(answer.answer)
+            for answer_text in answer_list_raw:
+                if answer_text.strip():
+                    text_answer_list.append(answer_text)
 
             text_questions.append({
                 'question': question.question,
@@ -562,18 +576,18 @@ def public_form_detail(request, form_id):
         # ======================================
         elif question.field_type in ['radio', 'checkbox', 'select', 'rating']:
             answer_list = []
-            for answer in answers:
+            for answer_text in answer_list_raw:
                 
                 # Checkbox items handling
-                if ',' in answer.answer:
-                    split_answers = answer.answer.split(',')
+                if ',' in answer_text:
+                    split_answers = answer_text.split(',')
                     for item in split_answers:
                         clean_item = item.strip()
                         if clean_item:
                             answer_list.append(clean_item)
                 else:
-                    if answer.answer.strip():
-                        answer_list.append(answer.answer)
+                    if answer_text.strip():
+                        answer_list.append(answer_text)
 
             # ==================================
             # COUNTS & LABELS

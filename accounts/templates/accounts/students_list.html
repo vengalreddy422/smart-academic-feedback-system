@@ -88,242 +88,82 @@ Students Management
 
     </div>
 
-    <!-- DEPARTMENTS -->
-
-    {% for department, sections in grouped_data.items %}
-
-    <div class="department-card">
-
-        <!-- DEPARTMENT HEADER -->
-
-        <div
-            class="department-header"
-            onclick="toggleDepartment('dept{{ forloop.counter }}')"
-        >
-
-            <div>
-
-                <div class="department-title">
-
-                    {{ department }}
-
-                </div>
-
-                <div class="department-subtitle">
-
-                    Click to view sections
-
-                </div>
-
-            </div>
-
-            <div class="department-arrow">
-
-                <i class="bi bi-chevron-down"></i>
-
-            </div>
-
-        </div>
-
-        <!-- SECTION WRAPPER -->
-
-        <div
-            class="sections-wrapper"
-            id="dept{{ forloop.counter }}"
-        >
-
-            {% for section, students in sections.items %}
-
-            <!-- SECTION CARD -->
-
-            <div class="section-card">
-
-                <!-- SECTION HEADER -->
-
-                <div
-                    class="section-header"
-                    onclick="toggleSection('section{{ forloop.parentloop.counter }}{{ forloop.counter }}')"
-                >
-
-                    <div>
-
-                        <div class="section-title">
-
-                            {{ section }}
-
-                        </div>
-
-                        <div class="section-count">
-
-                            {{ students|length }} Students
-
-                        </div>
-
-                    </div>
-
-                    <div class="section-arrow">
-
-                        <i class="bi bi-chevron-down"></i>
-
-                    </div>
-
-                </div>
-
-                <!-- STUDENTS GRID -->
-
-                <div
-    class="students-grid"
-    id="section{{ forloop.parentloop.counter }}{{ forloop.counter }}"
->
-
-    {% if students %}
-
-    <div class="table-responsive">
-
-        <table class="students-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>Student</th>
-
-                    <th>Roll Number</th>
-
-                    <th>Semester</th>
-
-                    <th>Phone</th>
-
-                    <th>Department</th>
-
-                    <th>Section</th>
-
-                    <th>Actions</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for student in students %}
-
-                <tr>
-
-                    <td>
-
-                        <div class="student-info">
-
-                            <div class="student-avatar">
-
-                                {{ student.user.first_name|slice:":1" }}
-
-                            </div>
-
-                            <div>
-
-                                <div class="student-name">
-
-                                    {{ student.user.first_name }}
-
-                                    {{ student.user.last_name }}
-
+    <!-- STUDENTS TABLE -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-body p-4">
+            {% if students %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle students-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student</th>
+                            <th>Roll Number</th>
+                            <th>Semester</th>
+                            <th>Phone</th>
+                            <th>Department</th>
+                            <th>Section</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3 bg-primary text-white d-flex align-items-center justify-content-center rounded-circle" style="width:40px;height:40px;font-weight:600;">
+                                        {{ student.user.first_name|slice:":1" }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ student.user.first_name }} {{ student.user.last_name }}</div>
+                                        <small class="text-muted">{{ student.user.username }}</small>
+                                    </div>
                                 </div>
-
-                            </div>
-
-                        </div>
-
-                    </td>
-
-                    <td>
-
-                        {{ student.roll_number }}
-
-                    </td>
-
-                    <td>
-
-                        {{ student.semester }}
-
-                    </td>
-
-                    <td>
-
-                        {{ student.phone_number }}
-
-                    </td>
-
-                    <td>
-
-                        {{ student.department.name }}
-
-                    </td>
-
-                    <td>
-
-                        {{ student.section.name }}
-
-                    </td>
-
-                    <td class="actions-cell">
-
-                        <a
-                            href="{% url 'edit_student' student.id %}"
-                            class="edit-btn"
-                        >
-                            Edit
-                        </a>
-
-                        <a
-                            href="{% url 'delete_student' student.id %}"
-                            class="delete-btn"
-                        >
-                            Delete
-                        </a>
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-    {% else %}
-
-    <div class="empty-box">
-
-        No Students Found
-
-    </div>
-
-    {% endif %}
-
-</div>
-
+                            </td>
+                            <td>{{ student.roll_number }}</td>
+                            <td>{{ student.semester }}</td>
+                            <td>{{ student.phone_number }}</td>
+                            <td><span class="badge bg-info text-dark">{{ student.department.name }}</span></td>
+                            <td><span class="badge bg-secondary">{{ student.section.name }}</span></td>
+                            <td class="text-end">
+                                <a href="{% url 'edit_student' student.id %}" class="btn btn-sm btn-outline-primary me-2">Edit</a>
+                                <a href="{% url 'delete_student' student.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
 
-            {% endfor %}
+            <!-- PAGINATION -->
+            {% if students.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if students.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ students.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Previous</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    {% endif %}
+                    
+                    <li class="page-item disabled"><a class="page-link" href="#">Page {{ students.number }} of {{ students.paginator.num_pages }}</a></li>
+                    
+                    {% if students.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ students.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Next</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
 
+            {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                <h4>No Students Found</h4>
+                <p>Try clearing your search or adding a new student.</p>
+            </div>
+            {% endif %}
         </div>
-
     </div>
-
-    {% empty %}
-
-    <div class="empty-main">
-
-        No Departments Found
-
-    </div>
-
-    {% endfor %}
-
 </div>
 
 <script src="{% static 'accounts/js/students_list.js' %}"></script>

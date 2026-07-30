@@ -636,6 +636,27 @@
 
             </div>
 
+            <!-- PAGINATION -->
+            {% if teachers.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if teachers.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ teachers.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Previous</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    {% endif %}
+                    
+                    <li class="page-item disabled"><a class="page-link" href="#">Page {{ teachers.number }} of {{ teachers.paginator.num_pages }}</a></li>
+                    
+                    {% if teachers.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ teachers.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Next</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
         </div>
 
     </div>

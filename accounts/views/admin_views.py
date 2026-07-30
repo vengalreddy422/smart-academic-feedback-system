@@ -18,6 +18,7 @@ from accounts.models import (
 from django.contrib.auth.decorators import login_required
 
 from django.utils import timezone
+from django.core.paginator import Paginator
 from django.shortcuts import (
     render,
     redirect,
@@ -252,9 +253,10 @@ def manage_users(request):
 
         user.save()
 
-    users = User.objects.all().order_by(
-        '-id'
-    )
+    users_list = User.objects.all().order_by('-id')
+    paginator = Paginator(users_list, 50)
+    page_number = request.GET.get('page')
+    users = paginator.get_page(page_number)
 
     return render(
 
@@ -303,9 +305,10 @@ def teachers_list(request):
             Q(user__username__icontains=search)
         )
 
-    teachers = teachers.order_by(
-        '-id'
-    )
+    teachers_queryset = teachers.order_by('-id')
+    paginator = Paginator(teachers_queryset, 50)
+    page_number = request.GET.get('page')
+    teachers_page = paginator.get_page(page_number)
 
     return render(
 
@@ -315,7 +318,7 @@ def teachers_list(request):
 
         {
 
-            'teachers': teachers,
+            'teachers': teachers_page,
         }
     )
 
@@ -375,63 +378,25 @@ def students_list(request):
         )
 
     # ==========================================
-    # ORDERING
+    # ORDERING & PAGINATION
     # ==========================================
 
-    students = students.order_by(
-
+    students_queryset = students.order_by(
         'department__name',
-
-        'section__name'
+        'section__name',
+        'roll_number'
     )
 
-    # ==========================================
-    # GROUPED DATA
-    # ==========================================
-
-    grouped_data = {}
-
-    for student in students:
-
-        department_name = (
-            student.department.name
-        )
-
-        section_name = (
-            student.section.name
-        )
-
-        # CREATE DEPARTMENT
-
-        if department_name not in grouped_data:
-
-            grouped_data[
-                department_name
-            ] = {}
-
-        # CREATE SECTION
-
-        if section_name not in grouped_data[
-            department_name
-        ]:
-
-            grouped_data[
-                department_name
-            ][section_name] = []
-
-        # APPEND STUDENT
-
-        grouped_data[
-            department_name
-        ][section_name].append(student)
+    paginator = Paginator(students_queryset, 50)
+    page_number = request.GET.get('page')
+    students_page = paginator.get_page(page_number)
 
     # ==========================================
     # CONTEXT
     # ==========================================
 
     context = {
-
-        'grouped_data': grouped_data
+        'students': students_page
     }
 
     return render(
