@@ -42,8 +42,8 @@ class LoadFieldsAJAXView(View):
             
         questions = FormQuestion.objects.filter(form=form, is_system_field=False).order_by('order')
         
-        # Only allow fields that are typically filterable (Condition based fields)
-        allowed_filter_types = ['select', 'radio', 'checkbox', 'number', 'float', 'date', 'rating']
+        # Only allow fields that are typically filterable
+        allowed_filter_types = ['select', 'radio', 'checkbox', 'number', 'float', 'date', 'rating', 'text', 'email', 'textarea']
         
         fields_data = []
         for q in questions:

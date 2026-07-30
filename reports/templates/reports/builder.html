@@ -331,6 +331,16 @@ function renderFilters() {
                     ${checksHtml}
                 </div>
             `;
+        } else {
+            controlHtml = `
+                <select class="form-select mb-2 filter-op" data-qid="${field.id}">
+                    <option value="contains">Contains</option>
+                    <option value="equals">Equals Exact</option>
+                </select>
+                <div class="d-flex gap-2">
+                    <input type="text" class="form-control filter-val" data-qid="${field.id}" placeholder="Enter text to filter...">
+                </div>
+            `;
         }
         
         col.innerHTML = `
@@ -416,18 +426,22 @@ function applyFilterConditions() {
         // If hidden, clear its value so it doesn't get collected
         if (targetCol.classList.contains('d-none')) {
             const valInput = targetBlock.querySelector('.filter-val');
-            if (valInput) {
+            if (valInput && valInput.value !== '') {
                 valInput.value = '';
                 // Trigger change to cascade conditions
                 valInput.dispatchEvent(new Event('change'));
             }
             const checks = targetBlock.querySelectorAll('.filter-val-check');
+            let changed = false;
             checks.forEach(c => {
                 if (c.checked) {
                     c.checked = false;
-                    c.dispatchEvent(new Event('change'));
+                    changed = true;
                 }
             });
+            if (changed && checks.length > 0) {
+                checks[0].dispatchEvent(new Event('change'));
+            }
         }
     }
 }
