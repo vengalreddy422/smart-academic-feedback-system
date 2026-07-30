@@ -1,0 +1,311 @@
+/* ==========================================
+   PREMIUM ENTERPRISE DESIGN SYSTEM
+   ========================================== */
+
+:root {
+    /* Brand Colors */
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --primary-light: #e0e7ff;
+    
+    /* Backgrounds */
+    --bg-app: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-sidebar: #ffffff;
+    
+    /* Text */
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-inverse: #ffffff;
+    
+    /* Borders & Dividers */
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+    
+    /* Status Colors */
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+
+    /* Shadows (Multi-layered soft shadows) */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+    
+    /* Layout */
+    --sidebar-width: 260px;
+    --topbar-height: 70px;
+    
+    /* Transitions */
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   GLOBAL RESET
+   ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================
+   SIDEBAR
+   ========================================== */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 24px 20px;
+    overflow-y: auto;
+    z-index: 1040;
+    transition: transform var(--transition);
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+}
+
+.logo span {
+    color: var(--primary);
+}
+
+.menu-title {
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    margin-top: 32px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 0 12px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-muted);
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    transition: background-color var(--transition), color var(--transition);
+    font-weight: 500;
+    font-size: 15px;
+}
+
+.sidebar-link i {
+    font-size: 18px;
+    color: var(--text-muted);
+    transition: color var(--transition);
+}
+
+.sidebar-link:hover {
+    background-color: var(--bg-app);
+    color: var(--text-main);
+}
+
+.sidebar-link:hover i {
+    color: var(--text-main);
+}
+
+.sidebar-link.active {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.sidebar-link.active i {
+    color: var(--primary);
+}
+
+/* ==========================================
+   MAIN CONTENT
+   ========================================== */
+.main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: margin var(--transition);
+}
+
+.content-wrapper {
+    padding: 32px;
+    flex-grow: 1;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ==========================================
+   TOPBAR
+   ========================================== */
+.topbar {
+    height: var(--topbar-height);
+    background: var(--bg-surface);
+    padding: 0 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+.top-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.top-btn {
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid transparent;
+}
+
+.password-btn {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border-color: var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.password-btn:hover {
+    background-color: var(--bg-app);
+    border-color: #cbd5e1;
+}
+
+.logout-btn {
+    background-color: #fef2f2;
+    color: var(--error);
+}
+
+.logout-btn:hover {
+    background-color: #fee2e2;
+}
+
+/* ==========================================
+   MOBILE & RESPONSIVE
+   ========================================== */
+.mobile-toggle {
+    display: none;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    color: var(--text-main);
+    cursor: pointer;
+    padding: 8px;
+    margin-left: -8px;
+    border-radius: 8px;
+}
+
+.mobile-toggle:hover {
+    background: var(--bg-app);
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 1035;
+    opacity: 0;
+    transition: opacity var(--transition);
+}
+
+/* Tablet (1024px and below) */
+@media (max-width: 1024px) {
+    .content-wrapper {
+        padding: 24px;
+    }
+}
+
+/* Mobile (992px and below) */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .mobile-toggle {
+        display: block;
+    }
+    
+    .topbar {
+        padding: 0 20px;
+        gap: 16px;
+    }
+
+    .top-title {
+        font-size: 18px;
+        flex-grow: 1;
+    }
+
+    .content-wrapper {
+        padding: 20px;
+    }
+
+    .top-actions {
+        gap: 8px;
+    }
+
+    .top-btn span {
+        display: none; /* Hide text on mobile for top buttons */
+    }
+    
+    .top-btn {
+        padding: 8px;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+}

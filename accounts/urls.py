@@ -236,12 +236,15 @@ path(
     ),
     
         path(
-
         'add-question/<int:form_id>/',
-
         views.add_question,
-
         name='add_question'
+    ),
+
+    path(
+        'api/form/<int:form_id>/questions/',
+        views.get_form_questions,
+        name='api_form_questions'
     ),
 
     path(

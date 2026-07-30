@@ -1,8 +1,10 @@
 {% load custom_filters %}
-<div class="question-box position-relative">
+<div class="question-box position-relative {% if question.id in answered_question_ids %}answered-locked{% endif %}" id="question-block-{{ question.id }}" data-question-id="{{ question.id }}" data-is-required="{% if question.required %}true{% else %}false{% endif %}">
     <label class="question-label">
         {% if question.is_system_field %}
             <i class="bi bi-shield-lock-fill text-primary"></i>
+        {% elif question.id in answered_question_ids %}
+            <i class="bi bi-lock-fill text-secondary" title="Already Answered"></i>
         {% else %}
             <i class="bi bi-patch-question-fill"></i>
         {% endif %}
@@ -41,60 +43,60 @@
 
     {% if question.field_type == 'text' %}
         <input type="text" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
-               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               value="{{ form_data|dict_get:question.id|default:'' }}"
                placeholder="{{ question.placeholder|default:'' }}"
                {% if question.required %}required{% endif %}>
 
     {% elif question.field_type == 'textarea' %}
         <textarea name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
                   rows="5" placeholder="{{ question.placeholder|default:'' }}"
-                  {% if question.required %}required{% endif %}>{{ request.POST|dict_get:question.id|default:'' }}</textarea>
+                  {% if question.required %}required{% endif %}>{{ form_data|dict_get:question.id|default:'' }}</textarea>
 
     {% elif question.field_type == 'number' %}
         <input type="number" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
-               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               value="{{ form_data|dict_get:question.id|default:'' }}"
                placeholder="{{ question.placeholder|default:'' }}"
                {% if question.required %}required{% endif %}>
 
     {% elif question.field_type == 'float' %}
         <input type="number" step="0.01" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
-               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               value="{{ form_data|dict_get:question.id|default:'' }}"
                placeholder="{{ question.placeholder|default:'' }}"
                {% if question.required %}required{% endif %}>
 
     {% elif question.field_type == 'email' %}
         <input type="email" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
-               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               value="{{ form_data|dict_get:question.id|default:'' }}"
                placeholder="{{ question.placeholder|default:'' }}"
                {% if question.required %}required{% endif %}>
 
     {% elif question.field_type == 'phone' %}
         <input type="tel" pattern="^[6-9]\d{9}$" maxlength="10" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
-               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               value="{{ form_data|dict_get:question.id|default:'' }}"
                placeholder="{{ question.placeholder|default:'10-digit mobile number' }}"
                {% if question.required %}required{% endif %}>
 
     {% elif question.field_type == 'pan' %}
         <input type="text" pattern="^[A-Z]{5}[0-9]{4}[A-Z]$" maxlength="10" style="text-transform:uppercase" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
-               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               value="{{ form_data|dict_get:question.id|default:'' }}"
                placeholder="{{ question.placeholder|default:'ABCDE1234F' }}"
                {% if question.required %}required{% endif %}>
 
     {% elif question.field_type == 'apaar_id' %}
         <input type="text" pattern="^\d{12}$" maxlength="12" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
-               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               value="{{ form_data|dict_get:question.id|default:'' }}"
                placeholder="{{ question.placeholder|default:'12-digit APAAR ID' }}"
                {% if question.required %}required{% endif %}>
 
     {% elif question.field_type == 'aadhaar' %}
         <input type="text" pattern="^\d{12}$" maxlength="12" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
-               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               value="{{ form_data|dict_get:question.id|default:'' }}"
                placeholder="{{ question.placeholder|default:'12-digit Aadhaar Number' }}"
                {% if question.required %}required{% endif %}>
 
     {% elif question.field_type == 'date' %}
         <input type="date" name="{{ question.id }}" class="form-control {% if question.error %}is-invalid{% endif %}"
-               value="{{ request.POST|dict_get:question.id|default:'' }}"
+               value="{{ form_data|dict_get:question.id|default:'' }}"
                {% if question.required %}required{% endif %}>
 
     {% elif question.field_type == 'radio' %}
@@ -102,7 +104,8 @@
             <div class="option-box">
                 <div class="form-check">
                     <input type="radio" name="{{ question.id }}" value="{{ option.option_text }}" class="form-check-input"
-                           {% if question.required %}required{% endif %}>
+                           {% if question.required %}required{% endif %}
+                           {% if form_data|dict_get:question.id == option.option_text %}checked{% endif %}>
                     <label class="form-check-label">{{ option.option_text }}</label>
                 </div>
             </div>
@@ -112,7 +115,8 @@
         {% for option in question.options_list %}
             <div class="option-box">
                 <div class="form-check">
-                    <input type="checkbox" name="{{ question.id }}" value="{{ option.option_text }}" class="form-check-input">
+                    <input type="checkbox" name="{{ question.id }}" value="{{ option.option_text }}" class="form-check-input"
+                           {% if form_data|dict_get:question.id|is_in_csv:option.option_text %}checked{% endif %}>
                     <label class="form-check-label">{{ option.option_text }}</label>
                 </div>
             </div>
@@ -122,18 +126,18 @@
         <select name="{{ question.id }}" class="form-select {% if question.error %}is-invalid{% endif %}" {% if question.required %}required{% endif %}>
             <option value="">Select Option</option>
             {% for option in question.options_list %}
-                <option value="{{ option.option_text }}">{{ option.option_text }}</option>
+                <option value="{{ option.option_text }}" {% if form_data|dict_get:question.id == option.option_text %}selected{% endif %}>{{ option.option_text }}</option>
             {% endfor %}
         </select>
 
     {% elif question.field_type == 'rating' %}
         <select name="{{ question.id }}" class="form-select {% if question.error %}is-invalid{% endif %}" {% if question.required %}required{% endif %}>
             <option value="">Select Rating</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
+            <option value="1" {% if form_data|dict_get:question.id == '1' %}selected{% endif %}>1</option>
+            <option value="2" {% if form_data|dict_get:question.id == '2' %}selected{% endif %}>2</option>
+            <option value="3" {% if form_data|dict_get:question.id == '3' %}selected{% endif %}>3</option>
+            <option value="4" {% if form_data|dict_get:question.id == '4' %}selected{% endif %}>4</option>
+            <option value="5" {% if form_data|dict_get:question.id == '5' %}selected{% endif %}>5</option>
         </select>
 
     {% endif %}

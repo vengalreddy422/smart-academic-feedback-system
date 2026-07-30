@@ -11,3 +11,11 @@ def dict_get(dictionary, key):
     if hasattr(dictionary, 'get'):
         return dictionary.get(str(key), '')
     return ''
+
+@register.filter(name='is_in_csv')
+def is_in_csv(csv_string, item):
+    """Checks if an item is in a comma-separated string."""
+    if not csv_string:
+        return False
+    items = [x.strip() for x in str(csv_string).split(',')]
+    return str(item).strip() in items

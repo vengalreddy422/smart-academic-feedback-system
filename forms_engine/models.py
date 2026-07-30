@@ -48,6 +48,8 @@ class DynamicForm(models.Model):
     deadline_date = models.DateField(null=True, blank=True)
     deadline_time = models.TimeField(null=True, blank=True)
 
+    version = models.IntegerField(default=1)
+
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -92,20 +94,25 @@ class DynamicForm(models.Model):
         # 2. Save parent record metadata properties 
         super().save(*args, **kwargs)
 
-        # 3. Generate QR code mapping payload dynamically
-        qr_data = f"https://feedback-system-s3ty.onrender.com/forms/public-form/{self.uuid}/"
+        # 3. Generate QR code mapping payload dynamically (only for public forms)
+        if self.access_type == 'public':
+            qr_data = f"https://feedback-system-s3ty.onrender.com/forms/public-form/{self.uuid}/"
 
-        print("QR URL =", qr_data)        
-        qr_image = qrcode.make(qr_data)
+            print("QR URL =", qr_data)        
+            qr_image = qrcode.make(qr_data)
 
-        buffer = BytesIO()
-        qr_image.save(buffer, format='PNG')
-        file_name = f'{self.title}_{self.uuid}.png'
+            buffer = BytesIO()
+            qr_image.save(buffer, format='PNG')
+            file_name = f'{self.title}_{self.uuid}.png'
 
-        self.qr_code.save(file_name, File(buffer), save=False)
-        
-        # 4. Finalize file write transaction strictly isolated to the image update column
-        super().save(update_fields=['qr_code'])
+            self.qr_code.save(file_name, File(buffer), save=False)
+            
+            # 4. Finalize file write transaction strictly isolated to the image update column
+            super().save(update_fields=['qr_code'])
+        elif self.qr_code:
+            # If changed to private, clear the QR code
+            self.qr_code.delete(save=False)
+            super().save(update_fields=['qr_code'])
 
 
 class FormQuestion(models.Model):
@@ -123,7 +130,7 @@ class FormQuestion(models.Model):
     is_system_field = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ['order']
+        ordering = ['order', 'id']
 
     def __str__(self):
         return self.question
@@ -133,8 +140,16 @@ class FormQuestion(models.Model):
 
 
 class FormResponse(models.Model):
+    STATUS_CHOICES = (
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted'),
+        ('pending_update', 'Pending Update'),
+        ('locked', 'Locked')
+    )
     form = models.ForeignKey(DynamicForm, on_delete=models.CASCADE)
     student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='submitted')
+    form_version = models.IntegerField(default=1)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -155,7 +170,15 @@ class FormAnswer(models.Model):
 
 
 class PublicFormResponse(models.Model):
+    STATUS_CHOICES = (
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted'),
+        ('pending_update', 'Pending Update'),
+        ('locked', 'Locked')
+    )
     form = models.ForeignKey(DynamicForm, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='submitted')
+    form_version = models.IntegerField(default=1)
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -177,3 +200,50 @@ class QuestionOption(models.Model):
 
     def __str__(self):
         return self.option_text
+
+
+class FormQuestionCondition(models.Model):
+    ACTIONS = (
+        ('show', 'Show'),
+        ('hide', 'Hide'),
+        ('require', 'Require'),
+    )
+    OPERATORS = (
+        ('equals', 'Equals'),
+        ('not_equals', 'Not Equals'),
+        ('contains', 'Contains'),
+        ('greater_than', 'Greater Than'),
+        ('less_than', 'Less Than'),
+    )
+
+    question = models.ForeignKey(FormQuestion, on_delete=models.CASCADE, related_name='conditions')
+    parent_question = models.ForeignKey(FormQuestion, on_delete=models.CASCADE, related_name='child_conditions')
+    operator = models.CharField(max_length=20, choices=OPERATORS, default='equals')
+    trigger_value = models.CharField(max_length=255)
+    action = models.CharField(max_length=20, choices=ACTIONS, default='show')
+    condition_type = models.CharField(max_length=10, default='AND')
+
+    def __str__(self):
+        return f"If {self.parent_question} {self.operator} {self.trigger_value} -> {self.action} {self.question}"
+
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+
+def update_form_responses(form):
+    from forms_engine.models import FormResponse, PublicFormResponse
+    form.version += 1
+    form.save(update_fields=['version'])
+    FormResponse.objects.filter(form=form, form_version__lt=form.version).update(status='pending_update')
+    PublicFormResponse.objects.filter(form=form, form_version__lt=form.version).update(status='pending_update')
+
+@receiver(post_save, sender=FormQuestion)
+@receiver(post_delete, sender=FormQuestion)
+def form_question_changed(sender, instance, **kwargs):
+    if hasattr(instance, 'form') and instance.form:
+        update_form_responses(instance.form)
+
+@receiver(post_save, sender=QuestionOption)
+@receiver(post_delete, sender=QuestionOption)
+def question_option_changed(sender, instance, **kwargs):
+    if hasattr(instance, 'question') and instance.question and getattr(instance.question, 'form', None):
+        update_form_responses(instance.question.form)

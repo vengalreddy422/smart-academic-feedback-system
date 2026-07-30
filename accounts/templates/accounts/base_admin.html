@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -41,292 +42,7 @@
         rel="stylesheet"
     >
 
-    <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
-
-        body{
-
-            font-family:'Outfit',sans-serif;
-
-            background:#f8fafc;
-
-            overflow-x:hidden;
-        }
-
-        /* ==========================================
-           SIDEBAR
-        ========================================== */
-
-        .sidebar{
-
-            width:280px;
-
-            height:100vh;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #0f172a,
-                    #1e293b
-                );
-
-            position:fixed;
-
-            top:0;
-
-            left:0;
-
-            padding:28px 20px;
-
-            overflow-y:auto;
-
-            z-index:1000;
-        }
-
-        .logo{
-
-            font-size:32px;
-
-            font-weight:800;
-
-            color:white;
-
-            margin-bottom:40px;
-        }
-
-        .logo span{
-
-            color:#3b82f6;
-        }
-
-        .menu-title{
-
-            color:#94a3b8;
-
-            font-size:13px;
-
-            font-weight:600;
-
-            margin-bottom:14px;
-
-            text-transform:uppercase;
-
-            letter-spacing:1px;
-        }
-
-        .sidebar-link{
-
-            display:flex;
-
-            align-items:center;
-
-            gap:14px;
-
-            text-decoration:none;
-
-            color:#e2e8f0;
-
-            padding:14px 16px;
-
-            border-radius:16px;
-
-            margin-bottom:10px;
-
-            transition:0.3s;
-
-            font-weight:500;
-        }
-
-        .sidebar-link:hover{
-
-            background:#2563eb;
-
-            color:white;
-
-            transform:translateX(4px);
-        }
-
-        .sidebar-link.active{
-
-            background:#2563eb;
-
-            color:white;
-        }
-
-        .sidebar-link i{
-
-            font-size:18px;
-        }
-
-        /* ==========================================
-           MAIN CONTENT
-        ========================================== */
-
-        .main-content{
-
-            margin-left:280px;
-
-            min-height:100vh;
-        }
-
-        /* ==========================================
-           TOPBAR
-        ========================================== */
-
-        .topbar{
-
-            background:white;
-
-            padding:20px 30px;
-
-            display:flex;
-
-            justify-content:space-between;
-
-            align-items:center;
-
-            box-shadow:
-                0 4px 20px rgba(15,23,42,0.04);
-
-            position:sticky;
-
-            top:0;
-
-            z-index:999;
-        }
-
-        .top-title{
-
-            font-size:28px;
-
-            font-weight:800;
-
-            color:#0f172a;
-        }
-
-        .top-actions{
-
-            display:flex;
-
-            align-items:center;
-
-            gap:14px;
-        }
-
-        .top-btn{
-
-            text-decoration:none;
-
-            padding:12px 18px;
-
-            border-radius:14px;
-
-            font-weight:600;
-
-            transition:0.3s;
-        }
-
-        .password-btn{
-
-            background:#dbeafe;
-
-            color:#1d4ed8;
-        }
-
-        .logout-btn{
-
-            background:#fee2e2;
-
-            color:#dc2626;
-        }
-
-        .top-btn:hover{
-
-            transform:translateY(-2px);
-        }
-
-        /* ==========================================
-           CONTENT
-        ========================================== */
-
-        .content-wrapper{
-
-            padding:30px;
-        }
-
-        /* ==========================================
-           MOBILE
-        ========================================== */
-
-        .mobile-toggle{
-
-            display:none;
-        }
-
-        @media(max-width:992px){
-
-            .sidebar{
-
-                left:-280px;
-
-                transition:0.3s;
-            }
-
-            .sidebar.active{
-
-                left:0;
-            }
-
-            .main-content{
-
-                margin-left:0;
-            }
-
-            .mobile-toggle{
-
-                display:block;
-
-                border:none;
-
-                background:none;
-
-                font-size:28px;
-            }
-
-            .topbar{
-
-                padding:18px;
-            }
-
-            .top-title{
-
-                font-size:22px;
-            }
-
-            .content-wrapper{
-
-                padding:20px;
-            }
-
-            .top-actions{
-
-                gap:10px;
-            }
-
-            .top-btn{
-
-                padding:10px 14px;
-
-                font-size:14px;
-            }
-        }
-
-    </style>
+    <link href="{% static 'accounts/css/base_admin.css' %}" rel="stylesheet">
 
 </head>
 
@@ -335,6 +51,8 @@
 <!-- ==========================================
      SIDEBAR
 ========================================== -->
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <div
     class="sidebar"
@@ -520,11 +238,10 @@
 <script>
 
     function toggleSidebar(){
-
-        document
-            .getElementById('sidebar')
-            .classList
-            .toggle('active');
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
     }
 
 </script>

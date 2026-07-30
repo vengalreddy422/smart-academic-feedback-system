@@ -231,6 +231,7 @@ body {
 
 <script>
 let currentFields = [];
+let currentConditions = [];
 let currentPage = 1;
 let totalPages = 1;
 
@@ -255,6 +256,7 @@ async function loadFields() {
     }
     const data = await res.json();
     currentFields = data.fields;
+    currentConditions = data.conditions || [];
     
     renderFilters();
     
@@ -269,21 +271,12 @@ function renderFilters() {
     
     currentFields.forEach(field => {
         const col = document.createElement('div');
-        col.className = 'col-md-6 col-lg-4';
+        col.className = 'col-md-6 col-lg-4 filter-col';
+        col.id = `filter-col-${field.id}`;
         
         let controlHtml = '';
         
-        if (['text', 'textarea', 'email', 'phone', 'pan', 'apaar_id', 'aadhaar'].includes(field.field_type)) {
-            controlHtml = `
-                <select class="form-select mb-2 filter-op" data-qid="${field.id}">
-                    <option value="contains">Contains</option>
-                    <option value="equals">Equals</option>
-                    <option value="startswith">Starts With</option>
-                    <option value="endswith">Ends With</option>
-                </select>
-                <input type="text" class="form-control filter-val" data-qid="${field.id}" placeholder="Value...">
-            `;
-        } else if (['number', 'rating', 'float'].includes(field.field_type)) {
+        if (['number', 'rating', 'float'].includes(field.field_type)) {
             controlHtml = `
                 <select class="form-select mb-2 filter-op" data-qid="${field.id}" onchange="toggleValue2(this)">
                     <option value="=">=</option>
@@ -341,13 +334,102 @@ function renderFilters() {
         }
         
         col.innerHTML = `
-            <div class="filter-block">
+            <div class="filter-block" id="filter-block-${field.id}">
                 <div class="filter-block-title text-truncate" title="${field.question}">${field.question}</div>
                 ${controlHtml}
             </div>
         `;
         container.appendChild(col);
     });
+    
+    // Bind change events to apply conditions
+    const filterInputs = document.querySelectorAll('.filter-val, .filter-val-check');
+    filterInputs.forEach(input => {
+        input.addEventListener('change', applyFilterConditions);
+        input.addEventListener('input', applyFilterConditions);
+    });
+    
+    // Initial apply
+    applyFilterConditions();
+}
+
+function applyFilterConditions() {
+    if (!currentConditions || currentConditions.length === 0) return;
+    
+    // Group conditions by child question ID
+    const conditionsByQuestion = {};
+    currentConditions.forEach(cond => {
+        if(!conditionsByQuestion[cond.question_id]) {
+            conditionsByQuestion[cond.question_id] = [];
+        }
+        conditionsByQuestion[cond.question_id].push(cond);
+    });
+    
+    for (const qId in conditionsByQuestion) {
+        const conds = conditionsByQuestion[qId];
+        const targetCol = document.getElementById(`filter-col-${qId}`);
+        const targetBlock = document.getElementById(`filter-block-${qId}`);
+        if (!targetCol || !targetBlock) continue;
+        
+        let allMet = true;
+        for (const cond of conds) {
+            let pVal = "";
+            const valElem = document.querySelector(`.filter-val[data-qid="${cond.parent_question_id}"]`);
+            if (valElem) {
+                pVal = valElem.value;
+            } else {
+                const checks = document.querySelectorAll(`.filter-val-check[data-qid="${cond.parent_question_id}"]:checked`);
+                if (checks.length > 0) {
+                    pVal = Array.from(checks).map(c => c.value).join(',');
+                }
+            }
+            
+            let met = false;
+            if (cond.operator === 'equals' && pVal === cond.trigger_value) met = true;
+            else if (cond.operator === 'not_equals' && pVal !== cond.trigger_value) met = true;
+            else if (cond.operator === 'contains' && pVal.includes(cond.trigger_value)) met = true;
+            else if (cond.operator === 'greater_than' && parseFloat(pVal) > parseFloat(cond.trigger_value)) met = true;
+            else if (cond.operator === 'less_than' && parseFloat(pVal) < parseFloat(cond.trigger_value)) met = true;
+            else if (cond.operator === 'multiple_choice' && pVal.split(',').includes(cond.trigger_value)) met = true;
+            
+            if (!met) {
+                allMet = false;
+                break;
+            }
+        }
+        
+        const action = conds[0].action;
+        if (allMet) {
+            if (action === 'show' || action === 'require') {
+                targetCol.classList.remove('d-none');
+            } else if (action === 'hide') {
+                targetCol.classList.add('d-none');
+            }
+        } else {
+            if (action === 'show' || action === 'require') {
+                targetCol.classList.add('d-none');
+            } else if (action === 'hide') {
+                targetCol.classList.remove('d-none');
+            }
+        }
+        
+        // If hidden, clear its value so it doesn't get collected
+        if (targetCol.classList.contains('d-none')) {
+            const valInput = targetBlock.querySelector('.filter-val');
+            if (valInput) {
+                valInput.value = '';
+                // Trigger change to cascade conditions
+                valInput.dispatchEvent(new Event('change'));
+            }
+            const checks = targetBlock.querySelectorAll('.filter-val-check');
+            checks.forEach(c => {
+                if (c.checked) {
+                    c.checked = false;
+                    c.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+    }
 }
 
 function toggleValue2(selectElem) {

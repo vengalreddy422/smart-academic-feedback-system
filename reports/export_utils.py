@@ -15,7 +15,10 @@ def _get_dynamic_row_data(response, questions, is_public):
         ans_map = {ans.question_id: ans.answer for ans in response.formanswer_set.all()}
 
     for q in questions:
-        row_data.append(ans_map.get(q.id, ""))
+        ans = ans_map.get(q.id, "")
+        if not ans or str(ans).strip() == "":
+            ans = "N/A"
+        row_data.append(ans)
         
     return row_data
 

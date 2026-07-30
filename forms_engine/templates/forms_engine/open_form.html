@@ -145,6 +145,23 @@
     }
 
     /* ==================================================
+       LOCKED FIELDS (PENDING UPDATE)
+    ================================================== */
+    .answered-locked {
+        opacity: 0.75;
+    }
+    
+    .answered-locked .form-control,
+    .answered-locked .form-select,
+    .answered-locked .form-check-input {
+        background-color: #e9ecef !important;
+        cursor: not-allowed;
+    }
+    .answered-locked label.form-check-label {
+        cursor: not-allowed;
+    }
+
+    /* ==================================================
        INPUTS
     ================================================== */
 
@@ -394,6 +411,100 @@
 </div>
 
 <script>
+    const formConditions = {{ conditions_json|safe }};
+    
+    function evaluateCondition(cond) {
+        const parentBlock = document.getElementById('question-block-' + cond.parent_question_id);
+        if (!parentBlock) return false;
+        
+        let val = '';
+        // Find inputs in parent block
+        const textInput = parentBlock.querySelector('input[type="text"], input[type="email"], input[type="number"], input[type="tel"], input[type="date"], textarea');
+        const select = parentBlock.querySelector('select');
+        const checkedBoxes = parentBlock.querySelectorAll('input[type="checkbox"]:checked');
+        const checkedRadio = parentBlock.querySelector('input[type="radio"]:checked');
+        
+        if (textInput) val = textInput.value;
+        else if (select) val = select.value;
+        else if (checkedBoxes.length > 0) val = Array.from(checkedBoxes).map(cb => cb.value).join(',');
+        else if (checkedRadio) val = checkedRadio.value;
+        
+        if (cond.operator === 'equals') return val === cond.trigger_value;
+        if (cond.operator === 'not_equals') return val !== cond.trigger_value;
+        if (cond.operator === 'contains') return val.includes(cond.trigger_value);
+        if (cond.operator === 'greater_than') return parseFloat(val) > parseFloat(cond.trigger_value);
+        if (cond.operator === 'less_than') return parseFloat(val) < parseFloat(cond.trigger_value);
+        
+        return false;
+    }
+
+    function applyConditions() {
+        // Group conditions by question
+        const conditionsByQuestion = {};
+        formConditions.forEach(cond => {
+            if (!conditionsByQuestion[cond.question_id]) {
+                conditionsByQuestion[cond.question_id] = [];
+            }
+            conditionsByQuestion[cond.question_id].push(cond);
+        });
+
+        // Apply rules
+        for (const [qId, conds] of Object.entries(conditionsByQuestion)) {
+            const targetBlock = document.getElementById('question-block-' + qId);
+            if (!targetBlock) continue;
+
+            // Simplified: if ANY condition is met, apply action, else revert
+            let isActive = false;
+            let action = conds[0].action; // Assume all conditions for a field have same action for simplicity
+            
+            // Assume AND for multiple conditions
+            isActive = conds.every(evaluateCondition);
+            
+            const inputs = targetBlock.querySelectorAll('.form-control, .form-select, .form-check-input');
+            const originallyRequired = targetBlock.getAttribute('data-is-required') === 'true';
+
+            if (isActive) {
+                if (action === 'show' || action === 'require') {
+                    targetBlock.classList.remove('d-none');
+                    if (action === 'require' || originallyRequired) {
+                        inputs.forEach(i => i.setAttribute('required', 'required'));
+                        // Optionally show star
+                    }
+                } else if (action === 'hide') {
+                    targetBlock.classList.add('d-none');
+                    inputs.forEach(i => i.removeAttribute('required'));
+                    inputs.forEach(i => {
+                        if (i.type === 'checkbox' || i.type === 'radio') i.checked = false;
+                        else i.value = '';
+                    });
+                }
+            } else {
+                if (action === 'show' || action === 'require') {
+                    targetBlock.classList.add('d-none');
+                    inputs.forEach(i => i.removeAttribute('required'));
+                    inputs.forEach(i => {
+                        if (i.type === 'checkbox' || i.type === 'radio') i.checked = false;
+                        else i.value = '';
+                    });
+                } else if (action === 'hide') {
+                    targetBlock.classList.remove('d-none');
+                    if (originallyRequired) {
+                        inputs.forEach(i => i.setAttribute('required', 'required'));
+                    }
+                }
+            }
+        }
+    }
+
+    // Bind change events
+    document.querySelectorAll('.form-control, .form-select, .form-check-input').forEach(input => {
+        input.addEventListener('input', applyConditions);
+        input.addEventListener('change', applyConditions);
+    });
+    
+    // Initial apply
+    applyConditions();
+
     (() => {
         'use strict'
         const forms = document.querySelectorAll('.needs-validation')
@@ -446,10 +557,29 @@
                     firstInvalidInput.focus();
                 }
 
-                form.classList.add('was-validated')
+                form.classList.add('was-validated');
             }, false)
         })
     })()
+
+    // ==========================================
+    // LOCK ANSWERED FIELDS
+    // ==========================================
+    document.querySelectorAll('.answered-locked .form-control, .answered-locked .form-select, .answered-locked .form-check-input').forEach(el => {
+        el.setAttribute('readonly', 'readonly');
+        el.setAttribute('tabindex', '-1');
+        
+        // Prevent mouse and keyboard interactions
+        el.addEventListener('mousedown', e => e.preventDefault());
+        el.addEventListener('click', e => e.preventDefault());
+        el.addEventListener('keydown', e => e.preventDefault());
+    });
+    
+    // Prevent clicking on option labels too
+    document.querySelectorAll('.answered-locked label.form-check-label').forEach(el => {
+        el.addEventListener('click', e => e.preventDefault());
+        el.addEventListener('mousedown', e => e.preventDefault());
+    });
 </script>
 
 </body>

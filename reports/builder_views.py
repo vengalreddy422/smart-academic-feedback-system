@@ -42,10 +42,16 @@ class LoadFieldsAJAXView(View):
             
         questions = FormQuestion.objects.filter(form=form, is_system_field=False).order_by('order')
         
+        # Only allow fields that are typically filterable (Condition based fields)
+        allowed_filter_types = ['select', 'radio', 'checkbox', 'number', 'float', 'date', 'rating']
+        
         fields_data = []
         for q in questions:
+            if q.field_type not in allowed_filter_types:
+                continue
+                
             options = []
-            if q.field_type in ['select', 'radio', 'checkbox']:
+            if q.field_type in ['select', 'radio', 'checkbox', 'rating']:
                 options = list(q.question_options.values_list('option_text', flat=True))
                 
             fields_data.append({
@@ -55,7 +61,22 @@ class LoadFieldsAJAXView(View):
                 'options': options
             })
             
-        return JsonResponse({'fields': fields_data})
+        from forms_engine.models import FormQuestionCondition
+        conditions_qs = FormQuestionCondition.objects.filter(question__form=form)
+        conditions_data = []
+        for cond in conditions_qs:
+            conditions_data.append({
+                'question_id': cond.question_id,
+                'parent_question_id': cond.parent_question_id,
+                'operator': cond.operator,
+                'trigger_value': cond.trigger_value,
+                'action': cond.action
+            })
+            
+        return JsonResponse({
+            'fields': fields_data,
+            'conditions': conditions_data
+        })
 
 
 class PreviewReportAJAXView(View):

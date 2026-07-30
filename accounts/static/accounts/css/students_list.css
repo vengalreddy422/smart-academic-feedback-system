@@ -394,41 +394,30 @@ BUTTONS
 ========================================== */
 
 .actions-cell{
-
-    display:flex;
-
-    gap:10px;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
-.edit-btn{
-
-    background:#facc15;
-
-    color:black;
-
-    text-decoration:none;
-
-    padding:10px 18px;
-
-    border-radius:12px;
-
-    font-weight:700;
+.edit-btn, .delete-btn {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    vertical-align: middle;
 }
 
-.delete-btn{
-
-    background:#ef4444;
-
-    color:white;
-
-    text-decoration:none;
-
-    padding:10px 18px;
-
-    border-radius:12px;
-
-    font-weight:700;
+.edit-btn {
+    background: #facc15;
+    color: black;
+    margin-right: 8px;
 }
+
+.delete-btn {
+    background: #ef4444;
+    color: white;
+}
+
 
 .edit-btn:hover,
 .delete-btn:hover{
