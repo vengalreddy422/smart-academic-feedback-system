@@ -161,6 +161,8 @@ STORAGES = {
     },
 }
 
+WHITENOISE_MANIFEST_STRICT = False
+
 AUTH_USER_MODEL = 'accounts.User'
 
 
