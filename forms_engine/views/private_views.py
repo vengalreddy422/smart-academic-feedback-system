@@ -24,6 +24,7 @@ from forms_engine.models import (
     PublicFormResponse,
 )
 from forms_engine.field_registry import validate_field
+from .public_views import _attach_options_list
 
 @login_required
 def open_form(request, form_id):
